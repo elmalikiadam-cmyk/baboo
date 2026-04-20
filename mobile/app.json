@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Baboo",
+    "slug": "baboo",
+    "version": "0.1.0",
+    "scheme": "baboo",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#f2efe8"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ma.baboo.app"
+    },
+    "android": {
+      "package": "ma.baboo.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#f2efe8"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
