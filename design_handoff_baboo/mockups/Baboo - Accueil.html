@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Baboo — Accueil · 3 directions</title>
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; }
+  body { font-family: 'Barlow Condensed', sans-serif; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="logo.jsx"></script>
+<script type="text/babel" src="feed-editorial.jsx"></script>
+<script type="text/babel" src="feed-list.jsx"></script>
+<script type="text/babel" src="feed-hero.jsx"></script>
+<script type="text/babel" src="bottom-bar.jsx"></script>
+
+<script type="text/babel">
+const TWEAKS = /*EDITMODE-BEGIN*/{
+  "dark": false,
+  "density": "comfortable"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [dark, setDark] = React.useState(TWEAKS.dark);
+  const [editMode, setEditMode] = React.useState(false);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const d = e.data || {};
+      if (d.type === '__activate_edit_mode') setEditMode(true);
+      else if (d.type === '__deactivate_edit_mode') setEditMode(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const setDarkPersist = (v) => {
+    setDark(v);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { dark: v }}, '*');
+  };
+
+  return (
+    <>
+      <DesignCanvas>
+        <DCSection
+          title="Baboo — Accueil · 3 directions"
+          subtitle="Mobile responsive · FR · Noir & blanc cassé · Barlow Condensed SemiBold"
+        >
+          <DCArtboard label="V1 · ÉDITORIAL MAGAZINE" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="V1 Editorial" style={{ position: 'relative', height: '100%' }}>
+                <FeedEditorial dark={dark} />
+                <BabooBottomBar dark={dark} active="home" />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+
+          <DCArtboard label="V2 · LISTE DENSE TYPO" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="V2 List" style={{ position: 'relative', height: '100%' }}>
+                <FeedList dark={dark} />
+                <BabooBottomBar dark={dark} active="search" />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+
+          <DCArtboard label="V3 · HERO CINÉMATOGRAPHIQUE" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="V3 Hero" style={{ position: 'relative', height: '100%' }}>
+                <FeedHero dark={dark} />
+                <BabooBottomBar dark={dark} active="home" />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+        </DCSection>
+
+        <DCPostIt top={180} left={30} rotate={-3} width={200}>
+          <b>Système</b><br/>
+          Type : Barlow Condensed (fallback Bahnschrift)<br/>
+          Palette : noir #0a0a0a · blanc cassé #f2efe8<br/>
+          Logo : discret · formes rondes réservées au logo
+        </DCPostIt>
+
+        <DCPostIt top={180} right={30} rotate={2} width={210}>
+          <b>Placeholders</b><br/>
+          Vraies photos à intégrer côté back — motifs striés + label monospace en attendant.
+        </DCPostIt>
+      </DesignCanvas>
+
+      {editMode && (
+        <div style={{
+          position: 'fixed', bottom: 18, right: 18, zIndex: 100,
+          background: '#0a0a0a', color: '#f2efe8',
+          fontFamily: 'Barlow Condensed, sans-serif',
+          padding: 16, minWidth: 220,
+          boxShadow: '0 4px 24px rgba(0,0,0,0.25)',
+        }}>
+          <div style={{
+            fontWeight: 800, fontSize: 18, letterSpacing: '0.08em',
+            borderBottom: '1px solid rgba(242,239,232,0.3)', paddingBottom: 8, marginBottom: 12,
+          }}>TWEAKS</div>
+          <label style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            fontSize: 13, fontFamily: 'JetBrains Mono, monospace',
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+          }}>
+            DARK MODE
+            <input
+              type="checkbox"
+              checked={dark}
+              onChange={(e) => setDarkPersist(e.target.checked)}
+              style={{ marginLeft: 16 }}
+            />
+          </label>
+          <div style={{
+            marginTop: 14, fontSize: 10, opacity: 0.6,
+            fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em',
+          }}>
+            Plus de variables (densité, accent…) à venir.
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
