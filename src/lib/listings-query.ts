@@ -1,0 +1,79 @@
+import { db } from "@/lib/db";
+import type { Prisma } from "@prisma/client";
+import type { SearchFilters } from "@/lib/search-params";
+
+const PAGE_SIZE = 18;
+
+export async function findListings(f: SearchFilters) {
+  const where: Prisma.ListingWhereInput = {
+    status: "PUBLISHED",
+    transaction: f.transaction,
+    ...(f.citySlug ? { citySlug: f.citySlug } : {}),
+    ...(f.neighborhoodSlug
+      ? { neighborhood: { slug: f.neighborhoodSlug } }
+      : {}),
+    ...(f.propertyTypes.length ? { propertyType: { in: f.propertyTypes } } : {}),
+    ...(f.priceMin || f.priceMax
+      ? {
+          price: {
+            ...(f.priceMin ? { gte: f.priceMin } : {}),
+            ...(f.priceMax ? { lte: f.priceMax } : {}),
+          },
+        }
+      : {}),
+    ...(f.surfaceMin || f.surfaceMax
+      ? {
+          surface: {
+            ...(f.surfaceMin ? { gte: f.surfaceMin } : {}),
+            ...(f.surfaceMax ? { lte: f.surfaceMax } : {}),
+          },
+        }
+      : {}),
+    ...(f.bedroomsMin ? { bedrooms: { gte: f.bedroomsMin } } : {}),
+    ...(f.bathroomsMin ? { bathrooms: { gte: f.bathroomsMin } } : {}),
+    ...(f.featuredOnly ? { featured: true } : {}),
+    ...(f.keyword
+      ? {
+          OR: [
+            { title: { contains: f.keyword, mode: "insensitive" } },
+            { description: { contains: f.keyword, mode: "insensitive" } },
+          ],
+        }
+      : {}),
+    ...Object.fromEntries(f.amenities.map((a) => [a, true])),
+  };
+
+  const orderBy: Prisma.ListingOrderByWithRelationInput =
+    f.sort === "price_asc"
+      ? { price: "asc" }
+      : f.sort === "price_desc"
+        ? { price: "desc" }
+        : f.sort === "surface_desc"
+          ? { surface: "desc" }
+          : { publishedAt: "desc" };
+
+  const [items, total] = await Promise.all([
+    db.listing.findMany({
+      where,
+      orderBy,
+      skip: (f.page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: {
+        city: true,
+        neighborhood: true,
+        agency: { select: { id: true, slug: true, name: true, verified: true, logo: true } },
+      },
+    }),
+    db.listing.count({ where }),
+  ]);
+
+  return {
+    items,
+    total,
+    page: f.page,
+    pageSize: PAGE_SIZE,
+    totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+  };
+}
+
+export type ListingWithRelations = Awaited<ReturnType<typeof findListings>>["items"][number];

@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Surfaces */
+    --background: 48 24% 97%;
+    --foreground: 210 24% 9%;
+    --surface: 0 0% 100%;
+    --border: 45 10% 90%;
+    --muted: 220 9% 46%;
+    --muted-foreground: 220 9% 35%;
+
+    /* Brand */
+    --primary: 158 67% 14%;
+    --primary-foreground: 48 24% 97%;
+    --accent: 42 48% 58%;
+    --accent-foreground: 210 24% 9%;
+
+    /* Status */
+    --success: 155 46% 34%;
+    --danger: 2 72% 41%;
+
+    --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary) / 0.15);
+    color: hsl(var(--primary));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary) / 0.6);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .container-narrow {
+    @apply container max-w-5xl;
+  }
+
+  .hairline {
+    @apply border-t border-border;
+  }
+}
+
+@layer utilities {
+  .mask-fade-b {
+    mask-image: linear-gradient(to bottom, black 70%, transparent);
+  }
+  .shadow-inset-border {
+    box-shadow: inset 0 0 0 1px hsl(var(--border));
+  }
+}

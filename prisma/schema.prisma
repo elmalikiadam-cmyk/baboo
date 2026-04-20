@@ -1,0 +1,325 @@
+// Baboo — database schema
+// Production: PostgreSQL. Local dev can swap to sqlite in DATABASE_URL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Users & roles ----------
+
+enum UserRole {
+  USER
+  AGENCY
+  DEVELOPER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  phone         String?
+  image         String?
+  passwordHash  String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  agency       Agency?
+  developer    Developer?
+  listings     Listing[]      @relation("ListingOwner")
+  favorites    Favorite[]
+  savedSearches SavedSearch[]
+  leads        Lead[]         @relation("LeadFromUser")
+}
+
+model Agency {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug        String   @unique
+  name        String
+  tagline     String?
+  description String?
+  logo        String?
+  cover       String?
+  phone       String?
+  email       String?
+  website     String?
+  verified    Boolean  @default(false)
+  citySlug    String?
+  createdAt   DateTime @default(now())
+
+  listings    Listing[] @relation("ListingAgency")
+
+  @@index([citySlug])
+}
+
+model Developer {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug        String   @unique
+  name        String
+  description String?
+  logo        String?
+  cover       String?
+  website     String?
+  verified    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  projects    Project[]
+}
+
+// ---------- Geo ----------
+
+model City {
+  slug          String         @id
+  name          String
+  region        String
+  lat           Float
+  lng           Float
+  cover         String?
+  tagline       String?
+  listingCount  Int            @default(0)
+  neighborhoods Neighborhood[]
+  listings      Listing[]
+}
+
+model Neighborhood {
+  id          String    @id @default(cuid())
+  slug        String
+  name        String
+  citySlug    String
+  city        City      @relation(fields: [citySlug], references: [slug], onDelete: Cascade)
+  lat         Float?
+  lng         Float?
+  listings    Listing[]
+
+  @@unique([citySlug, slug])
+  @@index([citySlug])
+}
+
+// ---------- Listings ----------
+
+enum Transaction {
+  SALE
+  RENT
+}
+
+enum PropertyType {
+  APARTMENT
+  VILLA
+  RIAD
+  HOUSE
+  OFFICE
+  COMMERCIAL
+  LAND
+  INDUSTRIAL
+  BUILDING
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+enum Condition {
+  NEW
+  GOOD
+  TO_RENOVATE
+  UNDER_CONSTRUCTION
+}
+
+model Listing {
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  title          String
+  description    String         @db.Text
+  transaction    Transaction
+  propertyType   PropertyType
+  status         ListingStatus  @default(PUBLISHED)
+
+  price          Int
+  charges        Int?
+  surface        Int
+  landSurface    Int?
+  bedrooms       Int?
+  bathrooms      Int?
+  floor          Int?
+  totalFloors    Int?
+  condition      Condition?
+  yearBuilt      Int?
+
+  // Amenities (denormalized boolean columns — keeps filters fast)
+  parking          Boolean @default(false)
+  elevator         Boolean @default(false)
+  furnished        Boolean @default(false)
+  terrace          Boolean @default(false)
+  balcony          Boolean @default(false)
+  garden           Boolean @default(false)
+  pool             Boolean @default(false)
+  security         Boolean @default(false)
+  seaView          Boolean @default(false)
+  airConditioning  Boolean @default(false)
+  concierge        Boolean @default(false)
+
+  // Location
+  citySlug         String
+  city             City           @relation(fields: [citySlug], references: [slug])
+  neighborhoodId   String?
+  neighborhood     Neighborhood?  @relation(fields: [neighborhoodId], references: [id])
+  addressLine      String?
+  addressHidden    Boolean        @default(true)
+  lat              Float
+  lng              Float
+
+  // Media
+  coverImage       String
+  images           ListingMedia[]
+
+  // Ownership
+  ownerId          String
+  owner            User           @relation("ListingOwner", fields: [ownerId], references: [id])
+  agencyId         String?
+  agency           Agency?        @relation("ListingAgency", fields: [agencyId], references: [id])
+
+  // Flags
+  featured         Boolean        @default(false)
+  exclusive        Boolean        @default(false)
+
+  // SEO
+  metaTitle        String?
+  metaDescription  String?
+
+  // Timestamps
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  publishedAt      DateTime?
+
+  favorites        Favorite[]
+  leads            Lead[]
+
+  @@index([citySlug, transaction, propertyType])
+  @@index([status, publishedAt])
+  @@index([featured])
+  @@index([price])
+}
+
+model ListingMedia {
+  id         String   @id @default(cuid())
+  listingId  String
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url        String
+  alt        String?
+  position   Int      @default(0)
+
+  @@index([listingId])
+}
+
+// ---------- Engagement ----------
+
+model Favorite {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId  String
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, listingId])
+  @@index([userId])
+}
+
+model SavedSearch {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  query       String   @db.Text
+  frequency   String   @default("daily") // instant | daily | weekly
+  lastRunAt   DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  VISIT_SCHEDULED
+  CLOSED
+  LOST
+}
+
+model Lead {
+  id          String     @id @default(cuid())
+  listingId   String
+  listing     Listing    @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?      @relation("LeadFromUser", fields: [userId], references: [id])
+  name        String
+  email       String
+  phone       String?
+  message     String     @db.Text
+  source      String     @default("form") // form | whatsapp | call | visit
+  status      LeadStatus @default(NEW)
+  createdAt   DateTime   @default(now())
+
+  @@index([listingId, createdAt])
+  @@index([status])
+}
+
+// ---------- Developer projects ----------
+
+enum ProjectStatus {
+  PRE_LAUNCH
+  SELLING
+  NEARLY_SOLD
+  DELIVERED
+}
+
+model Project {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  name         String
+  description  String        @db.Text
+  cover        String
+  developerId  String
+  developer    Developer     @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  citySlug     String
+  addressLine  String?
+  lat          Float?
+  lng          Float?
+  deliveryYear Int?
+  status       ProjectStatus @default(SELLING)
+  createdAt    DateTime      @default(now())
+
+  units        ProjectUnit[]
+
+  @@index([citySlug])
+}
+
+model ProjectUnit {
+  id           String   @id @default(cuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  label        String
+  propertyType PropertyType
+  bedrooms     Int?
+  surface      Int
+  price        Int
+  available    Boolean  @default(true)
+
+  @@index([projectId])
+}
