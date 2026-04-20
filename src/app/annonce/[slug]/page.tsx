@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 import { ListingGallery } from "@/components/listing/listing-gallery";
 import { ListingFacts } from "@/components/listing/listing-facts";
 import { AmenityList } from "@/components/listing/amenity-list";
@@ -17,15 +17,20 @@ import { buildSearchHref } from "@/lib/search-params";
 type Props = { params: Promise<{ slug: string }> };
 
 async function getListing(slug: string) {
-  return db.listing.findUnique({
-    where: { slug },
-    include: {
-      city: true,
-      neighborhood: true,
-      images: { orderBy: { position: "asc" } },
-      agency: true,
-    },
-  });
+  if (!hasDb()) return null;
+  try {
+    return await db.listing.findUnique({
+      where: { slug },
+      include: {
+        city: true,
+        neighborhood: true,
+        images: { orderBy: { position: "asc" } },
+        agency: true,
+      },
+    });
+  } catch {
+    return null;
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -49,22 +54,26 @@ export default async function ListingPage({ params }: Props) {
 
   const isRent = listing.transaction === "RENT";
 
-  const similar = await db.listing.findMany({
-    where: {
-      status: "PUBLISHED",
-      id: { not: listing.id },
-      transaction: listing.transaction,
-      citySlug: listing.citySlug,
-      propertyType: listing.propertyType,
-    },
-    orderBy: { publishedAt: "desc" },
-    take: 4,
-    include: {
-      city: true,
-      neighborhood: true,
-      agency: { select: { id: true, slug: true, name: true, verified: true, logo: true } },
-    },
-  });
+  const similar = hasDb()
+    ? await db.listing
+        .findMany({
+          where: {
+            status: "PUBLISHED",
+            id: { not: listing.id },
+            transaction: listing.transaction,
+            citySlug: listing.citySlug,
+            propertyType: listing.propertyType,
+          },
+          orderBy: { publishedAt: "desc" },
+          take: 4,
+          include: {
+            city: true,
+            neighborhood: true,
+            agency: { select: { id: true, slug: true, name: true, verified: true, logo: true } },
+          },
+        })
+        .catch(() => [])
+    : [];
 
   const amenityFlags = {
     parking: listing.parking,

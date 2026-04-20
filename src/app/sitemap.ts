@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { CITIES } from "@/data/cities";
 import { PROPERTY_TYPES } from "@/data/taxonomy";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 
 const BASE = "https://baboo.ma";
 
@@ -31,6 +31,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     }
   }
+
+  if (!hasDb()) return entries;
 
   try {
     const listings = await db.listing.findMany({

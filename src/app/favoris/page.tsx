@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 import { ListingCard } from "@/components/listing/listing-card";
 import { Button } from "@/components/ui/button";
 import { HeartIcon } from "@/components/ui/icons";
@@ -8,6 +8,7 @@ import { HeartIcon } from "@/components/ui/icons";
 export const metadata: Metadata = { title: "Mes favoris" };
 
 async function getFavorites() {
+  if (!hasDb()) return [];
   try {
     // Demo: take the first 6 featured listings as mock favorites
     const listings = await db.listing.findMany({

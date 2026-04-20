@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 import { ListingCard } from "@/components/listing/listing-card";
 import { Button } from "@/components/ui/button";
 import { HeartIcon, SearchIcon, CheckIcon } from "@/components/ui/icons";
@@ -28,6 +28,7 @@ const MOCK_CONTACT_HISTORY = [
 ];
 
 async function getRecent() {
+  if (!hasDb()) return [];
   try {
     return await db.listing.findMany({
       where: { status: "PUBLISHED" },

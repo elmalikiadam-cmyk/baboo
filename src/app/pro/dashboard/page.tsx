@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import {
   PlusIcon,
@@ -40,6 +40,7 @@ const SOURCE_ICON = {
 };
 
 async function getProData() {
+  if (!hasDb()) return null;
   try {
     const agency = await db.agency.findFirst({
       where: { slug: "atlas-realty" },

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 import { CITIES } from "@/data/cities";
 
 export const metadata: Metadata = {
@@ -19,6 +19,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 async function getProjects() {
+  if (!hasDb()) return [];
   try {
     return await db.project.findMany({
       orderBy: { createdAt: "desc" },

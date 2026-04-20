@@ -5,7 +5,7 @@ import { ForYou } from "@/components/marketing/for-you";
 import { CityStrip } from "@/components/marketing/city-strip";
 import { ListingCard } from "@/components/listing/listing-card";
 import { FeaturedHeroCard } from "@/components/listing/featured-hero-card";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 
 export const revalidate = 600;
 
@@ -16,6 +16,7 @@ const LISTING_INCLUDE = {
 } as const;
 
 async function getHomeData() {
+  if (!hasDb()) return { featured: null, latest: [], total: 0, cityCounts: [] };
   try {
     const [featured, latest, total, cityCounts] = await Promise.all([
       db.listing.findFirst({

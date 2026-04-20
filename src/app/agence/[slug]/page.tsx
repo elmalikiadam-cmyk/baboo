@@ -2,13 +2,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 import { CITIES } from "@/data/cities";
 import { ListingCard } from "@/components/listing/listing-card";
 import { Button } from "@/components/ui/button";
 import { PhoneIcon, WhatsAppIcon, CheckIcon, MapPinIcon } from "@/components/ui/icons";
 
 async function getAgency(slug: string) {
+  if (!hasDb()) return null;
   try {
     return await db.agency.findUnique({
       where: { slug },

@@ -2,13 +2,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 import { CITIES, findCity } from "@/data/cities";
 import { ListingCard } from "@/components/listing/listing-card";
 import { buildSearchHref } from "@/lib/search-params";
 import { PROPERTY_TYPES, PROPERTY_TYPE_LABEL_PLURAL } from "@/data/taxonomy";
 
+// Prerender uniquement si DATABASE_URL est défini — sinon Next-build rendrait
+// 12 pages vides pendant qu'il essaie d'appeler Prisma sans DB.
 export async function generateStaticParams() {
+  if (!hasDb()) return [];
   return CITIES.map((c) => ({ slug: c.slug }));
 }
 
@@ -23,6 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 async function getCityData(citySlug: string) {
+  if (!hasDb()) return { total: 0, saleCount: 0, rentCount: 0, latest: [], typeCounts: [] };
   try {
     const [total, saleCount, rentCount, latest, typeCounts] = await Promise.all([
       db.listing.count({ where: { citySlug, status: "PUBLISHED" } }),

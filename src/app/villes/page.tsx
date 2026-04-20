@@ -2,11 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { CITIES } from "@/data/cities";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Toutes les villes" };
 
 async function getCounts() {
+  if (!hasDb()) return [];
   try {
     return await db.listing.groupBy({
       by: ["citySlug"],

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 import { CITIES } from "@/data/cities";
 import { Button } from "@/components/ui/button";
 import { PROPERTY_TYPE_LABEL } from "@/data/taxonomy";
@@ -18,6 +18,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 async function getProject(slug: string) {
+  if (!hasDb()) return null;
   try {
     return await db.project.findUnique({
       where: { slug },

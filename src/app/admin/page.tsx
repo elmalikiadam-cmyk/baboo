@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, CloseIcon } from "@/components/ui/icons";
 
@@ -19,6 +19,7 @@ const MOCK_REPORTS = [
 ];
 
 async function getAdminStats() {
+  if (!hasDb()) return { total: 0, published: 0, pending: 12, agencies: 0, leads: 324 };
   try {
     const [total, published, pending, agencies, leads] = await Promise.all([
       db.listing.count(),
@@ -34,6 +35,7 @@ async function getAdminStats() {
 }
 
 async function getPending() {
+  if (!hasDb()) return [];
   try {
     return await db.listing.findMany({
       where: { status: { in: ["PENDING", "PUBLISHED"] } },

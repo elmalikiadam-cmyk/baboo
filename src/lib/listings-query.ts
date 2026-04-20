@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 import type { SearchFilters } from "@/lib/search-params";
 
@@ -52,6 +52,10 @@ export async function findListings(f: SearchFilters) {
           ? { surface: "desc" }
           : { publishedAt: "desc" };
 
+  if (!hasDb()) {
+    return { items: [], total: 0, page: f.page, pageSize: PAGE_SIZE, totalPages: 1 };
+  }
+
   try {
     const [items, total] = await Promise.all([
       db.listing.findMany({
@@ -75,10 +79,7 @@ export async function findListings(f: SearchFilters) {
       pageSize: PAGE_SIZE,
       totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
     };
-  } catch (err) {
-    // DB not reachable (missing env var, build-time, cold start) — render an empty state
-    // instead of a crash. Real error is logged for observability.
-    console.warn("[listings-query] DB unavailable:", (err as Error).message);
+  } catch {
     return { items: [], total: 0, page: f.page, pageSize: PAGE_SIZE, totalPages: 1 };
   }
 }

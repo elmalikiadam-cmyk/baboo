@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { db, hasDb } from "@/lib/db";
 import { CITIES } from "@/data/cities";
 import { CheckIcon } from "@/components/ui/icons";
 
@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 async function getAgencies() {
+  if (!hasDb()) return [];
   try {
     return await db.agency.findMany({
       orderBy: [{ verified: "desc" }, { name: "asc" }],
