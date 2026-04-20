@@ -1,0 +1,67 @@
+name: Seed database
+
+# À déclencher manuellement depuis l'onglet Actions de GitHub.
+# Crée les tables dans Supabase (db:push) puis remplit les données dummy (db:seed).
+# Requiert les secrets DATABASE_URL et DIRECT_URL (Settings → Secrets and variables → Actions).
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Tape SEED pour confirmer (supprime les annonces existantes et recharge le jeu de démo)'
+        required: true
+        default: 'no'
+
+permissions:
+  contents: read
+
+jobs:
+  seed:
+    if: github.event.inputs.confirm == 'SEED'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Verify env vars are set
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "❌ DATABASE_URL manquant dans les secrets du repo."
+            exit 1
+          fi
+          if [ -z "$DIRECT_URL" ]; then
+            echo "❌ DIRECT_URL manquant dans les secrets du repo."
+            exit 1
+          fi
+          echo "✓ Secrets détectés"
+
+      - name: Push schema to Supabase
+        run: pnpm db:push --skip-generate --accept-data-loss
+
+      - name: Seed demo data
+        run: pnpm db:seed
+
+      - name: Summary
+        run: |
+          echo "## ✅ Base de données seedée" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Tu peux maintenant rafraîchir ton site Vercel." >> $GITHUB_STEP_SUMMARY
