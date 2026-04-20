@@ -1,5 +1,5 @@
 # Exclude Expo mobile app from the web (Next.js) deployment.
-mobile/
+baboo_app/
 
 # Exclude design handoff assets from Vercel upload.
 design_handoff_baboo/

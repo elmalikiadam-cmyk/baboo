@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import {
   View,
   Text,
@@ -13,15 +12,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { colors, fonts, space } from "@/theme/theme";
 import { text } from "@/theme/styles";
-import { findListing } from "@/data/listings";
+import { useListing } from "@/hooks/useListings";
+import { coordsFor } from "@/data/listings";
 import { Chip } from "@/components/Chip";
+import { ListingMap } from "@/components/ListingMap";
 import {
   ArrowRightIcon,
   CheckIcon,
   CloseIcon,
   HeartIcon,
 } from "@/icons";
-import { Pill } from "@/components/Pill";
+import { Button } from "@/components/Button";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
@@ -29,13 +30,13 @@ export default function ListingDetail() {
   const router = useRouter();
   const params = useLocalSearchParams<{ ref: string }>();
   const ref = Array.isArray(params.ref) ? params.ref[0] : params.ref;
-  const listing = useMemo(() => (ref ? findListing(ref) : undefined), [ref]);
+  const { data: listing } = useListing(ref);
 
   if (!listing) {
     return (
       <SafeAreaView style={[styles.root, { padding: space.xl, gap: space.lg }]}>
         <Text style={text.h2}>Annonce introuvable.</Text>
-        <Pill label="← Retour" variant="outline" size="md" onPress={() => router.back()} />
+        <Button label="← Retour" variant="outline" size="md" onPress={() => router.back()} />
       </SafeAreaView>
     );
   }
@@ -156,7 +157,7 @@ export default function ListingDetail() {
             </View>
           </View>
 
-          {/* Location meta */}
+          {/* Location */}
           <View style={styles.section}>
             <Text style={text.eyebrow}>LOCALISATION</Text>
             <Text style={[styles.locationLine, { marginTop: space.md }]}>
@@ -165,6 +166,13 @@ export default function ListingDetail() {
             <Text style={styles.locationSub}>
               ○ Adresse exacte communiquée au moment de la visite.
             </Text>
+            <View style={{ height: space.md }} />
+            <ListingMap
+              lat={listing.lat ?? coordsFor(listing.city).lat}
+              lng={listing.lng ?? coordsFor(listing.city).lng}
+              label={`${listing.neighborhood} · ${listing.city}`}
+              height={240}
+            />
           </View>
 
           {/* Agency card / Particulier */}

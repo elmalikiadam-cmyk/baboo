@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { colors, fonts, space } from "@/theme/theme";
-import { BabooLogo } from "@/icons";
-import { Pill } from "@/components/Pill";
+import { BabooLogo } from "@/components/BabooLogo";
+import { Button } from "@/components/Button";
 import { text } from "@/theme/styles";
 import { markOnboardingCompleted } from "@/lib/onboarding";
 
@@ -92,7 +92,7 @@ export function OnboardingFrame({
         <Text style={[styles.stepCounter, { color: fgMuted }]}>
           {String(step).padStart(2, "0")} / {String(total).padStart(2, "0")}
         </Text>
-        <Pill
+        <Button
           label={primaryLabel}
           variant={darkBackground ? "outline" : "primary"}
           size="lg"

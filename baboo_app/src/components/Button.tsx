@@ -12,7 +12,7 @@ interface Props extends Omit<PressableProps, "style"> {
   style?: StyleProp<ViewStyle>;
 }
 
-export function Pill({ label, variant = "primary", size = "md", style, ...rest }: Props) {
+export function Button({ label, variant = "primary", size = "md", style, ...rest }: Props) {
   const base = styles.base;
   const sz = sizes[size];
   const v = variants[variant];

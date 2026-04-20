@@ -5,25 +5,27 @@ import {
   StyleSheet,
   ScrollView,
   Pressable,
-  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { colors, fonts, space } from "@/theme/theme";
-import { BabooLogo, BellIcon, SearchIcon } from "@/icons";
-import { Chip } from "@/components/Chip";
+import { BellIcon, SearchIcon } from "@/icons";
+import { BabooLogo } from "@/components/BabooLogo";
+import { ListingRow } from "@/components/ListingRow";
 import { FilterSheet, DEFAULT_FILTERS, type Filters } from "@/components/FilterSheet";
-import { LISTINGS, TOTAL_LISTINGS, type Listing } from "@/data/listings";
+import { TOTAL_LISTINGS, type Listing } from "@/data/listings";
+import { useListings } from "@/hooks/useListings";
 
 export default function FeedV2() {
   const router = useRouter();
   const [tab, setTab] = useState<Filters["transaction"]>("TOUT");
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const { data: listings } = useListings();
 
   const filtered = useMemo(
-    () => applyFilters(LISTINGS, { ...filters, transaction: tab }),
-    [tab, filters],
+    () => applyFilters(listings, { ...filters, transaction: tab }),
+    [listings, tab, filters],
   );
 
   const activeFilterCount =
@@ -108,7 +110,7 @@ export default function FeedV2() {
             <EmptyState onReset={() => { setFilters(DEFAULT_FILTERS); setTab("TOUT"); }} />
           ) : (
             filtered.map((l, i) => (
-              <ListRow
+              <ListingRow
                 key={l.ref}
                 item={l}
                 index={i + 1}
@@ -124,7 +126,7 @@ export default function FeedV2() {
       <FilterSheet
         visible={sheetOpen}
         initial={filters}
-        resultCount={applyFilters(LISTINGS, filters).length}
+        resultCount={applyFilters(listings, filters).length}
         onClose={() => setSheetOpen(false)}
         onApply={(next) => {
           setFilters(next);
@@ -148,63 +150,6 @@ function applyFilters(list: Listing[], f: Filters): Listing[] {
     }
     return true;
   });
-}
-
-function ListRow({
-  item,
-  index,
-  onPress,
-}: {
-  item: Listing;
-  index: number;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.row,
-        item.premium && styles.rowPremium,
-        pressed && { backgroundColor: "rgba(10,10,10,0.04)" },
-      ]}
-    >
-      <View style={styles.rowTop}>
-        <Text style={styles.rowRef}>
-          {String(index).padStart(2, "0")} · {item.ref}
-        </Text>
-        <View style={styles.rowBadges}>
-          {item.premium && <Chip label="PREMIUM" variant="dark" />}
-          {item.verified && <Chip label="✓ VÉRIFIÉ" variant="outline" />}
-          <Chip
-            label={item.source}
-            variant={item.source === "PRO" ? "dark" : "light"}
-          />
-        </View>
-      </View>
-
-      <View style={styles.rowMain}>
-        <View style={styles.rowLeft}>
-          <Text style={styles.rowType}>{item.type}</Text>
-          <Text style={styles.rowPrice}>{item.price}</Text>
-          <Text style={styles.rowUnit}>{item.unit}</Text>
-          <Text style={styles.rowTitle}>
-            {item.title}
-            <Text style={styles.rowDash}>  —  </Text>
-            {item.location}
-          </Text>
-        </View>
-        <Image source={{ uri: item.cover }} style={styles.rowPhoto} />
-      </View>
-
-      <View style={styles.rowMeta}>
-        <Chip label={item.rooms} />
-        <Chip label={item.area} />
-        {item.extras.map((e) => (
-          <Chip key={e} label={e} />
-        ))}
-      </View>
-    </Pressable>
-  );
 }
 
 function EmptyState({ onReset }: { onReset: () => void }) {
@@ -332,72 +277,6 @@ const styles = StyleSheet.create({
   },
 
   list: { borderTopWidth: 1, borderColor: colors.line },
-  row: {
-    paddingHorizontal: space.xl,
-    paddingVertical: space.lg,
-    borderBottomWidth: 1,
-    borderColor: colors.line,
-  },
-  rowPremium: { backgroundColor: "rgba(10,10,10,0.03)" },
-
-  rowTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 6,
-  },
-  rowRef: {
-    fontFamily: fonts.monoMedium,
-    fontSize: 10,
-    letterSpacing: 0.8,
-    color: colors.muted,
-  },
-  rowBadges: { flexDirection: "row", gap: 6 },
-
-  rowMain: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
-  rowLeft: { flex: 1 },
-  rowType: {
-    fontFamily: fonts.monoMedium,
-    fontSize: 10,
-    letterSpacing: 1.3,
-    color: colors.muted,
-    textTransform: "uppercase",
-    marginBottom: 2,
-  },
-  rowPrice: {
-    fontFamily: fonts.displayHeavy,
-    fontSize: 42,
-    lineHeight: 42,
-    letterSpacing: -1.8,
-    color: colors.foreground,
-  },
-  rowUnit: {
-    fontFamily: fonts.monoMedium,
-    fontSize: 10,
-    letterSpacing: 0.9,
-    color: colors.muted,
-    marginTop: 4,
-  },
-  rowTitle: {
-    fontFamily: fonts.displayBold,
-    fontSize: 18,
-    letterSpacing: 0.2,
-    color: colors.foreground,
-    marginTop: 12,
-  },
-  rowDash: { fontFamily: fonts.display, color: colors.muted },
-  rowPhoto: {
-    width: 96,
-    height: 96,
-    backgroundColor: colors.paper2,
-  },
-
-  rowMeta: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    marginTop: 12,
-  },
 
   empty: {
     padding: space["2xl"],

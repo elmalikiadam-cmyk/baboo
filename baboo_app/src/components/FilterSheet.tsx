@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, fonts, space } from "@/theme/theme";
 import { CloseIcon } from "@/icons";
-import { Pill } from "@/components/Pill";
+import { Button } from "@/components/Button";
 import { text } from "@/theme/styles";
 
 export interface Filters {
@@ -219,7 +219,7 @@ export function FilterSheet({ visible, initial, resultCount, onClose, onApply }:
               <Pressable onPress={reset} style={styles.resetButton}>
                 <Text style={styles.resetText}>RÉINITIALISER</Text>
               </Pressable>
-              <Pill
+              <Button
                 label={`Voir ${resultCount} résultat${resultCount > 1 ? "s" : ""}`}
                 size="lg"
                 onPress={() => onApply(draft)}

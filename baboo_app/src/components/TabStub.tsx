@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, space, fonts } from "@/theme/theme";
-import { BabooLogo } from "@/icons";
+import { BabooLogo } from "@/components/BabooLogo";
 import { text } from "@/theme/styles";
 
 interface Props {
