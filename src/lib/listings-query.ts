@@ -52,28 +52,35 @@ export async function findListings(f: SearchFilters) {
           ? { surface: "desc" }
           : { publishedAt: "desc" };
 
-  const [items, total] = await Promise.all([
-    db.listing.findMany({
-      where,
-      orderBy,
-      skip: (f.page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      include: {
-        city: true,
-        neighborhood: true,
-        agency: { select: { id: true, slug: true, name: true, verified: true, logo: true } },
-      },
-    }),
-    db.listing.count({ where }),
-  ]);
+  try {
+    const [items, total] = await Promise.all([
+      db.listing.findMany({
+        where,
+        orderBy,
+        skip: (f.page - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
+        include: {
+          city: true,
+          neighborhood: true,
+          agency: { select: { id: true, slug: true, name: true, verified: true, logo: true } },
+        },
+      }),
+      db.listing.count({ where }),
+    ]);
 
-  return {
-    items,
-    total,
-    page: f.page,
-    pageSize: PAGE_SIZE,
-    totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
-  };
+    return {
+      items,
+      total,
+      page: f.page,
+      pageSize: PAGE_SIZE,
+      totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+    };
+  } catch (err) {
+    // DB not reachable (missing env var, build-time, cold start) — render an empty state
+    // instead of a crash. Real error is logged for observability.
+    console.warn("[listings-query] DB unavailable:", (err as Error).message);
+    return { items: [], total: 0, page: f.page, pageSize: PAGE_SIZE, totalPages: 1 };
+  }
 }
 
 export type ListingWithRelations = Awaited<ReturnType<typeof findListings>>["items"][number];
