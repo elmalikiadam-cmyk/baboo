@@ -3,7 +3,9 @@ import { CITIES } from "../src/data/cities";
 
 const prisma = new PrismaClient();
 
-// A small bank of realistic listing photos from Unsplash (real-estate interior/exterior).
+// Diverse bank of real-estate photos from Unsplash (interiors, exteriors,
+// terraces, kitchens, bedrooms). Each category has 6-10 options so the seed
+// doesn't feel repetitive.
 const PHOTO_BANK = {
   apartment: [
     "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1600&q=75",
@@ -11,32 +13,49 @@ const PHOTO_BANK = {
     "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1600&q=75",
     "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1600&q=75",
     "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1567767292278-a4f21aa2d36e?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=1600&q=75",
   ],
   villa: [
     "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1600&q=75",
     "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=75",
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=75",
     "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1600&q=75",
   ],
   riad: [
     "https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&w=1600&q=75",
     "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1600&q=75",
     "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1519974719765-e6559eac2575?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=75",
   ],
   office: [
     "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=75",
     "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1604328698692-f76ea9498e76?auto=format&fit=crop&w=1600&q=75",
   ],
   commercial: [
     "https://images.unsplash.com/photo-1555529771-7888783a18d3?auto=format&fit=crop&w=1600&q=75",
     "https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=75",
   ],
   land: [
     "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1600&q=75",
   ],
   house: [
     "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1600&q=75",
     "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1600&q=75",
+    "https://images.unsplash.com/photo-1549517045-bc93de075e53?auto=format&fit=crop&w=1600&q=75",
   ],
 };
 
@@ -77,7 +96,7 @@ function photos(type: GenParams["type"]): string[] {
 }
 
 function listingTitle(p: GenParams): string {
-  const typeLabel = {
+  const noun = {
     APARTMENT: "Appartement",
     VILLA: "Villa",
     RIAD: "Riad",
@@ -86,9 +105,17 @@ function listingTitle(p: GenParams): string {
     COMMERCIAL: "Local commercial",
     LAND: "Terrain",
   }[p.type];
-  const verb = p.transaction === "SALE" ? "à vendre" : "à louer";
-  const descriptors = ["élégant", "lumineux", "rénové", "moderne", "de standing", "avec terrasse", "avec jardin", "vue dégagée"];
-  return `${typeLabel} ${verb} — ${pick(descriptors, p.index)}, ${p.neighborhoodName}`;
+  const descriptorsByType: Record<GenParams["type"], string[]> = {
+    APARTMENT: ["lumineux", "rénové", "moderne", "avec terrasse", "traversant", "neuf", "meublé", "au calme"],
+    VILLA: ["avec piscine", "avec jardin", "contemporaine", "d'architecte", "de plain-pied", "vue mer"],
+    RIAD: ["au cœur de la médina", "avec patio", "rénové", "de charme", "avec piscine"],
+    HOUSE: ["de famille", "avec jardin", "rénovée", "traditionnelle", "de plain-pied"],
+    OFFICE: ["open space", "équipé", "sur plateau", "en rez-de-chaussée", "avec parking"],
+    COMMERCIAL: ["bien placé", "avec vitrine", "en centre-ville", "avec réserve"],
+    LAND: ["constructible", "viabilisé", "avec vue", "en zone résidentielle"],
+  };
+  const descriptors = descriptorsByType[p.type];
+  return `${noun} ${pick(descriptors, p.index)}, ${p.neighborhoodName}`;
 }
 
 function listingPrice(p: GenParams): number {

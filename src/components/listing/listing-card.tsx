@@ -64,16 +64,15 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
         </div>
 
         <h3 className="display-lg mt-1 line-clamp-1 text-lg tracking-[0.01em]">
-          {listing.title.split(" — ")[0]}
-          <span className="mx-1.5 text-muted-foreground">—</span>
-          <span className="font-normal">
-            {listing.neighborhood?.name ?? listing.city.name}
-          </span>
+          {listing.title}
         </h3>
 
         <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
           <MapPinIcon className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate">{listing.city.name}</span>
+          <span className="truncate">
+            {listing.neighborhood?.name ? `${listing.neighborhood.name}, ` : ""}
+            {listing.city.name}
+          </span>
         </p>
 
         <div className="mt-3 flex flex-wrap gap-1.5 border-t border-foreground/10 pt-3">

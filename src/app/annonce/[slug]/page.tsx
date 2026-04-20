@@ -248,24 +248,27 @@ export default async function ListingPage({ params }: Props) {
         </section>
       )}
 
-      {/* Mobile sticky conversion bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 shadow-lg backdrop-blur lg:hidden">
+      {/* Mobile sticky conversion bar — sits above the bottom nav (which is 56px tall) */}
+      <div className="fixed inset-x-0 bottom-[64px] z-40 border-t border-foreground/15 bg-background/95 p-3 backdrop-blur lg:hidden">
         <div className="container flex items-center gap-2">
-          <div className="flex-1">
-            <p className="font-display text-lg font-semibold leading-none">
+          <div className="flex-1 min-w-0">
+            <p className="display-lg text-lg leading-none truncate">
               {isRent ? formatPricePerMonth(listing.price) : formatPrice(listing.price)}
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">{listing.city.name}</p>
+            <p className="mono mt-1 text-[10px] uppercase tracking-[0.12em] text-muted-foreground truncate">
+              {listing.neighborhood?.name ? `${listing.neighborhood.name} · ` : ""}
+              {listing.city.name}
+            </p>
           </div>
           <a
             href={listing.agency?.phone ? `tel:${listing.agency.phone.replace(/\s+/g, "")}` : "#"}
-            className="inline-flex h-11 items-center justify-center rounded-full border border-border px-4 text-sm font-medium"
+            className="inline-flex h-11 items-center justify-center rounded-full border border-foreground/80 px-4 text-sm font-medium"
           >
             Appeler
           </a>
           <a
             href="#contact-form"
-            className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground"
+            className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background"
           >
             Contacter
           </a>

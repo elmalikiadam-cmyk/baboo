@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { UserIcon, BuildingIcon, ChevronRightIcon } from "@/components/ui/icons";
+import { ChevronRightIcon } from "@/components/ui/icons";
+import { IndividualIllus, BusinessIllus } from "@/components/marketing/illustrations";
 
 const BLOCKS = [
   {
@@ -10,7 +11,7 @@ const BLOCKS = [
     body: "Publiez votre annonce en quelques minutes. Photos, description, prix. Vous gardez la main sur vos échanges. Gratuit pour commencer.",
     cta: "Publier gratuitement",
     href: "/pro/publier?as=individual",
-    Icon: UserIcon,
+    Illus: IndividualIllus,
   },
   {
     n: "02",
@@ -19,7 +20,7 @@ const BLOCKS = [
     body: "Tableau de bord, leads qualifiés, mise en avant sur les pages de recherche. Baboo Pro est pensé pour les agences et promoteurs qui veulent aller vite.",
     cta: "Découvrir Baboo Pro",
     href: "/pro",
-    Icon: BuildingIcon,
+    Illus: BusinessIllus,
   },
 ];
 
@@ -35,7 +36,7 @@ export function ForYou() {
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
-        {BLOCKS.map(({ n, badge, title, body, cta, href, Icon }) => (
+        {BLOCKS.map(({ n, badge, title, body, cta, href, Illus }) => (
           <Card key={badge} variant="dark" className="relative overflow-hidden p-7 md:p-10">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -44,12 +45,10 @@ export function ForYou() {
                   {badge}
                 </span>
               </div>
-              <span className="grid h-14 w-14 place-items-center rounded-2xl border border-ink-foreground/25">
-                <Icon className="h-6 w-6 stroke-[1.5] text-ink-foreground" />
-              </span>
+              <Illus className="h-20 w-32 text-ink-foreground opacity-90" />
             </div>
 
-            <div className="mt-16 md:mt-24">
+            <div className="mt-14 md:mt-20">
               <h3 className="display-xl text-3xl text-ink-foreground md:text-[2.5rem]">{title}</h3>
               <p className="mt-4 max-w-md text-sm leading-relaxed text-ink-foreground/75 md:text-[0.95rem]">
                 {body}

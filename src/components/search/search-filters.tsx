@@ -68,9 +68,11 @@ export function SearchFiltersPanel({ initial }: Props) {
 
   return (
     <aside
-      className="sticky top-20 max-h-[calc(100vh-6rem)] w-full overflow-y-auto rounded-xl border border-border bg-surface p-5"
+      className="sticky top-20 max-h-[calc(100vh-6rem)] w-full overflow-y-auto rounded-3xl border border-foreground/15 bg-surface p-5"
       aria-busy={isPending}
     >
+      <p className="eyebrow mb-3">Affiner</p>
+
       <div className="mb-5 inline-flex w-full rounded-full bg-foreground/[0.06] p-1 text-sm" role="tablist">
         {(["SALE", "RENT"] as const).map((t) => (
           <button
@@ -79,7 +81,7 @@ export function SearchFiltersPanel({ initial }: Props) {
             aria-selected={draft.transaction === t}
             onClick={() => apply({ transaction: t })}
             className={`flex-1 rounded-full px-3 py-1.5 font-medium transition-colors ${
-              draft.transaction === t ? "bg-surface text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              draft.transaction === t ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {t === "SALE" ? "Acheter" : "Louer"}
