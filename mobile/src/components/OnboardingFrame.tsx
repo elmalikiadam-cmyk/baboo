@@ -1,11 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { colors, fonts, space } from "@/theme/theme";
-import { BabooLogo, ArrowRightIcon } from "@/icons";
+import { BabooLogo } from "@/icons";
 import { Pill } from "@/components/Pill";
 import { text } from "@/theme/styles";
+import { markOnboardingCompleted } from "@/lib/onboarding";
 
 interface Props {
   step: number;           // 1-based
@@ -13,7 +14,10 @@ interface Props {
   eyebrow: string;
   children: React.ReactNode;
   primaryLabel: string;
-  primaryHref: string;    // e.g. "/onboarding/step-2"
+  /** Si défini, navigation standard. Si omis + isLast, termine l'onboarding. */
+  primaryHref?: string;
+  /** Marque l'onboarding comme vu et route vers /(tabs) */
+  isLast?: boolean;
   showSkip?: boolean;
   darkBackground?: boolean;
 }
@@ -25,6 +29,7 @@ export function OnboardingFrame({
   children,
   primaryLabel,
   primaryHref,
+  isLast = false,
   showSkip = true,
   darkBackground = false,
 }: Props) {
@@ -35,13 +40,28 @@ export function OnboardingFrame({
   const barOn = darkBackground ? colors.paper : colors.foreground;
   const barOff = darkBackground ? "rgba(242,239,232,0.2)" : "rgba(10,10,10,0.15)";
 
+  async function completeAndGoHome() {
+    await markOnboardingCompleted();
+    router.replace("/(tabs)");
+  }
+
+  async function skip() {
+    await markOnboardingCompleted();
+    router.replace("/(tabs)");
+  }
+
+  function onPrimary() {
+    if (isLast) completeAndGoHome();
+    else if (primaryHref) router.push(primaryHref as never);
+  }
+
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
       {/* Top row */}
       <View style={styles.topRow}>
         <BabooLogo height={22} color={fg} />
         {showSkip && (
-          <Pressable onPress={() => router.replace("/(tabs)")}>
+          <Pressable onPress={skip}>
             <Text style={[styles.skip, { color: fgMuted }]}>PASSER</Text>
           </Pressable>
         )}
@@ -72,18 +92,17 @@ export function OnboardingFrame({
         <Text style={[styles.stepCounter, { color: fgMuted }]}>
           {String(step).padStart(2, "0")} / {String(total).padStart(2, "0")}
         </Text>
-        <Link href={primaryHref as never} asChild>
-          <Pill
-            label={primaryLabel}
-            variant={darkBackground ? "outline" : "primary"}
-            size="lg"
-            style={
-              darkBackground
-                ? { borderColor: colors.paper, backgroundColor: "transparent" }
-                : undefined
-            }
-          />
-        </Link>
+        <Pill
+          label={primaryLabel}
+          variant={darkBackground ? "outline" : "primary"}
+          size="lg"
+          onPress={onPrimary}
+          style={
+            darkBackground
+              ? { borderColor: colors.paper, backgroundColor: "transparent" }
+              : undefined
+          }
+        />
       </View>
     </SafeAreaView>
   );

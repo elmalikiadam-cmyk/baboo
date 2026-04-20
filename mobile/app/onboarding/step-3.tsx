@@ -17,7 +17,7 @@ export default function Step3() {
       total={3}
       eyebrow="ALLONS-Y"
       primaryLabel="Ouvrir Baboo →"
-      primaryHref="/(tabs)"
+      isLast
       showSkip={false}
       darkBackground
     >

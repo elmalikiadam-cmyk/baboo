@@ -64,6 +64,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="annonce/[ref]" options={{ animation: "slide_from_right" }} />
       </Stack>
     </SafeAreaProvider>
   );

@@ -1,24 +1,36 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   Pressable,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { colors, fonts, space } from "@/theme/theme";
 import { BabooLogo, BellIcon, SearchIcon } from "@/icons";
 import { Chip } from "@/components/Chip";
-import { PhotoPlaceholder } from "@/components/PhotoPlaceholder";
+import { FilterSheet, DEFAULT_FILTERS, type Filters } from "@/components/FilterSheet";
 import { LISTINGS, TOTAL_LISTINGS, type Listing } from "@/data/listings";
 
-type Tab = "VENTE" | "LOCATION" | "TOUT";
-
 export default function FeedV2() {
-  const [tab, setTab] = useState<Tab>("TOUT");
-  const filtered =
-    tab === "TOUT" ? LISTINGS : LISTINGS.filter((l) => l.type === tab);
+  const router = useRouter();
+  const [tab, setTab] = useState<Filters["transaction"]>("TOUT");
+  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  const filtered = useMemo(
+    () => applyFilters(LISTINGS, { ...filters, transaction: tab }),
+    [tab, filters],
+  );
+
+  const activeFilterCount =
+    (filters.city ? 1 : 0) +
+    (filters.priceMax ? 1 : 0) +
+    (filters.roomsMin ? 1 : 0) +
+    filters.amenities.length;
 
   return (
     <SafeAreaView style={styles.root} edges={["top"]}>
@@ -41,14 +53,22 @@ export default function FeedV2() {
             RECHERCHE · {TOTAL_LISTINGS.toLocaleString("fr-FR")} ANNONCES
           </Text>
 
-          <View style={styles.searchRow}>
+          <Pressable
+            style={styles.searchRow}
+            onPress={() => setSheetOpen(true)}
+            hitSlop={6}
+          >
             <SearchIcon size={22} color={colors.foreground} />
             <Text style={styles.searchText}>
-              Casablanca
+              {filters.city ?? "Toutes les villes"}
               <Text style={styles.caret}>_</Text>
             </Text>
-            <Text style={styles.searchClose}>×</Text>
-          </View>
+            <View style={styles.filterBadge}>
+              <Text style={styles.filterBadgeText}>
+                AFFINER{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ""}
+              </Text>
+            </View>
+          </Pressable>
           <View style={styles.searchUnderline} />
 
           {/* Segmented */}
@@ -65,12 +85,7 @@ export default function FeedV2() {
                     active && styles.segItemActive,
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.segText,
-                      active && styles.segTextActive,
-                    ]}
-                  >
+                  <Text style={[styles.segText, active && styles.segTextActive]}>
                     {t}
                   </Text>
                 </Pressable>
@@ -89,26 +104,70 @@ export default function FeedV2() {
 
         {/* List */}
         <View style={styles.list}>
-          {filtered.map((l, i) => (
-            <ListRow key={l.ref} item={l} index={i + 1} />
-          ))}
+          {filtered.length === 0 ? (
+            <EmptyState onReset={() => { setFilters(DEFAULT_FILTERS); setTab("TOUT"); }} />
+          ) : (
+            filtered.map((l, i) => (
+              <ListRow
+                key={l.ref}
+                item={l}
+                index={i + 1}
+                onPress={() => router.push(`/annonce/${l.ref}` as never)}
+              />
+            ))
+          )}
         </View>
 
         <View style={{ height: space["3xl"] }} />
       </ScrollView>
+
+      <FilterSheet
+        visible={sheetOpen}
+        initial={filters}
+        resultCount={applyFilters(LISTINGS, filters).length}
+        onClose={() => setSheetOpen(false)}
+        onApply={(next) => {
+          setFilters(next);
+          setTab(next.transaction);
+          setSheetOpen(false);
+        }}
+      />
     </SafeAreaView>
   );
 }
 
-function ListRow({ item, index }: { item: Listing; index: number }) {
+function applyFilters(list: Listing[], f: Filters): Listing[] {
+  return list.filter((l) => {
+    if (f.transaction !== "TOUT" && l.type !== f.transaction) return false;
+    if (f.city && l.city !== f.city) return false;
+    if (f.priceMax && l.priceRaw > f.priceMax) return false;
+    if (f.roomsMin && l.roomsN < f.roomsMin) return false;
+    if (f.amenities.length) {
+      const has = f.amenities.every((a) => l.extras.includes(a));
+      if (!has) return false;
+    }
+    return true;
+  });
+}
+
+function ListRow({
+  item,
+  index,
+  onPress,
+}: {
+  item: Listing;
+  index: number;
+  onPress: () => void;
+}) {
   return (
-    <View
-      style={[
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
         styles.row,
         item.premium && styles.rowPremium,
+        pressed && { backgroundColor: "rgba(10,10,10,0.04)" },
       ]}
     >
-      {/* Top strip : numéro + ref + badges */}
       <View style={styles.rowTop}>
         <Text style={styles.rowRef}>
           {String(index).padStart(2, "0")} · {item.ref}
@@ -123,7 +182,6 @@ function ListRow({ item, index }: { item: Listing; index: number }) {
         </View>
       </View>
 
-      {/* Main : prix + photo */}
       <View style={styles.rowMain}>
         <View style={styles.rowLeft}>
           <Text style={styles.rowType}>{item.type}</Text>
@@ -135,13 +193,9 @@ function ListRow({ item, index }: { item: Listing; index: number }) {
             {item.location}
           </Text>
         </View>
-        <PhotoPlaceholder
-          label={item.label}
-          style={styles.rowPhoto}
-        />
+        <Image source={{ uri: item.cover }} style={styles.rowPhoto} />
       </View>
 
-      {/* Meta chips */}
       <View style={styles.rowMeta}>
         <Chip label={item.rooms} />
         <Chip label={item.area} />
@@ -149,6 +203,20 @@ function ListRow({ item, index }: { item: Listing; index: number }) {
           <Chip key={e} label={e} />
         ))}
       </View>
+    </Pressable>
+  );
+}
+
+function EmptyState({ onReset }: { onReset: () => void }) {
+  return (
+    <View style={styles.empty}>
+      <Text style={[styles.emptyTitle]}>Aucune annonce.</Text>
+      <Text style={styles.emptyBody}>
+        Élargissez vos critères ou changez de ville.
+      </Text>
+      <Pressable onPress={onReset} style={styles.emptyButton}>
+        <Text style={styles.emptyButtonText}>RÉINITIALISER</Text>
+      </Pressable>
     </View>
   );
 }
@@ -167,11 +235,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: colors.line,
   },
-  headerRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-  },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 14 },
   headerMeta: {
     fontFamily: fonts.monoMedium,
     fontSize: 10,
@@ -202,15 +266,22 @@ const styles = StyleSheet.create({
   searchText: {
     flex: 1,
     fontFamily: fonts.displayHeavy,
-    fontSize: 38,
-    letterSpacing: -1.5,
+    fontSize: 34,
+    letterSpacing: -1.3,
     color: colors.foreground,
   },
   caret: { opacity: 0.3 },
-  searchClose: {
+  filterBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: colors.foreground,
+  },
+  filterBadgeText: {
     fontFamily: fonts.monoMedium,
-    fontSize: 14,
-    color: colors.muted,
+    fontSize: 10,
+    letterSpacing: 1.2,
+    color: colors.foreground,
   },
   searchUnderline: {
     height: 2,
@@ -229,10 +300,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 12,
   },
-  segDivider: {
-    borderRightWidth: 1,
-    borderColor: colors.foreground,
-  },
+  segDivider: { borderRightWidth: 1, borderColor: colors.foreground },
   segItemActive: { backgroundColor: colors.foreground },
   segText: {
     fontFamily: fonts.displayBold,
@@ -284,16 +352,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     color: colors.muted,
   },
-  rowBadges: {
-    flexDirection: "row",
-    gap: 6,
-  },
+  rowBadges: { flexDirection: "row", gap: 6 },
 
-  rowMain: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 14,
-  },
+  rowMain: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   rowLeft: { flex: 1 },
   rowType: {
     fontFamily: fonts.monoMedium,
@@ -324,13 +385,11 @@ const styles = StyleSheet.create({
     color: colors.foreground,
     marginTop: 12,
   },
-  rowDash: {
-    fontFamily: fonts.display,
-    color: colors.muted,
-  },
+  rowDash: { fontFamily: fonts.display, color: colors.muted },
   rowPhoto: {
     width: 96,
     height: 96,
+    backgroundColor: colors.paper2,
   },
 
   rowMeta: {
@@ -338,5 +397,37 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 6,
     marginTop: 12,
+  },
+
+  empty: {
+    padding: space["2xl"],
+    alignItems: "flex-start",
+    gap: 10,
+    borderBottomWidth: 1,
+    borderColor: colors.line,
+  },
+  emptyTitle: {
+    fontFamily: fonts.displayHeavy,
+    fontSize: 32,
+    letterSpacing: -0.8,
+    color: colors.foreground,
+  },
+  emptyBody: {
+    fontFamily: fonts.sans,
+    fontSize: 14,
+    color: colors.mutedForeground,
+  },
+  emptyButton: {
+    marginTop: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: colors.foreground,
+  },
+  emptyButtonText: {
+    fontFamily: fonts.monoMedium,
+    fontSize: 10,
+    letterSpacing: 1.3,
+    color: colors.foreground,
   },
 });
