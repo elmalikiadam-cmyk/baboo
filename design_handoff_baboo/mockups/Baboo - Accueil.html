@@ -24,6 +24,14 @@
 <script type="text/babel" src="feed-list.jsx"></script>
 <script type="text/babel" src="feed-hero.jsx"></script>
 <script type="text/babel" src="bottom-bar.jsx"></script>
+<script type="text/babel" src="screen-detail.jsx"></script>
+<script type="text/babel" src="screen-filters.jsx"></script>
+<script type="text/babel" src="screen-map.jsx"></script>
+<script type="text/babel" src="screen-publish.jsx"></script>
+<script type="text/babel" src="screen-favorites.jsx"></script>
+<script type="text/babel" src="screen-messages.jsx"></script>
+<script type="text/babel" src="screen-account.jsx"></script>
+<script type="text/babel" src="screen-extras.jsx"></script>
 
 <script type="text/babel">
 const TWEAKS = /*EDITMODE-BEGIN*/{
@@ -81,6 +89,126 @@ function App() {
               <div data-screen-label="V3 Hero" style={{ position: 'relative', height: '100%' }}>
                 <FeedHero dark={dark} />
                 <BabooBottomBar dark={dark} active="home" />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection
+          title="Parcours complet — direction V2 (liste dense)"
+          subtitle="Détail · Filtres · Carte — à intégrer avec la direction retenue"
+        >
+          <DCArtboard label="DÉTAIL ANNONCE" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="Detail" style={{ position: 'relative', height: '100%' }}>
+                <DetailAnnonce dark={dark} />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+
+          <DCArtboard label="FILTRES / RECHERCHE" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="Filters" style={{ position: 'relative', height: '100%' }}>
+                <ScreenFilters dark={dark} />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+
+          <DCArtboard label="CARTE · PINS PRIX" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="Map" style={{ position: 'relative', height: '100%' }}>
+                <ScreenMap dark={dark} />
+                <BabooBottomBar dark={dark} active="search" />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection
+          title="Compte, publication, favoris"
+          subtitle="Publier · Favoris · Messagerie · Profil"
+        >
+          <DCArtboard label="PUBLIER (étape 3/5)" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="Publish" style={{ position: 'relative', height: '100%' }}>
+                <ScreenPublish dark={dark} />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+
+          <DCArtboard label="FAVORIS + COMPARATEUR" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="Favorites" style={{ position: 'relative', height: '100%' }}>
+                <ScreenFavorites dark={dark} />
+                <BabooBottomBar dark={dark} active="fav" />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+
+          <DCArtboard label="MESSAGERIE" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="Messages" style={{ position: 'relative', height: '100%' }}>
+                <ScreenMessages dark={dark} />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+
+          <DCArtboard label="PROFIL" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="Profile" style={{ position: 'relative', height: '100%' }}>
+                <ScreenProfile dark={dark} />
+                <BabooBottomBar dark={dark} active="me" />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection
+          title="Onboarding & auth"
+          subtitle="Splash · Connexion"
+        >
+          <DCArtboard label="ONBOARDING 1/3" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="Onboarding" style={{ position: 'relative', height: '100%' }}>
+                <ScreenOnboarding dark={dark} />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+
+          <DCArtboard label="CONNEXION" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="Login" style={{ position: 'relative', height: '100%' }}>
+                <ScreenLogin dark={dark} />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection
+          title="Écrans complémentaires"
+          subtitle="Notifications · Profil agent · Mes annonces"
+        >
+          <DCArtboard label="NOTIFICATIONS" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="Notifications" style={{ position:'relative', height:'100%' }}>
+                <ScreenNotifications dark={dark} />
+                <BabooBottomBar dark={dark} active="me" />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+
+          <DCArtboard label="PROFIL AGENT" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="Agent" style={{ position:'relative', height:'100%' }}>
+                <ScreenAgent dark={dark} />
+              </div>
+            </IOSDevice>
+          </DCArtboard>
+
+          <DCArtboard label="MES ANNONCES" width={402} height={874}>
+            <IOSDevice dark={dark}>
+              <div data-screen-label="MyListings" style={{ position:'relative', height:'100%' }}>
+                <ScreenMyListings dark={dark} />
               </div>
             </IOSDevice>
           </DCArtboard>
