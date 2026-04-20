@@ -5,7 +5,8 @@ import { BabooLogo } from "@/components/ui/icons";
 const NAV = [
   { href: "/recherche?t=sale", label: "Acheter" },
   { href: "/recherche?t=rent", label: "Louer" },
-  { href: "/pro/publier", label: "Déposer une annonce" },
+  { href: "/projets", label: "Projets neufs" },
+  { href: "/pro/publier", label: "Déposer" },
   { href: "/pro", label: "Espace Pro" },
 ];
 

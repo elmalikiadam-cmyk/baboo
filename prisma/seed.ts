@@ -60,12 +60,123 @@ const PHOTO_BANK = {
 };
 
 const AGENCIES = [
-  { slug: "atlas-realty", name: "Atlas Realty", city: "casablanca", tagline: "L'immobilier haut de gamme à Casablanca.", verified: true },
-  { slug: "medina-properties", name: "Medina Properties", city: "marrakech", tagline: "Riads, villas et investissements à Marrakech.", verified: true },
-  { slug: "capital-homes", name: "Capital Homes", city: "rabat", tagline: "Votre partenaire immobilier dans la capitale.", verified: true },
-  { slug: "detroit-immobilier", name: "Détroit Immobilier", city: "tanger", tagline: "Le nord du Maroc en exclusivité.", verified: false },
-  { slug: "souss-home", name: "Souss Home", city: "agadir", tagline: "Vivre au soleil, investir sereinement.", verified: true },
+  { slug: "atlas-realty", name: "Atlas Realty", city: "casablanca", tagline: "Agence de référence à Casablanca.", description: "Atlas Realty accompagne acquéreurs et bailleurs sur Casablanca depuis 15 ans. Appartements, villas et projets neufs.", verified: true, logoSeed: 1 },
+  { slug: "medina-properties", name: "Medina Properties", city: "marrakech", tagline: "Riads, villas et investissements à Marrakech.", description: "Spécialiste des biens d'exception à Marrakech : riads authentiques, villas en Palmeraie, résidences de golf.", verified: true, logoSeed: 2 },
+  { slug: "capital-homes", name: "Capital Homes", city: "rabat", tagline: "Votre partenaire immobilier dans la capitale.", description: "Agence indépendante, implantée à Agdal et Hay Riad. Nous privilégions les mandats exclusifs et le service sur mesure.", verified: true, logoSeed: 3 },
+  { slug: "detroit-immobilier", name: "Détroit Immobilier", city: "tanger", tagline: "Le nord du Maroc en exclusivité.", description: "Tanger, Tétouan, Mdiq, Martil. Nous couvrons le détroit avec une équipe franco-marocaine.", verified: false, logoSeed: 4 },
+  { slug: "souss-home", name: "Souss Home", city: "agadir", tagline: "Vivre au soleil, investir sereinement.", description: "Biens résidentiels et locations saisonnières sur le Grand Agadir.", verified: true, logoSeed: 5 },
+  { slug: "oasis-immobilier", name: "Oasis Immobilier", city: "casablanca", tagline: "Spécialiste des appartements familiaux.", description: "Oasis Immobilier se concentre sur les appartements 3-5 pièces dans le sud de Casablanca : Oasis, Maârif, CIL.", verified: true, logoSeed: 6 },
 ];
+
+const DEVELOPERS = [
+  { slug: "anfa-residences", name: "Anfa Résidences", tagline: "Promoteur haut de gamme à Casablanca.", description: "Anfa Résidences développe depuis 2008 des résidences contemporaines dans les quartiers premium de Casablanca." },
+  { slug: "prestigia-developpement", name: "Prestigia Développement", tagline: "Stations balnéaires et résidences golf.", description: "Projets résidentiels de grande envergure sur le littoral atlantique et les parcours de golf du royaume." },
+  { slug: "marina-atlantic", name: "Marina Atlantic", tagline: "Résidences vue mer sur la côte atlantique.", description: "Marina Atlantic livre des résidences pieds dans l'eau à Mohammedia, Bouznika et Dar Bouazza." },
+];
+
+const PROJECTS = [
+  {
+    slug: "anfa-skyline",
+    name: "Anfa Skyline",
+    developerSlug: "anfa-residences",
+    city: "casablanca",
+    addressLine: "Boulevard d'Anfa, Casablanca",
+    description: "Tour résidentielle contemporaine de 18 étages au cœur du nouveau quartier d'affaires. Appartements de 2 à 5 pièces, duplex terrasse, espaces communs premium.",
+    cover: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1600&q=75",
+    lat: 33.5867, lng: -7.6315,
+    deliveryYear: 2027,
+    status: "SELLING" as const,
+    units: [
+      { label: "2P Type A", type: "APARTMENT" as const, bedrooms: 1, surface: 72, price: 1_950_000 },
+      { label: "3P Type B", type: "APARTMENT" as const, bedrooms: 2, surface: 98, price: 2_650_000 },
+      { label: "4P Type C", type: "APARTMENT" as const, bedrooms: 3, surface: 130, price: 3_750_000 },
+      { label: "Duplex 5P", type: "APARTMENT" as const, bedrooms: 4, surface: 210, price: 6_800_000 },
+    ],
+  },
+  {
+    slug: "marina-lagoon",
+    name: "Marina Lagoon",
+    developerSlug: "marina-atlantic",
+    city: "mohammedia",
+    addressLine: "Corniche de Mohammedia",
+    description: "Résidence balnéaire de standing, pieds dans l'eau. Piscine lagon, plage privée, spa, restaurant. Livraison T4 2026.",
+    cover: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1600&q=75",
+    lat: 33.6895, lng: -7.3725,
+    deliveryYear: 2026,
+    status: "SELLING" as const,
+    units: [
+      { label: "Studio vue mer", type: "APARTMENT" as const, bedrooms: 1, surface: 48, price: 1_350_000 },
+      { label: "2P terrasse", type: "APARTMENT" as const, bedrooms: 1, surface: 75, price: 2_100_000 },
+      { label: "3P vue mer", type: "APARTMENT" as const, bedrooms: 2, surface: 105, price: 3_250_000 },
+    ],
+  },
+  {
+    slug: "palmeraie-golf-club",
+    name: "Palmeraie Golf Club Residences",
+    developerSlug: "prestigia-developpement",
+    city: "marrakech",
+    addressLine: "Palmeraie, Marrakech",
+    description: "Villas individuelles sur le parcours du golf. Architecture contemporaine marocaine, 3 à 6 chambres, jardins privatifs, piscine optionnelle.",
+    cover: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1600&q=75",
+    lat: 31.6745, lng: -7.9612,
+    deliveryYear: 2025,
+    status: "NEARLY_SOLD" as const,
+    units: [
+      { label: "Villa 3 CH", type: "VILLA" as const, bedrooms: 3, surface: 240, price: 5_800_000 },
+      { label: "Villa 4 CH piscine", type: "VILLA" as const, bedrooms: 4, surface: 320, price: 8_400_000 },
+      { label: "Villa 6 CH signature", type: "VILLA" as const, bedrooms: 6, surface: 480, price: 14_500_000 },
+    ],
+  },
+  {
+    slug: "hay-riad-garden",
+    name: "Hay Riad Garden",
+    developerSlug: "anfa-residences",
+    city: "rabat",
+    addressLine: "Hay Riad, Rabat",
+    description: "Petite copropriété de 24 appartements familiaux, jardin commun, parking souterrain. Une adresse calme à deux pas du centre administratif.",
+    cover: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1600&q=75",
+    lat: 34.0138, lng: -6.8498,
+    deliveryYear: 2026,
+    status: "SELLING" as const,
+    units: [
+      { label: "3P Type A", type: "APARTMENT" as const, bedrooms: 2, surface: 92, price: 2_250_000 },
+      { label: "4P Type B", type: "APARTMENT" as const, bedrooms: 3, surface: 118, price: 2_900_000 },
+    ],
+  },
+  {
+    slug: "tanger-bay-view",
+    name: "Tanger Bay View",
+    developerSlug: "marina-atlantic",
+    city: "tanger",
+    addressLine: "Malabata, Tanger",
+    description: "Résidence en front de mer. Appartements traversants avec vues panoramiques sur la baie de Tanger et le détroit.",
+    cover: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1600&q=75",
+    lat: 35.7795, lng: -5.7968,
+    deliveryYear: 2027,
+    status: "PRE_LAUNCH" as const,
+    units: [
+      { label: "2P vue baie", type: "APARTMENT" as const, bedrooms: 1, surface: 68, price: 1_450_000 },
+      { label: "3P terrasse", type: "APARTMENT" as const, bedrooms: 2, surface: 95, price: 2_150_000 },
+      { label: "Penthouse 4P", type: "APARTMENT" as const, bedrooms: 3, surface: 165, price: 4_800_000 },
+    ],
+  },
+];
+
+// Tiny abstract PNG-free agency logos : solid color SVG with initials, served as data URLs.
+// Generates a circular avatar with the agency name initial.
+function agencyLogoUrl(seed: number): string {
+  const palettes = [
+    ["#0a0a0a", "#f2efe8"],
+    ["#1a3a2b", "#f2efe8"],
+    ["#2d2d5a", "#f2efe8"],
+    ["#5a2d2d", "#f2efe8"],
+    ["#2d5a5a", "#f2efe8"],
+    ["#5a4b2d", "#f2efe8"],
+  ];
+  const [bg, fg] = palettes[seed % palettes.length];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="${bg}"/><text x="50%" y="54%" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="32" font-stretch="75%" fill="${fg}">BB</text></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
 
 const CONDITIONS = ["NEW", "GOOD", "TO_RENOVATE"] as const;
 
@@ -216,21 +327,87 @@ async function main() {
     });
     const agency = await prisma.agency.upsert({
       where: { slug: a.slug },
-      update: { name: a.name, tagline: a.tagline, verified: a.verified, citySlug: a.city },
+      update: {
+        name: a.name,
+        tagline: a.tagline,
+        description: a.description,
+        verified: a.verified,
+        citySlug: a.city,
+        logo: agencyLogoUrl(a.logoSeed),
+      },
       create: {
         userId: user.id,
         slug: a.slug,
         name: a.name,
         tagline: a.tagline,
+        description: a.description,
         verified: a.verified,
         citySlug: a.city,
-        phone: "+212 6 00 00 00 00",
+        logo: agencyLogoUrl(a.logoSeed),
+        phone: "+212 5 22 00 00 00",
         email: `contact@${a.slug}.ma`,
+        website: `https://${a.slug}.ma`,
       },
     });
     agencyRecords.push({ id: agency.id, slug: agency.slug, citySlug: a.city });
   }
   console.log(`  ✓ ${AGENCIES.length} agencies seeded`);
+
+  // Developers + projects
+  const developerRecords: Array<{ id: string; slug: string }> = [];
+  for (const d of DEVELOPERS) {
+    const user = await prisma.user.upsert({
+      where: { email: `${d.slug}@baboo.ma` },
+      update: { role: "DEVELOPER", name: d.name },
+      create: { email: `${d.slug}@baboo.ma`, name: d.name, role: "DEVELOPER" },
+    });
+    const dev = await prisma.developer.upsert({
+      where: { slug: d.slug },
+      update: { name: d.name, description: d.description, verified: true },
+      create: {
+        userId: user.id,
+        slug: d.slug,
+        name: d.name,
+        description: d.description,
+        verified: true,
+        website: `https://${d.slug}.ma`,
+      },
+    });
+    developerRecords.push({ id: dev.id, slug: dev.slug });
+  }
+  console.log(`  ✓ ${DEVELOPERS.length} developers seeded`);
+
+  await prisma.projectUnit.deleteMany();
+  await prisma.project.deleteMany();
+  for (const p of PROJECTS) {
+    const dev = developerRecords.find((d) => d.slug === p.developerSlug)!;
+    const project = await prisma.project.create({
+      data: {
+        slug: p.slug,
+        name: p.name,
+        description: p.description,
+        cover: p.cover,
+        developerId: dev.id,
+        citySlug: p.city,
+        addressLine: p.addressLine,
+        lat: p.lat,
+        lng: p.lng,
+        deliveryYear: p.deliveryYear,
+        status: p.status,
+      },
+    });
+    await prisma.projectUnit.createMany({
+      data: p.units.map((u) => ({
+        projectId: project.id,
+        label: u.label,
+        propertyType: u.type,
+        bedrooms: u.bedrooms,
+        surface: u.surface,
+        price: u.price,
+      })),
+    });
+  }
+  console.log(`  ✓ ${PROJECTS.length} projects seeded`);
 
   // Generate ~60 listings across cities
   const plan: GenParams[] = [];
