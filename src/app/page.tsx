@@ -26,40 +26,50 @@ async function getLatestListings() {
 
 export default async function HomePage() {
   const latest = await getLatestListings();
+  const total = latest.length > 0 ? "2 847" : "0";
+
+  const now = new Date();
+  const issue = `N° ${String(now.getMonth() + 1).padStart(2, "0")} — ${now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" }).toUpperCase()} · MAROC`;
 
   return (
     <>
-      {/* Hero — centered, quiet, search-first */}
-      <section className="container pb-16 pt-16 md:pb-24 md:pt-28">
-        <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
-          <h1 className="display-xl text-4xl md:text-[clamp(2.5rem,5.5vw,4.75rem)]">
-            Trouvez votre prochain logement.
+      {/* Masthead — editorial type-first hero */}
+      <section className="border-b border-foreground/10">
+        <div className="container pt-10 pb-10 md:pt-16 md:pb-14">
+          <p className="eyebrow">{issue}</p>
+
+          <h1 className="display-xl mt-4 text-[clamp(3rem,11vw,9rem)]">
+            <span className="block">À vendre,</span>
+            <span className="block">à louer.</span>
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            Annonces de particuliers et professionnels. Achat, location, partout au Maroc.
+
+          <p className="mono mt-6 text-xs uppercase text-muted-foreground">
+            {total} annonces · particuliers & professionnels
           </p>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-2">
+          <div className="mt-8 flex flex-wrap gap-2">
             <Link href="/recherche?t=sale" className="pill-soft">Je veux acheter</Link>
             <Link href="/recherche?t=rent" className="pill-soft">Je veux louer</Link>
-            <Link href="/pro/publier" className="pill-soft">Je veux publier une annonce</Link>
+            <Link href="/pro/publier" className="pill-soft">Je veux publier</Link>
           </div>
 
-          <div className="mt-10 flex w-full justify-center">
+          <div className="mt-8 flex w-full justify-start md:mt-10">
             <HeroSearch />
           </div>
         </div>
       </section>
 
-      {/* Latest listings */}
+      {/* Latest — grid with editorial header */}
       {latest.length > 0 && (
-        <section className="container py-16 md:py-20">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
-            <h2 className="display-xl text-3xl md:text-5xl">Dernières annonces.</h2>
-            <Link href="/recherche" className="pill-soft">Voir tout</Link>
+        <section className="container py-14 md:py-20">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-6 border-b border-foreground/15 pb-4">
+            <h2 className="display-xl text-3xl md:text-5xl">Sélection.</h2>
+            <Link href="/recherche" className="mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground">
+              Voir tout ({total}) →
+            </Link>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {latest.map((l, i) => (
               <ListingCard key={l.id} listing={l} priority={i < 4} />
             ))}

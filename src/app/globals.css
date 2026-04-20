@@ -4,40 +4,44 @@
 
 @layer base {
   :root {
-    /* Surfaces — pure white canvas, near-black ink */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 6%;
-    --surface: 0 0% 100%;
-    --surface-muted: 0 0% 97%;
-    --border: 0 0% 90%;
-    --border-strong: 0 0% 78%;
-    --muted: 220 9% 46%;
-    --muted-foreground: 220 9% 40%;
+    /* Surfaces — warm paper, deep ink */
+    --background: 44 22% 93%;        /* #f2efe8 */
+    --paper-2: 44 20% 88%;           /* #e9e5db — subtle variants, dividers */
+    --paper-3: 42 19% 82%;           /* #dcd7c9 — stripes, quiet surfaces */
+    --foreground: 0 0% 4%;           /* #0a0a0a */
+    --surface: 44 22% 93%;
+    --surface-muted: 44 20% 88%;
+    --border: 0 0% 4% / 0.12;        /* hairlines */
+    --border-strong: 0 0% 4% / 0.85;
+    --muted: 44 4% 42%;              /* #6a6a66 */
+    --muted-foreground: 44 4% 38%;
 
-    /* Dark inversion for black cards */
-    --ink: 0 0% 6%;
-    --ink-foreground: 0 0% 98%;
+    /* Dark inversion */
+    --ink: 0 0% 4%;
+    --ink-2: 0 0% 10%;
+    --ink-3: 0 0% 16%;
+    --ink-foreground: 44 22% 93%;
 
-    /* Primary = black pill */
-    --primary: 0 0% 6%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary = ink */
+    --primary: 0 0% 4%;
+    --primary-foreground: 44 22% 93%;
 
-    /* Accent = subtle warm yellow, used sparingly (hover underlines, highlights) */
+    /* Accent — quiet yellow, used sparingly */
     --accent: 48 96% 58%;
-    --accent-foreground: 0 0% 6%;
+    --accent-foreground: 0 0% 4%;
 
     /* Status */
     --success: 155 46% 34%;
     --danger: 2 72% 41%;
 
-    /* Fonts — Bahnschrift first (Windows users have it), Barlow Condensed fallback for display.
-       Body uses Inter. Real-world users see a near-identical condensed semibold. */
-    --font-display: "Bahnschrift", var(--font-barlow), system-ui, -apple-system, sans-serif;
-    --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    /* Fonts */
+    --font-display-stack: "Bahnschrift", var(--font-barlow), "Arial Narrow", system-ui, sans-serif;
+    --font-sans-stack: var(--font-inter), system-ui, -apple-system, sans-serif;
+    --font-mono-stack: var(--font-mono), ui-monospace, "SF Mono", "Menlo", monospace;
   }
 
   * {
-    border-color: hsl(var(--border));
+    border-color: hsl(var(--foreground) / 0.12);
   }
 
   html {
@@ -48,16 +52,17 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: var(--font-sans);
+    font-family: var(--font-sans-stack);
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, h4 {
-    font-family: var(--font-display);
-    font-weight: 600;
+    font-family: var(--font-display-stack);
+    font-weight: 700;
     font-stretch: 75%;
-    letter-spacing: -0.01em;
-    line-height: 1.08;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
   }
 
   ::selection {
@@ -74,19 +79,33 @@
 
 @layer components {
   .display-xl {
-    font-family: var(--font-display);
-    font-weight: 600;
+    font-family: var(--font-display-stack);
+    font-weight: 800;
     font-stretch: 75%;
-    letter-spacing: -0.015em;
-    line-height: 1.02;
+    letter-spacing: -0.035em;
+    line-height: 0.92;
+  }
+
+  .display-lg {
+    font-family: var(--font-display-stack);
+    font-weight: 700;
+    font-stretch: 75%;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
   }
 
   .eyebrow {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-family: var(--font-mono-stack);
+    font-size: 10px;
+    font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: hsl(var(--muted-foreground));
+  }
+
+  .mono {
+    font-family: var(--font-mono-stack);
+    letter-spacing: 0.06em;
   }
 
   .pill {
@@ -99,6 +118,10 @@
 
   .pill-soft {
     @apply pill bg-foreground/[0.08] text-foreground hover:bg-foreground/[0.14];
+  }
+
+  .hairline {
+    border-color: hsl(var(--foreground) / 0.12);
   }
 }
 

@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Barlow_Condensed } from "next/font/google";
+import { Inter, Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { MobileBottomBar } from "@/components/layout/mobile-bottom-bar";
 import "./globals.css";
 
 const inter = Inter({
@@ -11,12 +12,17 @@ const inter = Inter({
 });
 
 // Barlow Condensed is the open-source fallback for Bahnschrift SemiBold Condensed.
-// Windows users with Bahnschrift installed see the real font (declared first in CSS),
-// everyone else sees Barlow Condensed 600 which is visually near-identical.
 const barlow = Barlow_Condensed({
   subsets: ["latin"],
   variable: "--font-barlow",
-  weight: ["500", "600", "700"],
+  weight: ["500", "600", "700", "800", "900"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -39,18 +45,19 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0F0F0F",
+  themeColor: "#0a0a0a",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${inter.variable} ${barlow.variable}`}>
-      <body className="min-h-screen flex flex-col">
+    <html lang="fr" className={`${inter.variable} ${barlow.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen flex flex-col pb-16 md:pb-0">
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />
+        <MobileBottomBar />
       </body>
     </html>
   );

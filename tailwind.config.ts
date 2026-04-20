@@ -18,18 +18,23 @@ const config: Config = {
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        paper: {
+          DEFAULT: "hsl(var(--background))",
+          2: "hsl(var(--paper-2))",
+          3: "hsl(var(--paper-3))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
-        border: "hsl(var(--border))",
-        "border-strong": "hsl(var(--border-strong))",
         surface: {
           DEFAULT: "hsl(var(--surface))",
           muted: "hsl(var(--surface-muted))",
         },
         ink: {
           DEFAULT: "hsl(var(--ink))",
+          2: "hsl(var(--ink-2))",
+          3: "hsl(var(--ink-3))",
           foreground: "hsl(var(--ink-foreground))",
         },
         primary: {
@@ -46,10 +51,11 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         display: ["Bahnschrift", "var(--font-barlow)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SF Mono", "monospace"],
       },
       fontSize: {
-        "display-lg": ["clamp(2.5rem, 6vw, 5rem)", { lineHeight: "1.02", letterSpacing: "-0.015em" }],
-        "display-md": ["clamp(2rem, 4.2vw, 3.25rem)", { lineHeight: "1.05", letterSpacing: "-0.015em" }],
+        "display-lg": ["clamp(2.5rem, 7vw, 5.5rem)", { lineHeight: "0.92", letterSpacing: "-0.035em" }],
+        "display-md": ["clamp(2rem, 4.5vw, 3.5rem)", { lineHeight: "0.95", letterSpacing: "-0.03em" }],
       },
       borderRadius: {
         lg: "0.625rem",

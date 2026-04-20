@@ -4,6 +4,7 @@ import { UserIcon, BuildingIcon, ChevronRightIcon } from "@/components/ui/icons"
 
 const BLOCKS = [
   {
+    n: "01",
     badge: "Particulier",
     title: "Vendez ou louez vous-même.",
     body: "Publiez votre annonce en quelques minutes. Photos, description, prix. Vous gardez la main sur vos échanges. Gratuit pour commencer.",
@@ -12,6 +13,7 @@ const BLOCKS = [
     Icon: UserIcon,
   },
   {
+    n: "02",
     badge: "Professionnel",
     title: "Boostez votre agence.",
     body: "Tableau de bord, leads qualifiés, mise en avant sur les pages de recherche. Baboo Pro est pensé pour les agences et promoteurs qui veulent aller vite.",
@@ -23,8 +25,8 @@ const BLOCKS = [
 
 export function ForYou() {
   return (
-    <section className="container py-20 md:py-28">
-      <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+    <section className="container py-16 md:py-24">
+      <div className="mb-10 flex flex-wrap items-end justify-between gap-6 border-b border-foreground/15 pb-4">
         <div>
           <p className="eyebrow">Pour qui</p>
           <h2 className="display-xl mt-2 text-3xl md:text-5xl">Particulier ou professionnel.</h2>
@@ -33,13 +35,16 @@ export function ForYou() {
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
-        {BLOCKS.map(({ badge, title, body, cta, href, Icon }) => (
+        {BLOCKS.map(({ n, badge, title, body, cta, href, Icon }) => (
           <Card key={badge} variant="dark" className="relative overflow-hidden p-7 md:p-10">
             <div className="flex items-start justify-between gap-4">
-              <span className="inline-flex items-center rounded-full bg-background/10 px-3 py-1 text-xs font-medium text-ink-foreground">
-                {badge}
-              </span>
-              <span className="grid h-14 w-14 place-items-center rounded-2xl border border-ink-foreground/20">
+              <div>
+                <p className="mono text-[10px] tracking-[0.14em] text-ink-foreground/60">/{n}</p>
+                <span className="mt-3 inline-flex items-center rounded-full bg-ink-foreground/10 px-3 py-1 text-xs font-medium text-ink-foreground">
+                  {badge}
+                </span>
+              </div>
+              <span className="grid h-14 w-14 place-items-center rounded-2xl border border-ink-foreground/25">
                 <Icon className="h-6 w-6 stroke-[1.5] text-ink-foreground" />
               </span>
             </div>
@@ -51,7 +56,7 @@ export function ForYou() {
               </p>
               <Link
                 href={href}
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-background/90"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-paper-2"
               >
                 {cta} <ChevronRightIcon className="h-4 w-4" />
               </Link>

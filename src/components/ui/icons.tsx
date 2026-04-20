@@ -117,23 +117,43 @@ export const BuildingIcon = (p: IconProps) => (
 );
 
 export const BabooLogo = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 120 32" className={className} aria-hidden>
-    <g fill="currentColor">
-      <circle cx="14" cy="16" r="10" fill="none" stroke="currentColor" strokeWidth="2.2" />
-      <circle cx="10.5" cy="14.5" r="1.4" />
-      <circle cx="17.5" cy="14.5" r="1.4" />
-      <path d="M10 19c1.2 1.4 2.6 2 4 2s2.8-.6 4-2" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      <text
-        x="32"
-        y="22"
-        fontFamily="var(--font-barlow), Bahnschrift, sans-serif"
-        fontSize="19"
-        fontWeight="700"
-        fontStretch="75%"
-        letterSpacing="-0.01em"
-      >
-        baboo
-      </text>
-    </g>
+  // Baboo wordmark: rounded sans-serif "Baboo" with panda-ear dots on the two "o"s.
+  // Single color, inherits currentColor. Geometric recreation.
+  <svg viewBox="0 0 560 180" className={className} aria-label="Baboo" fill="currentColor">
+    {/* B */}
+    <path
+      fillRule="evenodd"
+      d="M22 20h66c29 0 52 20 52 46 0 14-7 26-18 34 13 8 22 22 22 38 0 28-24 50-54 50H22V20Zm32 30v42h34c12 0 21-9 21-21 0-12-9-21-21-21H54Zm0 70v42h36c13 0 23-10 23-21s-10-21-23-21H54Z"
+    />
+    {/* a */}
+    <path
+      fillRule="evenodd"
+      d="M228 80c-26 0-46 20-46 54s20 54 46 54c13 0 24-5 31-13v10h30V83h-30v10c-7-8-18-13-31-13Zm6 28c14 0 25 11 25 26s-11 26-25 26-25-11-25-26 11-26 25-26Z"
+    />
+    {/* b */}
+    <path
+      fillRule="evenodd"
+      d="M313 10h30v80c7-6 17-10 28-10 26 0 46 22 46 54s-20 54-46 54c-12 0-22-4-29-11v8h-29V10Zm52 98c-14 0-25 11-25 26s11 26 25 26 25-11 25-26-11-26-25-26Z"
+    />
+    {/* first o + ear */}
+    <circle cx="450" cy="134" r="36" />
+    <circle cx="450" cy="134" r="12" fill="hsl(var(--background))" />
+    <path d="M420 98a16 16 0 0 1 22-10l-10 22Z" />
+    {/* second o + ear */}
+    <circle cx="524" cy="134" r="36" />
+    <circle cx="524" cy="134" r="12" fill="hsl(var(--background))" />
+    <path d="M554 98a16 16 0 0 0-22-10l10 22Z" />
+  </svg>
+);
+
+export const BabooMark = ({ className }: { className?: string }) => (
+  // Compact square mark for favicons / small contexts: just the two panda "oo"
+  <svg viewBox="0 0 160 100" className={className} aria-label="Baboo" fill="currentColor">
+    <circle cx="46" cy="62" r="34" />
+    <circle cx="46" cy="62" r="12" fill="hsl(var(--background))" />
+    <path d="M18 28a14 14 0 0 1 20-10l-10 22Z" />
+    <circle cx="114" cy="62" r="34" />
+    <circle cx="114" cy="62" r="12" fill="hsl(var(--background))" />
+    <path d="M142 28a14 14 0 0 0-20-10l10 22Z" />
   </svg>
 );

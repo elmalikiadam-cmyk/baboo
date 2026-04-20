@@ -11,13 +11,13 @@ const NAV = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="container flex h-20 items-center">
+    <header className="sticky top-0 z-40 border-b border-foreground/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+      <div className="container flex h-16 items-center md:h-20">
         <Link href="/" aria-label="Baboo, accueil" className="text-foreground">
-          <BabooLogo className="h-8 w-auto" />
+          <BabooLogo className="h-6 w-auto md:h-7" />
         </Link>
 
-        <nav className="mx-auto hidden items-center gap-8 md:flex">
+        <nav className="mx-auto hidden items-center gap-9 md:flex">
           {NAV.map((n) => (
             <Link
               key={n.href}
@@ -29,7 +29,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2">
           <Link href="/connexion">
             <Button size="sm">Connexion</Button>
           </Link>
