@@ -8,9 +8,6 @@ const nextConfig = {
       { protocol: "https", hostname: "cdn.baboo.ma" },
     ],
   },
-  experimental: {
-    typedRoutes: false,
-  },
   async headers() {
     return [
       {

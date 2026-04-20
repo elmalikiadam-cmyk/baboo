@@ -1,0 +1,8 @@
+# Exclude Expo mobile app from the web (Next.js) deployment.
+mobile/
+
+# Exclude design handoff assets from Vercel upload.
+design_handoff_baboo/
+
+# Never upload docs tree either — saves build time.
+docs/
