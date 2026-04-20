@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,87 +19,89 @@ export function HeroSearch() {
   const [city, setCity] = useState<string>("");
   const [type, setType] = useState<string>("");
   const [priceMax, setPriceMax] = useState<string>("");
-  const [bedrooms, setBedrooms] = useState<string>("");
   const router = useRouter();
 
   const budgets = tab === "SALE" ? BUDGETS_SALE : BUDGETS_RENT;
 
-  const selectedCity = useMemo(() => CITIES.find((c) => c.slug === city), [city]);
-
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const href = buildSearchHref({
-      transaction: tab,
-      citySlug: city || undefined,
-      propertyTypes: type ? [type as PropertyType] : [],
-      priceMax: priceMax ? Number(priceMax) : undefined,
-      bedroomsMin: bedrooms ? Number(bedrooms) : undefined,
-    });
-    router.push(href);
+    router.push(
+      buildSearchHref({
+        transaction: tab,
+        citySlug: city || undefined,
+        propertyTypes: type ? [type as PropertyType] : [],
+        priceMax: priceMax ? Number(priceMax) : undefined,
+      }),
+    );
   }
 
   return (
-    <div className="rounded-2xl bg-surface/95 p-3 shadow-xl ring-1 ring-border backdrop-blur-sm">
-      <div role="tablist" aria-label="Type de transaction" className="mb-3 inline-flex rounded-full bg-foreground/[0.06] p-1 text-sm">
-        {(["SALE", "RENT"] as const).map((t) => (
-          <button
-            key={t}
-            role="tab"
-            aria-selected={tab === t}
-            onClick={() => setTab(t)}
-            className={`rounded-full px-5 py-2 font-medium transition-colors ${
-              tab === t ? "bg-surface text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {t === "SALE" ? "Acheter" : "Louer"}
-          </button>
-        ))}
+    <div className="w-full max-w-3xl">
+      <div className="mb-3 flex items-center justify-center">
+        <div role="tablist" aria-label="Type de transaction" className="inline-flex rounded-full bg-foreground/[0.06] p-1 text-sm">
+          {(["SALE", "RENT"] as const).map((t) => (
+            <button
+              key={t}
+              role="tab"
+              aria-selected={tab === t}
+              onClick={() => setTab(t)}
+              className={`rounded-full px-5 py-1.5 font-medium transition-colors ${
+                tab === t ? "bg-foreground text-background" : "text-foreground/70 hover:text-foreground"
+              }`}
+            >
+              {t === "SALE" ? "Acheter" : "Louer"}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <form onSubmit={onSubmit} className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_auto]">
-        <Select value={city} onChange={(e) => setCity(e.target.value)} aria-label="Ville">
+      <form
+        onSubmit={onSubmit}
+        className="grid gap-2 rounded-full border border-foreground/15 bg-background p-2 shadow-soft sm:grid-cols-[1.2fr_1fr_1fr_auto]"
+      >
+        <Select
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          aria-label="Ville"
+          className="h-11 border-transparent bg-transparent"
+        >
           <option value="">Toutes les villes</option>
           {CITIES.map((c) => (
             <option key={c.slug} value={c.slug}>{c.name}</option>
           ))}
         </Select>
 
-        <Select value={type} onChange={(e) => setType(e.target.value)} aria-label="Type de bien">
-          <option value="">Tous les biens</option>
+        <Select
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          aria-label="Type de bien"
+          className="h-11 border-transparent bg-transparent"
+        >
+          <option value="">Tous les types</option>
           {PROPERTY_TYPES.map((t) => (
             <option key={t} value={t}>{PROPERTY_TYPE_LABEL[t]}</option>
           ))}
         </Select>
 
-        <Select value={priceMax} onChange={(e) => setPriceMax(e.target.value)} aria-label="Budget maximum">
+        <Select
+          value={priceMax}
+          onChange={(e) => setPriceMax(e.target.value)}
+          aria-label="Budget maximum"
+          className="h-11 border-transparent bg-transparent"
+        >
           <option value="">Budget max</option>
           {budgets.map((b) => (
             <option key={b} value={b}>
-              {tab === "SALE"
-                ? `Jusqu'à ${new Intl.NumberFormat("fr-FR").format(b)} MAD`
-                : `Jusqu'à ${new Intl.NumberFormat("fr-FR").format(b)} MAD/mois`}
+              {new Intl.NumberFormat("fr-FR").format(b)} MAD{tab === "RENT" ? "/mois" : ""}
             </option>
           ))}
         </Select>
 
-        <Select value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} aria-label="Nombre de chambres minimum">
-          <option value="">Chambres</option>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <option key={n} value={n}>{n}+ chambres</option>
-          ))}
-        </Select>
-
-        <Button type="submit" size="lg" className="lg:px-7">
+        <Button type="submit" size="md" className="h-11 px-6">
           <SearchIcon className="h-4 w-4" />
           Rechercher
         </Button>
       </form>
-
-      {selectedCity && (
-        <p className="mt-3 px-1 text-xs text-muted-foreground">
-          {selectedCity.neighborhoods.length} quartiers disponibles à {selectedCity.name}.
-        </p>
-      )}
     </div>
   );
 }

@@ -7,9 +7,9 @@ export const metadata = { title: "Connexion" };
 export default function SignInPage() {
   return (
     <div className="container flex min-h-[70vh] items-center justify-center py-16">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-8 shadow-card">
+      <div className="w-full max-w-md rounded-3xl border border-foreground/15 bg-surface p-8">
         <div className="mb-8 text-center">
-          <h1 className="font-display text-3xl font-semibold">Se connecter à Baboo</h1>
+          <h1 className="display-xl text-3xl">Se connecter.</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Sauvegardez vos favoris, créez des alertes, suivez vos recherches.
           </p>
@@ -29,7 +29,7 @@ export default function SignInPage() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Pas encore de compte ?{" "}
-          <Link href="/inscription" className="font-medium text-primary underline-offset-4 hover:underline">
+          <Link href="/inscription" className="font-medium text-foreground underline-offset-4 hover:underline">
             Créer un compte
           </Link>
         </p>

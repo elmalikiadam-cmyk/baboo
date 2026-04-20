@@ -1,30 +1,27 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "outline" | "ghost" | "accent" | "link";
-type Size = "sm" | "md" | "lg" | "icon";
+type Variant = "primary" | "outline" | "ghost" | "soft" | "link";
+type Size = "xs" | "sm" | "md" | "lg" | "icon";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   size?: Size;
-  asChild?: boolean;
 }
 
 const base =
-  "inline-flex items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors duration-150 ease-out-soft disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+  "inline-flex items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors duration-150 ease-out-soft disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full";
 
 const variants: Record<Variant, string> = {
-  primary:
-    "bg-primary text-primary-foreground hover:bg-primary/92 active:bg-primary/88 rounded-full",
-  outline:
-    "border border-border bg-surface text-foreground hover:bg-foreground/5 rounded-full",
-  ghost: "text-foreground hover:bg-foreground/5 rounded-full",
-  accent:
-    "bg-accent text-accent-foreground hover:bg-accent/90 rounded-full",
-  link: "text-primary underline-offset-4 hover:underline rounded",
+  primary: "bg-foreground text-background hover:bg-foreground/90",
+  outline: "border border-foreground/80 bg-transparent text-foreground hover:bg-foreground hover:text-background",
+  ghost: "text-foreground hover:bg-foreground/5",
+  soft: "bg-foreground/[0.08] text-foreground hover:bg-foreground/[0.14]",
+  link: "text-foreground underline-offset-4 hover:underline rounded",
 };
 
 const sizes: Record<Size, string> = {
+  xs: "h-8 px-3 text-xs",
   sm: "h-9 px-4 text-sm",
   md: "h-11 px-5 text-sm",
   lg: "h-12 px-6 text-base",

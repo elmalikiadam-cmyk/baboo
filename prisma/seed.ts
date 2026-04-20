@@ -234,7 +234,11 @@ async function main() {
 
   let created = 0;
   for (const p of plan) {
-    const agencyForCity = agencyRecords.find((a) => a.citySlug === p.citySlug) ?? agencyRecords[created % agencyRecords.length];
+    // Every 3rd listing is posted directly by an individual (no agency).
+    const isIndividual = (p.index + created) % 3 === 0;
+    const agencyForCity = isIndividual
+      ? null
+      : (agencyRecords.find((a) => a.citySlug === p.citySlug) ?? agencyRecords[created % agencyRecords.length]);
     const price = listingPrice(p);
     const surface = listingSurface(p);
     const bedrooms = ["APARTMENT", "VILLA", "RIAD", "HOUSE"].includes(p.type) ? 2 + ((p.index * 7) % 4) : null;
@@ -286,7 +290,7 @@ async function main() {
         lng: city.lng + jitter(p.index + 2) * 0.05,
         coverImage: cover,
         ownerId: adminUser.id,
-        agencyId: agencyForCity.id,
+        agencyId: agencyForCity?.id ?? null,
         featured: created < 8,
         exclusive: p.index % 7 === 0,
         publishedAt: new Date(Date.now() - (p.index * 86_400_000) / 3),

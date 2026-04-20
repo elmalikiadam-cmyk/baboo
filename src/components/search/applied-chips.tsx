@@ -51,7 +51,7 @@ export function AppliedChips({ filters }: { filters: SearchFilters }) {
     if (am) chips.push({ label: am.label, href: make({ amenities: filters.amenities.filter((x) => x !== a) }) });
   }
   if (filters.keyword) chips.push({ label: `"${filters.keyword}"`, href: make({ keyword: undefined }) });
-  if (filters.featuredOnly) chips.push({ label: "Coups de cœur", href: make({ featuredOnly: false }) });
+  if (filters.featuredOnly) chips.push({ label: "Annonces mises en avant", href: make({ featuredOnly: false }) });
 
   return (
     <ul className="flex flex-wrap gap-2">

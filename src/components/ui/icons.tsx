@@ -56,12 +56,6 @@ export const HeartIcon = (p: IconProps) => (
   </svg>
 );
 
-export const HeartFilledIcon = (p: IconProps) => (
-  <svg {...svgProps} fill="currentColor" {...p}>
-    <path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" />
-  </svg>
-);
-
 export const PhoneIcon = (p: IconProps) => (
   <svg {...svgProps} {...p}>
     <path d="M5 4h3l2 5-2 1a11 11 0 0 0 6 6l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" />
@@ -90,16 +84,9 @@ export const CheckIcon = (p: IconProps) => (
   </svg>
 );
 
-export const ShieldIcon = (p: IconProps) => (
+export const PlusIcon = (p: IconProps) => (
   <svg {...svgProps} {...p}>
-    <path d="M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6l-8-3Z" />
-    <path d="m9 12 2 2 4-4" />
-  </svg>
-);
-
-export const SparkleIcon = (p: IconProps) => (
-  <svg {...svgProps} {...p}>
-    <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.5 5.5l2.8 2.8M15.7 15.7l2.8 2.8M5.5 18.5l2.8-2.8M15.7 8.3l2.8-2.8" />
+    <path d="M12 5v14M5 12h14" />
   </svg>
 );
 
@@ -109,47 +96,43 @@ export const ChevronRightIcon = (p: IconProps) => (
   </svg>
 );
 
-export const FilterIcon = (p: IconProps) => (
-  <svg {...svgProps} {...p}>
-    <path d="M3 6h18M6 12h12M10 18h4" />
-  </svg>
-);
-
-export const GridIcon = (p: IconProps) => (
-  <svg {...svgProps} {...p}>
-    <rect x="3" y="3" width="7" height="7" rx="1" />
-    <rect x="14" y="3" width="7" height="7" rx="1" />
-    <rect x="3" y="14" width="7" height="7" rx="1" />
-    <rect x="14" y="14" width="7" height="7" rx="1" />
-  </svg>
-);
-
-export const MapIcon = (p: IconProps) => (
-  <svg {...svgProps} {...p}>
-    <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z" />
-    <path d="M9 3v18M15 6v18" />
-  </svg>
-);
-
 export const CloseIcon = (p: IconProps) => (
   <svg {...svgProps} {...p}>
     <path d="m6 6 12 12M18 6 6 18" />
   </svg>
 );
 
+export const UserIcon = (p: IconProps) => (
+  <svg {...svgProps} {...p}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </svg>
+);
+
+export const BuildingIcon = (p: IconProps) => (
+  <svg {...svgProps} {...p}>
+    <path d="M4 21V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16" />
+    <path d="M4 21h16M9 9h0M9 13h0M9 17h0M15 9h0M15 13h0M15 17h0" />
+  </svg>
+);
+
 export const BabooLogo = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 120 32" className={className} aria-hidden>
     <g fill="currentColor">
-      <path d="M8 6c3.3 0 6 2.7 6 6v10a2 2 0 0 1-2 2H8a6 6 0 0 1 0-12V6Zm0 10a2 2 0 0 0 0 4h2v-4H8Z" />
+      <circle cx="14" cy="16" r="10" fill="none" stroke="currentColor" strokeWidth="2.2" />
+      <circle cx="10.5" cy="14.5" r="1.4" />
+      <circle cx="17.5" cy="14.5" r="1.4" />
+      <path d="M10 19c1.2 1.4 2.6 2 4 2s2.8-.6 4-2" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" />
       <text
-        x="22"
-        y="23"
-        fontFamily="Fraunces, Georgia, serif"
-        fontSize="22"
-        fontWeight="600"
-        letterSpacing="-0.02em"
+        x="32"
+        y="22"
+        fontFamily="var(--font-barlow), Bahnschrift, sans-serif"
+        fontSize="19"
+        fontWeight="700"
+        fontStretch="75%"
+        letterSpacing="-0.01em"
       >
-        Baboo
+        baboo
       </text>
     </g>
   </svg>

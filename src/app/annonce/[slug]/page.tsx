@@ -9,7 +9,7 @@ import { ContactCard } from "@/components/listing/contact-card";
 import { ListingMapPreview } from "@/components/listing/listing-map-preview";
 import { ListingCard } from "@/components/listing/listing-card";
 import { Badge } from "@/components/ui/badge";
-import { HeartIcon, ShareIcon, MapPinIcon, ShieldIcon } from "@/components/ui/icons";
+import { HeartIcon, ShareIcon, MapPinIcon } from "@/components/ui/icons";
 import { formatPrice, formatPricePerMonth, relativeDate } from "@/lib/format";
 import { PROPERTY_TYPE_LABEL, TRANSACTION_VERB } from "@/data/taxonomy";
 import { buildSearchHref } from "@/lib/search-params";
@@ -131,20 +131,14 @@ export default async function ListingPage({ params }: Props) {
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_380px]">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge tone={isRent ? "neutral" : "outline"}>
-              {isRent ? "Location" : "À vendre"}
-            </Badge>
+            <Badge tone="neutral">{isRent ? "Location" : "À vendre"}</Badge>
             <Badge tone="neutral">{PROPERTY_TYPE_LABEL[listing.propertyType]}</Badge>
-            {listing.exclusive && <Badge tone="accent">Exclusivité</Badge>}
-            {listing.featured && <Badge tone="primary">Coup de cœur</Badge>}
-            {listing.agency?.verified && (
-              <Badge tone="success" className="gap-1">
-                <ShieldIcon className="h-3 w-3" /> Agence vérifiée
-              </Badge>
-            )}
+            <Badge tone={listing.agency ? "dark" : "light"}>
+              {listing.agency ? "Pro" : "Particulier"}
+            </Badge>
           </div>
 
-          <h1 className="mt-4 font-display text-3xl font-semibold leading-tight md:text-4xl">
+          <h1 className="display-xl mt-4 text-3xl md:text-4xl">
             {listing.title}
           </h1>
 
@@ -156,7 +150,7 @@ export default async function ListingPage({ params }: Props) {
           </p>
 
           <div className="mt-6 flex flex-wrap items-baseline justify-between gap-4">
-            <p className="font-display text-4xl font-semibold text-foreground">
+            <p className="display-xl text-4xl md:text-5xl">
               {isRent ? formatPricePerMonth(listing.price) : formatPrice(listing.price)}
             </p>
             <div className="flex gap-2">

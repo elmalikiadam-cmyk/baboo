@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
-import { PhoneIcon, WhatsAppIcon, ShieldIcon, CheckIcon } from "@/components/ui/icons";
+import { PhoneIcon, WhatsAppIcon, CheckIcon } from "@/components/ui/icons";
 
 interface Props {
   listingId: string;
@@ -33,7 +33,7 @@ export function ContactCard({ listingTitle, agency, phone }: Props) {
   }
 
   return (
-    <aside className="sticky top-20 rounded-2xl border border-border bg-surface p-5 shadow-card">
+    <aside className="sticky top-24 rounded-3xl border border-foreground/15 bg-surface p-6">
       {agency && (
         <div className="mb-4 flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-full bg-foreground/5 text-sm font-semibold text-foreground">
@@ -50,8 +50,8 @@ export function ContactCard({ listingTitle, agency, phone }: Props) {
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-foreground">{agency.name}</p>
             {agency.verified && (
-              <p className="inline-flex items-center gap-1 text-xs text-success">
-                <ShieldIcon className="h-3.5 w-3.5" /> Agence vérifiée
+              <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                <CheckIcon className="h-3.5 w-3.5" /> Agence vérifiée
               </p>
             )}
           </div>

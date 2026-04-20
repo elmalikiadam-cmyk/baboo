@@ -33,7 +33,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
   const title = titleFromFilters(filters);
   return {
     title,
-    description: `Découvrez ${title.toLowerCase()} sur Baboo. Annonces sélectionnées et agences vérifiées.`,
+    description: `${title} — annonces de particuliers et professionnels sur Baboo.`,
     alternates: { canonical: buildSearchHref(filters) },
   };
 }
@@ -53,10 +53,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </nav>
 
       <div className="flex flex-col gap-1">
-        <h1 className="font-display text-3xl font-semibold md:text-4xl">{heading}</h1>
-        <p className="text-muted-foreground">
-          Annonces modérées par l'équipe Baboo.
-        </p>
+        <h1 className="display-xl text-3xl md:text-4xl">{heading}</h1>
+        <p className="text-muted-foreground">Annonces de particuliers et professionnels.</p>
       </div>
 
       <div className="mt-5">

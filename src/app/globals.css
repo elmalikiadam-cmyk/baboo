@@ -4,26 +4,36 @@
 
 @layer base {
   :root {
-    /* Surfaces */
-    --background: 48 24% 97%;
-    --foreground: 210 24% 9%;
+    /* Surfaces — pure white canvas, near-black ink */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 6%;
     --surface: 0 0% 100%;
-    --border: 45 10% 90%;
+    --surface-muted: 0 0% 97%;
+    --border: 0 0% 90%;
+    --border-strong: 0 0% 78%;
     --muted: 220 9% 46%;
-    --muted-foreground: 220 9% 35%;
+    --muted-foreground: 220 9% 40%;
 
-    /* Brand */
-    --primary: 158 67% 14%;
-    --primary-foreground: 48 24% 97%;
-    --accent: 42 48% 58%;
-    --accent-foreground: 210 24% 9%;
+    /* Dark inversion for black cards */
+    --ink: 0 0% 6%;
+    --ink-foreground: 0 0% 98%;
+
+    /* Primary = black pill */
+    --primary: 0 0% 6%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Accent = subtle warm yellow, used sparingly (hover underlines, highlights) */
+    --accent: 48 96% 58%;
+    --accent-foreground: 0 0% 6%;
 
     /* Status */
     --success: 155 46% 34%;
     --danger: 2 72% 41%;
 
-    --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+    /* Fonts — Bahnschrift first (Windows users have it), Barlow Condensed fallback for display.
+       Body uses Inter. Real-world users see a near-identical condensed semibold. */
+    --font-display: "Bahnschrift", var(--font-barlow), system-ui, -apple-system, sans-serif;
+    --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
   * {
@@ -39,43 +49,64 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     font-family: var(--font-sans);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     min-height: 100vh;
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.015em;
-    line-height: 1.15;
+    font-weight: 600;
+    font-stretch: 75%;
+    letter-spacing: -0.01em;
+    line-height: 1.08;
   }
 
   ::selection {
-    background-color: hsl(var(--primary) / 0.15);
-    color: hsl(var(--primary));
+    background-color: hsl(var(--foreground));
+    color: hsl(var(--background));
   }
 
   :focus-visible {
-    outline: 2px solid hsl(var(--primary) / 0.6);
+    outline: 2px solid hsl(var(--foreground));
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 }
 
 @layer components {
-  .container-narrow {
-    @apply container max-w-5xl;
+  .display-xl {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-stretch: 75%;
+    letter-spacing: -0.015em;
+    line-height: 1.02;
   }
 
-  .hairline {
-    @apply border-t border-border;
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors;
+  }
+
+  .pill-dark {
+    @apply pill bg-foreground text-background hover:bg-foreground/90;
+  }
+
+  .pill-soft {
+    @apply pill bg-foreground/[0.08] text-foreground hover:bg-foreground/[0.14];
   }
 }
 
 @layer utilities {
-  .mask-fade-b {
-    mask-image: linear-gradient(to bottom, black 70%, transparent);
+  .font-stretch-condensed {
+    font-stretch: 75%;
   }
-  .shadow-inset-border {
-    box-shadow: inset 0 0 0 1px hsl(var(--border));
+  .font-stretch-normal {
+    font-stretch: 100%;
   }
 }

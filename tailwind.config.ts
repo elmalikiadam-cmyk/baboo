@@ -6,7 +6,7 @@ const config: Config = {
     container: {
       center: true,
       padding: {
-        DEFAULT: "1rem",
+        DEFAULT: "1.25rem",
         sm: "1.5rem",
         lg: "2rem",
       },
@@ -23,7 +23,15 @@ const config: Config = {
           foreground: "hsl(var(--muted-foreground))",
         },
         border: "hsl(var(--border))",
-        surface: "hsl(var(--surface))",
+        "border-strong": "hsl(var(--border-strong))",
+        surface: {
+          DEFAULT: "hsl(var(--surface))",
+          muted: "hsl(var(--surface-muted))",
+        },
+        ink: {
+          DEFAULT: "hsl(var(--ink))",
+          foreground: "hsl(var(--ink-foreground))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -36,21 +44,21 @@ const config: Config = {
         danger: "hsl(var(--danger))",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        display: ["var(--font-display)", "Georgia", "serif"],
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["Bahnschrift", "var(--font-barlow)", "system-ui", "sans-serif"],
       },
       fontSize: {
-        "display-lg": ["clamp(2.5rem, 5vw, 4.5rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
-        "display-md": ["clamp(2rem, 4vw, 3rem)", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
+        "display-lg": ["clamp(2.5rem, 6vw, 5rem)", { lineHeight: "1.02", letterSpacing: "-0.015em" }],
+        "display-md": ["clamp(2rem, 4.2vw, 3.25rem)", { lineHeight: "1.05", letterSpacing: "-0.015em" }],
       },
       borderRadius: {
         lg: "0.625rem",
-        xl: "0.875rem",
-        "2xl": "1.25rem",
+        xl: "1rem",
+        "2xl": "1.5rem",
+        "3xl": "2rem",
       },
       boxShadow: {
-        card: "0 1px 2px rgba(15, 20, 25, 0.04), 0 1px 3px rgba(15, 20, 25, 0.05)",
-        hover: "0 4px 12px rgba(15, 20, 25, 0.08), 0 2px 4px rgba(15, 20, 25, 0.04)",
+        soft: "0 1px 2px rgba(0, 0, 0, 0.04)",
       },
       transitionTimingFunction: {
         "out-soft": "cubic-bezier(0.22, 1, 0.36, 1)",
