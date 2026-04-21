@@ -1,7 +1,13 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 import { CITIES } from "../src/data/cities";
 
 const prisma = new PrismaClient();
+
+// Mots de passe de démo pour tester l'authentification.
+// À changer avant tout vrai lancement.
+const DEMO_PASSWORD = "baboo-demo-2026";
+const demoHash = bcrypt.hashSync(DEMO_PASSWORD, 10);
 
 // Diverse bank of real-estate photos from Unsplash (interiors, exteriors,
 // terraces, kitchens, bedrooms). Each category has 6-10 options so the seed
@@ -311,19 +317,41 @@ async function main() {
   }
   console.log(`  ✓ ${CITIES.length} cities seeded`);
 
-  // Demo owner + agencies
+  // Demo owner + agencies (mot de passe commun : voir DEMO_PASSWORD ci-dessus)
   const adminUser = await prisma.user.upsert({
     where: { email: "admin@baboo.ma" },
-    update: {},
-    create: { email: "admin@baboo.ma", name: "Baboo Admin", role: "ADMIN" },
+    update: { passwordHash: demoHash },
+    create: {
+      email: "admin@baboo.ma",
+      name: "Baboo Admin",
+      role: "ADMIN",
+      passwordHash: demoHash,
+    },
+  });
+
+  // Particulier de démo pour tester le flow non-pro.
+  await prisma.user.upsert({
+    where: { email: "demo@baboo.ma" },
+    update: { passwordHash: demoHash },
+    create: {
+      email: "demo@baboo.ma",
+      name: "Sofia Bennani",
+      role: "USER",
+      passwordHash: demoHash,
+    },
   });
 
   const agencyRecords: Array<{ id: string; slug: string; citySlug: string }> = [];
   for (const a of AGENCIES) {
     const user = await prisma.user.upsert({
       where: { email: `${a.slug}@baboo.ma` },
-      update: { role: "AGENCY", name: a.name },
-      create: { email: `${a.slug}@baboo.ma`, name: a.name, role: "AGENCY" },
+      update: { role: "AGENCY", name: a.name, passwordHash: demoHash },
+      create: {
+        email: `${a.slug}@baboo.ma`,
+        name: a.name,
+        role: "AGENCY",
+        passwordHash: demoHash,
+      },
     });
     const agency = await prisma.agency.upsert({
       where: { slug: a.slug },
@@ -526,6 +554,14 @@ async function main() {
 
   console.log(`  ✓ ${created} listings seeded`);
   console.log("✅ Seed complete.");
+  console.log("");
+  console.log("🔑 Comptes de démo (mot de passe commun) :");
+  console.log(`   Password     : ${DEMO_PASSWORD}`);
+  console.log(`   Admin        : admin@baboo.ma`);
+  console.log(`   Particulier  : demo@baboo.ma`);
+  AGENCIES.forEach((a) => {
+    console.log(`   Agence       : ${a.slug}@baboo.ma  (${a.name})`);
+  });
 }
 
 main()

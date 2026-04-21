@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { BabooLogo } from "@/components/ui/icons";
+import { UserMenu } from "@/components/layout/user-menu";
+import { auth } from "@/auth";
 
 const NAV = [
   { href: "/recherche?t=sale", label: "Acheter" },
@@ -10,7 +12,10 @@ const NAV = [
   { href: "/pro", label: "Espace Pro" },
 ];
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const session = await auth();
+  const user = session?.user;
+
   return (
     <header className="sticky top-0 z-40 border-b border-foreground/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75">
       <div className="container flex h-16 items-center md:h-20">
@@ -31,9 +36,20 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <Link href="/connexion">
-            <Button size="sm">Connexion</Button>
-          </Link>
+          {user ? (
+            <UserMenu
+              name={user.name ?? user.email ?? "Compte"}
+              email={user.email ?? ""}
+              agencySlug={user.agencySlug ?? null}
+              agencyName={user.agencyName ?? null}
+              isAgency={user.role === "AGENCY"}
+              isAdmin={user.role === "ADMIN"}
+            />
+          ) : (
+            <Link href="/connexion">
+              <Button size="sm">Connexion</Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>

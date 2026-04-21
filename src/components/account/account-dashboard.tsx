@@ -5,7 +5,12 @@ import { useFavorites } from "@/hooks/use-favorites";
 import { useSavedSearches } from "@/hooks/use-saved-searches";
 import { HeartIcon, SearchIcon, PlusIcon } from "@/components/ui/icons";
 
-export function AccountDashboard() {
+interface Props {
+  isSignedIn: boolean;
+  isAgency: boolean;
+}
+
+export function AccountDashboard({ isSignedIn, isAgency }: Props) {
   const { favorites, hydrated: favHydrated } = useFavorites();
   const { items: searches, hydrated: searchesHydrated } = useSavedSearches();
   const hydrated = favHydrated && searchesHydrated;
@@ -15,7 +20,7 @@ export function AccountDashboard() {
       <dl className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3">
         <Stat label="Favoris" value={hydrated ? String(favorites.length) : "…"} />
         <Stat label="Alertes sauvegardées" value={hydrated ? String(searches.length) : "…"} />
-        <Stat label="Comptes" value="Bientôt" muted />
+        <Stat label="Session" value={isSignedIn ? (isAgency ? "Agence Pro" : "Connecté") : "Invité"} />
       </dl>
 
       <section className="mt-14">
@@ -50,39 +55,54 @@ export function AccountDashboard() {
                 : "…"
             }
           />
-          <QuickLink
-            href="/pro/publier"
-            icon={<PlusIcon className="h-5 w-5" />}
-            label="Publier"
-            subtitle="Déposer une annonce"
-          />
+          {isAgency ? (
+            <QuickLink
+              href="/pro/dashboard"
+              icon={<PlusIcon className="h-5 w-5" />}
+              label="Tableau Pro"
+              subtitle="Vos annonces et leads"
+            />
+          ) : (
+            <QuickLink
+              href="/pro/publier"
+              icon={<PlusIcon className="h-5 w-5" />}
+              label="Publier"
+              subtitle="Déposer une annonce"
+            />
+          )}
         </div>
       </section>
 
-      <section className="mt-14 rounded-3xl border border-dashed border-foreground/20 bg-paper-2/40 p-8">
-        <p className="eyebrow">Bientôt</p>
-        <h2 className="display-xl mt-2 text-2xl md:text-3xl">Synchronisation entre vos appareils.</h2>
-        <p className="mt-3 max-w-xl text-muted-foreground">
-          Les comptes Baboo arrivent. Vous pourrez retrouver favoris et alertes sur tous vos navigateurs, recevoir les mises à jour par email et gérer vos contacts en un endroit.
-        </p>
-        <Link
-          href="/inscription"
-          className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
-        >
-          M'inscrire à la liste d'attente
-        </Link>
-      </section>
+      {!isSignedIn && (
+        <section className="mt-14 rounded-3xl border border-dashed border-foreground/20 bg-paper-2/40 p-8">
+          <p className="eyebrow">Compte Baboo</p>
+          <h2 className="display-xl mt-2 text-2xl md:text-3xl">Synchronisation entre vos appareils.</h2>
+          <p className="mt-3 max-w-xl text-muted-foreground">
+            Créez un compte pour retrouver vos favoris et alertes sur tous vos navigateurs, et garder l'historique de vos échanges avec les agences.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link
+              href="/inscription"
+              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
+            >
+              Créer un compte
+            </Link>
+            <Link
+              href="/connexion"
+              className="inline-flex items-center gap-2 rounded-full border border-foreground px-5 py-2.5 text-sm font-medium text-foreground hover:bg-foreground hover:text-background"
+            >
+              Se connecter
+            </Link>
+          </div>
+        </section>
+      )}
     </>
   );
 }
 
-function Stat({ label, value, muted = false }: { label: string; value: string; muted?: boolean }) {
+function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div
-      className={`rounded-2xl border p-5 ${
-        muted ? "border-dashed border-foreground/20 bg-paper-2/40" : "border-foreground/15 bg-surface"
-      }`}
-    >
+    <div className="rounded-2xl border border-foreground/15 bg-surface p-5">
       <p className="eyebrow">{label}</p>
       <p className="display-lg mt-2 text-3xl">{value}</p>
     </div>
