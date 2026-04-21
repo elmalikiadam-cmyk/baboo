@@ -212,7 +212,7 @@ model Listing {
 
   @@index([citySlug, transaction, propertyType])
   @@index([status, publishedAt])
-  @@index([featured])
+  @@index([status, featured, publishedAt])
   @@index([price])
 }
 

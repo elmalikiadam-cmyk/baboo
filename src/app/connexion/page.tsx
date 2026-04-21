@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Input, Label } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { WaitlistCard } from "@/components/auth/waitlist-card";
 
 export const metadata = { title: "Connexion" };
 
@@ -9,29 +8,25 @@ export default function SignInPage() {
     <div className="container flex min-h-[70vh] items-center justify-center py-16">
       <div className="w-full max-w-md rounded-3xl border border-foreground/15 bg-surface p-8">
         <div className="mb-8 text-center">
-          <h1 className="display-xl text-3xl">Se connecter.</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Sauvegardez vos favoris, créez des alertes, suivez vos recherches.
+          <p className="eyebrow">Bientôt</p>
+          <h1 className="display-xl mt-2 text-3xl">Les comptes arrivent.</h1>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Pour l'instant, vos favoris et alertes sont stockés dans votre navigateur — pas besoin de compte. L'espace personnel synchronisé arrive bientôt.
           </p>
         </div>
 
-        <form className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required autoComplete="email" />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input id="password" name="password" type="password" required autoComplete="current-password" />
-          </div>
-          <Button type="submit" size="lg" className="w-full">Se connecter</Button>
-        </form>
+        <WaitlistCard kind="connexion" />
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Pas encore de compte ?{" "}
-          <Link href="/inscription" className="font-medium text-foreground underline-offset-4 hover:underline">
-            Créer un compte
+          En attendant, profitez de vos{" "}
+          <Link href="/favoris" className="font-medium text-foreground underline-offset-4 hover:underline">
+            favoris
+          </Link>{" "}
+          et{" "}
+          <Link href="/recherches" className="font-medium text-foreground underline-offset-4 hover:underline">
+            alertes
           </Link>
+          .
         </p>
       </div>
     </div>

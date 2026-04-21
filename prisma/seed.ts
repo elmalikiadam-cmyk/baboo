@@ -432,7 +432,10 @@ async function main() {
     i += perCity;
   }
 
-  // Wipe existing listings for idempotent reseeds
+  // Idempotence : on remet à zéro les annonces (et leur média) avant de les
+  // recréer. Les Lead attachés sont préservés (listingId devient null grâce
+  // à onDelete: SetNull). Les favoris clients vivent en localStorage côté
+  // navigateur, aucun impact côté base.
   await prisma.listingMedia.deleteMany();
   await prisma.listing.deleteMany();
 

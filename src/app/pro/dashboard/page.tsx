@@ -74,6 +74,22 @@ export default async function ProDashboard() {
 
   return (
     <div className="container py-10 md:py-16">
+      {/* Demo banner — honesty: this page shows sample data for a fictional agency. */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-foreground bg-foreground px-5 py-4 text-background">
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.14em] text-background/60">Aperçu démo</p>
+          <p className="mt-1 text-sm">
+            Cette page illustre le tableau de bord agence Baboo Pro avec les données d'une agence fictive.
+          </p>
+        </div>
+        <Link
+          href="/pro"
+          className="mono rounded-full bg-background px-4 py-2 text-[10px] uppercase tracking-[0.14em] text-foreground"
+        >
+          En savoir plus →
+        </Link>
+      </div>
+
       <div className="flex flex-col gap-6 border-b border-foreground/15 pb-10 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="eyebrow">Baboo Pro · {agency?.name ?? "Atlas Realty"}</p>

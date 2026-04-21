@@ -1,11 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db, hasDb } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, CloseIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Admin · Modération" };
+export const dynamic = "force-dynamic";
+
+// L'admin n'est pas gardé par une vraie auth pour l'instant. On évite au moins
+// de l'exposer publiquement en production : il faut ADMIN_ENABLED=true dans
+// les env vars Vercel pour y accéder. Pour un vrai lancement, remplacer par
+// NextAuth ou Supabase Auth avec un role ADMIN.
 
 const MOCK_MODERATION = [
   { reason: "Doublon potentiel", listing: "Villa avec piscine, Anfa", agency: "Atlas Realty", risk: "Moyen" },
@@ -49,6 +56,10 @@ async function getPending() {
 }
 
 export default async function AdminDashboard() {
+  if (process.env.ADMIN_ENABLED !== "true") {
+    notFound();
+  }
+
   const stats = await getAdminStats();
   const pending = await getPending();
 
