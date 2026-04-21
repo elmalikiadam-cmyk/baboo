@@ -12,9 +12,10 @@ interface Props {
   agencyName?: string | null;
   isAgency: boolean;
   isAdmin: boolean;
+  unreadMessages?: number;
 }
 
-export function UserMenu({ name, email, agencyName, isAgency, isAdmin }: Props) {
+export function UserMenu({ name, email, agencyName, isAgency, isAdmin, unreadMessages = 0 }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [isPending, startTransition] = useTransition();
@@ -81,6 +82,16 @@ export function UserMenu({ name, email, agencyName, isAgency, isAdmin }: Props) 
           <nav className="flex flex-col text-sm">
             <MenuLink href="/compte" onSelect={() => setOpen(false)}>
               Mon compte
+            </MenuLink>
+            <MenuLink href="/messages" onSelect={() => setOpen(false)}>
+              <span className="flex items-center justify-between">
+                <span>Messagerie</span>
+                {unreadMessages > 0 && (
+                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-semibold text-accent-foreground">
+                    {unreadMessages > 99 ? "99+" : unreadMessages}
+                  </span>
+                )}
+              </span>
             </MenuLink>
             <MenuLink href="/favoris" onSelect={() => setOpen(false)}>
               Favoris

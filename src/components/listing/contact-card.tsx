@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { PhoneIcon, WhatsAppIcon, CheckIcon } from "@/components/ui/icons";
@@ -21,6 +22,7 @@ interface Props {
 
 export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
   const [submitted, setSubmitted] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -44,6 +46,7 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
       const res = await submitLead(payload);
       if (res.ok) {
         setSubmitted(true);
+        if (res.conversationId) setConversationId(res.conversationId);
       } else {
         setError(res.error);
         if (res.fieldErrors) setFieldErrors(res.fieldErrors);
@@ -90,8 +93,18 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
           </span>
           <h3 className="mt-3 font-display text-lg font-semibold">Message envoyé.</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            L'agence vous répondra rapidement. Pensez à vérifier votre boîte de réception.
+            {conversationId
+              ? "Une conversation a été ouverte. Suivez la réponse de l'agence dans votre messagerie."
+              : "L'agence vous répondra rapidement. Pensez à vérifier votre boîte de réception."}
           </p>
+          {conversationId && (
+            <Link
+              href={`/messages/${conversationId}`}
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition hover:bg-foreground/90"
+            >
+              Ouvrir la conversation
+            </Link>
+          )}
         </div>
       ) : (
         <form onSubmit={onSubmit} className="space-y-3" noValidate>

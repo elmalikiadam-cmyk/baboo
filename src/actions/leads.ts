@@ -2,7 +2,10 @@
 
 import { z } from "zod";
 import { headers } from "next/headers";
+import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
+import { getOrCreateConversation, sendMessage } from "@/lib/messaging";
+import { notifyAgencyOfLead } from "@/lib/email";
 
 const LeadInput = z.object({
   name: z.string().min(2, "Votre nom est requis.").max(120),
@@ -27,7 +30,7 @@ const LeadInput = z.object({
 
 export type LeadInput = z.infer<typeof LeadInput>;
 export type LeadResult =
-  | { ok: true }
+  | { ok: true; conversationId?: string }
   | { ok: false; error: string; fieldErrors?: Record<string, string> };
 
 // Rate limit simple in-memory : 5 envois / 5 min / IP.
@@ -83,18 +86,66 @@ export async function submitLead(input: unknown): Promise<LeadResult> {
   if (!hasDb()) return { ok: true };
 
   try {
-    await db.lead.create({
+    const session = await auth();
+    const viewerId = session?.user?.id ?? null;
+
+    const lead = await db.lead.create({
       data: {
         listingId: data.listingId ?? null,
         projectId: data.projectId ?? null,
+        userId: viewerId,
         name: data.name,
         email: data.email,
         phone: data.phone ?? null,
         message: data.message,
         source: data.source,
       },
+      include: {
+        listing: {
+          select: {
+            id: true,
+            title: true,
+            ownerId: true,
+            agency: { select: { name: true, email: true } },
+          },
+        },
+      },
     });
-    return { ok: true };
+
+    // Notification email best-effort vers l'agence (ne bloque pas la réponse).
+    if (lead.listing?.agency?.email) {
+      notifyAgencyOfLead({
+        to: lead.listing.agency.email,
+        agencyName: lead.listing.agency.name,
+        listingTitle: lead.listing.title,
+        leadName: data.name,
+        leadEmail: data.email,
+        leadPhone: data.phone ?? null,
+        leadMessage: data.message,
+      }).catch(() => {});
+    }
+
+    // Si l'utilisateur est connecté et qu'il s'agit d'une annonce, on crée
+    // aussi une conversation avec le propriétaire/agence.
+    let conversationId: string | undefined;
+    if (viewerId && lead.listing && lead.listing.ownerId !== viewerId) {
+      const convId = await getOrCreateConversation({
+        viewerId,
+        otherUserId: lead.listing.ownerId,
+        listingId: lead.listing.id,
+        subject: lead.listing.title,
+      });
+      if (convId) {
+        await sendMessage({
+          conversationId: convId,
+          senderId: viewerId,
+          body: data.message,
+        });
+        conversationId = convId;
+      }
+    }
+
+    return { ok: true, conversationId };
   } catch (err) {
     console.error("[submitLead] failed:", (err as Error).message);
     return {
