@@ -47,6 +47,7 @@ export function SiteFooter() {
               <li><Link className="hover:underline" href="/pro">Espace Pro</Link></li>
               <li><Link className="hover:underline" href="/contact">Contact</Link></li>
               <li><Link className="hover:underline" href="/mentions-legales">Mentions légales</Link></li>
+              <li><Link className="hover:underline" href="/cgu">Conditions d'utilisation</Link></li>
               <li><Link className="hover:underline" href="/confidentialite">Confidentialité</Link></li>
             </ul>
           </nav>
