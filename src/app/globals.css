@@ -123,7 +123,7 @@
     @apply pill bg-foreground text-background hover:bg-foreground/90;
   }
   .pill-soft {
-    @apply pill bg-foreground/[0.06] text-foreground border border-foreground/10 hover:bg-foreground/12;
+    @apply pill bg-foreground/[0.06] text-foreground border border-foreground/10 hover:bg-foreground/[0.12];
   }
 
   /* Photo placeholder strié 135° — reproduction fidèle du handoff */
