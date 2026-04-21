@@ -37,7 +37,15 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         <Input id="email" name="email" type="email" required autoComplete="email" />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="password">Mot de passe</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Mot de passe</Label>
+          <Link
+            href="/mot-de-passe/oublie"
+            className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground"
+          >
+            Oublié ?
+          </Link>
+        </div>
         <Input id="password" name="password" type="password" required autoComplete="current-password" />
       </div>
 

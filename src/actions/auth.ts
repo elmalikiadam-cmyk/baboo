@@ -2,10 +2,12 @@
 
 import { z } from "zod";
 import { AuthError } from "next-auth";
-import { Prisma } from "@prisma/client";
+import { Prisma, TokenPurpose } from "@prisma/client";
 import { db, hasDb } from "@/lib/db";
 import { hashPassword } from "@/lib/password";
 import { signIn, signOut } from "@/auth";
+import { createAuthToken } from "@/lib/tokens";
+import { sendEmailVerificationEmail } from "@/lib/email";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Votre nom est requis.").max(120),
@@ -45,13 +47,13 @@ export async function signUp(input: unknown): Promise<SignUpResult> {
       .slice(0, 50) || "agence";
   }
 
+  let createdUserId: string | null = null;
   try {
-    await db.$transaction(async (tx) => {
+    createdUserId = await db.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: { name, email, passwordHash, role },
       });
       if (role === "AGENCY") {
-        // Trouve un slug unique pour la nouvelle agence.
         const base = baseSlug(name);
         let slug = base;
         let i = 2;
@@ -71,6 +73,7 @@ export async function signUp(input: unknown): Promise<SignUpResult> {
           },
         });
       }
+      return user.id;
     });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
@@ -82,6 +85,17 @@ export async function signUp(input: unknown): Promise<SignUpResult> {
     }
     console.error("[signUp] failed:", (err as Error).message);
     return { ok: false, error: "Impossible de créer votre compte pour l'instant." };
+  }
+
+  // Envoi best-effort du mail de vérification (no-op si Resend non configuré).
+  if (createdUserId) {
+    createAuthToken(createdUserId, TokenPurpose.EMAIL_VERIFICATION, 24)
+      .then((token) => {
+        if (token) {
+          return sendEmailVerificationEmail({ to: email, name, token });
+        }
+      })
+      .catch(() => {});
   }
 
   try {
@@ -118,4 +132,16 @@ export async function signInWithPassword(
 
 export async function signOutAction(): Promise<void> {
   await signOut({ redirect: false });
+}
+
+export async function signInWithProvider(provider: "google" | "facebook"): Promise<void> {
+  // Laisse NextAuth gérer le redirect OAuth : pas de catch.
+  await signIn(provider, { redirectTo: "/compte" });
+}
+
+export async function oauthProviderStatus(): Promise<{ google: boolean; facebook: boolean }> {
+  return {
+    google: !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET,
+    facebook: !!process.env.FACEBOOK_CLIENT_ID && !!process.env.FACEBOOK_CLIENT_SECRET,
+  };
 }

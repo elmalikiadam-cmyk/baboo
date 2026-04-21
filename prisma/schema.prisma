@@ -377,3 +377,24 @@ model Message {
 
   @@index([conversationId, createdAt])
 }
+
+// ---------- Email & password tokens ----------
+
+enum TokenPurpose {
+  PASSWORD_RESET
+  EMAIL_VERIFICATION
+}
+
+model AuthToken {
+  id        String       @id @default(cuid())
+  // On stocke un hash du token, jamais le token en clair.
+  tokenHash String       @unique
+  userId    String
+  purpose   TokenPurpose
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime     @default(now())
+
+  @@index([userId, purpose])
+  @@index([expiresAt])
+}

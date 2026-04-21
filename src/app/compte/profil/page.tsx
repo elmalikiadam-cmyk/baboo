@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
 import { ProfileForm } from "@/components/account/profile-form";
 import { PasswordForm } from "@/components/account/password-form";
+import { EmailVerificationButton } from "@/components/account/email-verification-button";
 
 export const metadata: Metadata = { title: "Mon profil · Baboo" };
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ export default async function ProfilePage() {
   const user = hasDb()
     ? await db.user.findUnique({
         where: { id: session.user.id },
-        select: { name: true, email: true, phone: true, image: true },
+        select: { name: true, email: true, phone: true, image: true, emailVerified: true },
       })
     : null;
 
@@ -34,6 +35,9 @@ export default async function ProfilePage() {
         <p className="mt-3 max-w-xl text-muted-foreground">
           Votre nom et votre photo apparaissent dans vos conversations avec les agences.
         </p>
+        <div className="mt-5">
+          <EmailVerificationButton verified={!!user?.emailVerified} />
+        </div>
       </div>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-2">

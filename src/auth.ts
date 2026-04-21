@@ -1,5 +1,7 @@
 import NextAuth, { type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
+import Facebook from "next-auth/providers/facebook";
 import { z } from "zod";
 import { db, hasDb } from "@/lib/db";
 import { verifyPassword } from "@/lib/password";
@@ -10,6 +12,29 @@ const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
+
+function oauthProviders() {
+  const providers = [] as NextAuthConfig["providers"];
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    providers.push(
+      Google({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        allowDangerousEmailAccountLinking: true,
+      }),
+    );
+  }
+  if (process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET) {
+    providers.push(
+      Facebook({
+        clientId: process.env.FACEBOOK_CLIENT_ID,
+        clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+        allowDangerousEmailAccountLinking: true,
+      }),
+    );
+  }
+  return providers;
+}
 
 export const authConfig: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -50,8 +75,46 @@ export const authConfig: NextAuthConfig = {
         };
       },
     }),
+    ...oauthProviders(),
   ],
   callbacks: {
+    // Sur login OAuth, on upsert l'utilisateur en DB pour obtenir un id
+    // Baboo + son rôle. Le callback jwt lira ensuite ces infos.
+    async signIn({ user, account }) {
+      if (account?.provider === "credentials") return true;
+      if (!hasDb()) return false;
+      if (!user?.email) return false;
+      try {
+        const email = user.email.toLowerCase();
+        const existing = await db.user.findUnique({
+          where: { email },
+          select: { id: true },
+        });
+        if (existing) {
+          await db.user.update({
+            where: { id: existing.id },
+            data: {
+              name: user.name ?? undefined,
+              image: user.image ?? undefined,
+              emailVerified: new Date(),
+            },
+          });
+        } else {
+          await db.user.create({
+            data: {
+              email,
+              name: user.name ?? email.split("@")[0],
+              image: user.image ?? null,
+              emailVerified: new Date(),
+            },
+          });
+        }
+        return true;
+      } catch (err) {
+        console.error("[auth.signIn] oauth upsert failed:", (err as Error).message);
+        return false;
+      }
+    },
     async jwt({ token, user }) {
       if (user) {
         const u = user as typeof user & {
@@ -64,6 +127,25 @@ export const authConfig: NextAuthConfig = {
         token.agencyId = u.agencyId ?? null;
         token.agencySlug = u.agencySlug ?? null;
         token.agencyName = u.agencyName ?? null;
+      }
+      // Pour OAuth : on recharge systématiquement depuis la DB quand on a
+      // un email mais pas encore de rôle (first-pass post-login).
+      if (token.email && !token.role && hasDb()) {
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { email: token.email.toLowerCase() },
+            include: { agency: { select: { id: true, slug: true, name: true } } },
+          });
+          if (dbUser) {
+            token.sub = dbUser.id;
+            token.role = dbUser.role;
+            token.agencyId = dbUser.agency?.id ?? null;
+            token.agencySlug = dbUser.agency?.slug ?? null;
+            token.agencyName = dbUser.agency?.name ?? null;
+          }
+        } catch {
+          // silencieux — le user reste non-connecté côté rôles
+        }
       }
       return token;
     },

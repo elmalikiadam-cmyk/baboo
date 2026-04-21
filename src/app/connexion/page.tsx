@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { SignInForm } from "@/components/auth/sign-in-form";
+import { OAuthButtons } from "@/components/auth/oauth-buttons";
+import { oauthProviderStatus } from "@/actions/auth";
 
 export const metadata = { title: "Connexion" };
 export const dynamic = "force-dynamic";
@@ -29,7 +31,24 @@ export default async function SignInPage({ searchParams }: Props) {
         </div>
 
         <SignInForm callbackUrl={callbackUrl} />
+
+        <OAuthSection />
       </div>
     </div>
+  );
+}
+
+async function OAuthSection() {
+  const status = await oauthProviderStatus();
+  if (!status.google && !status.facebook) return null;
+  return (
+    <>
+      <div className="my-6 flex items-center gap-3">
+        <span className="h-px flex-1 bg-foreground/15" />
+        <span className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">ou</span>
+        <span className="h-px flex-1 bg-foreground/15" />
+      </div>
+      <OAuthButtons google={status.google} facebook={status.facebook} />
+    </>
   );
 }

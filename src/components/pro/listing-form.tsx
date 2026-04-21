@@ -8,6 +8,7 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { CITIES } from "@/data/cities";
 import { PROPERTY_TYPE_LABEL, PROPERTY_TYPES, AMENITIES, CONDITION_LABEL } from "@/data/taxonomy";
 import { createListing, updateListing, type CrudResult } from "@/actions/pro-listings";
+import { ImageUploader } from "@/components/pro/image-uploader";
 
 export interface ListingFormInitial {
   id?: string;
@@ -47,6 +48,13 @@ export function ListingForm({ initial = {}, editId }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [citySlug, setCitySlug] = useState(initial.citySlug ?? "casablanca");
+  const [coverImage, setCoverImage] = useState(initial.coverImage ?? "");
+  const [extraImages, setExtraImages] = useState<string[]>(
+    (initial.additionalImages ?? "")
+      .split(/[\n,]/)
+      .map((s) => s.trim())
+      .filter(Boolean),
+  );
 
   const city = useMemo(() => CITIES.find((c) => c.slug === citySlug), [citySlug]);
 
@@ -212,30 +220,68 @@ export function ListingForm({ initial = {}, editId }: Props) {
       {/* Photos */}
       <Section n="06" title="Photos">
         <Field
-          label="Photo principale (URL)"
+          label="Photo principale"
           error={fieldErrors.coverImage}
-          hint="Collez l'URL publique d'une image (Unsplash, Cloudinary, votre CDN…)."
+          hint="Uploadez une image ou collez une URL publique."
         >
-          <Input
-            name="coverImage"
-            type="url"
-            required
-            defaultValue={initial.coverImage ?? ""}
-            placeholder="https://images.unsplash.com/photo-…"
-          />
+          <ImageUploader value={coverImage} onChange={setCoverImage} />
+          <div className="mt-2">
+            <Input
+              type="url"
+              value={coverImage}
+              onChange={(e) => setCoverImage(e.target.value)}
+              placeholder="…ou collez une URL : https://images.unsplash.com/photo-…"
+              aria-label="URL de la photo principale"
+            />
+          </div>
+          <input type="hidden" name="coverImage" value={coverImage} />
         </Field>
-        <div className="mt-4">
+
+        <div className="mt-6">
           <Field
             label="Photos supplémentaires (optionnel)"
             error={fieldErrors.additionalImages}
-            hint="Une URL par ligne. Jusqu'à 12 images. L'ordre est préservé."
+            hint={`${extraImages.length}/12 images · ajoutez-en en uploadant ou en collant une URL.`}
           >
-            <textarea
+            <div className="space-y-2">
+              {extraImages.map((url, i) => (
+                <div
+                  key={`${url}-${i}`}
+                  className="flex items-center gap-3 rounded-md border border-foreground/10 bg-surface p-2"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt="" className="h-12 w-12 shrink-0 rounded-md object-cover" />
+                  <p className="mono truncate text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                    {url.replace(/^https?:\/\//, "")}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setExtraImages((p) => p.filter((_, j) => j !== i))}
+                    className="mono ml-auto shrink-0 rounded-full border border-foreground/20 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] hover:border-danger hover:text-danger"
+                  >
+                    Retirer
+                  </button>
+                </div>
+              ))}
+              {extraImages.length < 12 && (
+                <ImageUploader
+                  value=""
+                  onChange={(url) => {
+                    if (url) setExtraImages((p) => (p.includes(url) ? p : [...p, url]));
+                  }}
+                />
+              )}
+              <ExtraUrlInput
+                disabled={extraImages.length >= 12}
+                onAdd={(url) =>
+                  setExtraImages((p) => (p.includes(url) ? p : [...p, url]))
+                }
+              />
+            </div>
+            <input
+              type="hidden"
               name="additionalImages"
-              rows={5}
-              defaultValue={initial.additionalImages ?? ""}
-              placeholder={"https://…/photo-1.jpg\nhttps://…/photo-2.jpg"}
-              className="w-full rounded-md border border-foreground/15 bg-background p-4 text-sm focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+              value={extraImages.join("\n")}
             />
           </Field>
         </div>
@@ -296,6 +342,52 @@ function Field({
       {children}
       {hint && <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{hint}</p>}
       {error && <p className="text-[11px] text-danger">{error}</p>}
+    </div>
+  );
+}
+
+function ExtraUrlInput({
+  onAdd,
+  disabled,
+}: {
+  onAdd: (url: string) => void;
+  disabled: boolean;
+}) {
+  const [value, setValue] = useState("");
+  function tryAdd() {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    try {
+      new URL(trimmed);
+    } catch {
+      return;
+    }
+    onAdd(trimmed);
+    setValue("");
+  }
+  return (
+    <div className="flex gap-2">
+      <Input
+        type="url"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            tryAdd();
+          }
+        }}
+        placeholder="…ou collez une URL d'image"
+        disabled={disabled}
+      />
+      <button
+        type="button"
+        onClick={tryAdd}
+        disabled={disabled || !value.trim()}
+        className="mono shrink-0 rounded-md border border-foreground/20 px-3 text-[10px] uppercase tracking-[0.12em] hover:border-foreground disabled:opacity-40"
+      >
+        Ajouter
+      </button>
     </div>
   );
 }
