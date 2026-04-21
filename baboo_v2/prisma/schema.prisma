@@ -1,0 +1,133 @@
+// Baboo V2 — schema minimal et honnête.
+// Source de vérité : la spec README.md section 12.
+// Pas d'auth dans cette version, pas de messaging — placeholder TODO.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Transaction {
+  SALE
+  RENT
+}
+
+enum PropertyType {
+  APARTMENT
+  VILLA
+  RIAD
+  HOUSE
+  DUPLEX
+  STUDIO
+  OFFICE
+  LAND
+  COMMERCIAL
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PublisherType {
+  PARTICULIER
+  PRO
+}
+
+model City {
+  slug          String         @id
+  name          String
+  region        String
+  lat           Float
+  lng           Float
+  cover         String?
+  tagline       String?
+  neighborhoods Neighborhood[]
+  listings      Listing[]
+}
+
+model Neighborhood {
+  id        String    @id @default(cuid())
+  slug      String
+  name      String
+  citySlug  String
+  city      City      @relation(fields: [citySlug], references: [slug], onDelete: Cascade)
+  listings  Listing[]
+
+  @@unique([citySlug, slug])
+  @@index([citySlug])
+}
+
+model Listing {
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  title          String
+  description    String         @db.Text
+  transaction    Transaction
+  propertyType   PropertyType
+  status         ListingStatus  @default(PUBLISHED)
+
+  price          Int
+  surface        Int
+  landSurface    Int?
+  bedrooms       Int?
+  bathrooms      Int?
+  yearBuilt      Int?
+
+  // Amenities dénormalisées — filtres rapides
+  parking          Boolean @default(false)
+  elevator         Boolean @default(false)
+  furnished        Boolean @default(false)
+  terrace          Boolean @default(false)
+  balcony          Boolean @default(false)
+  garden           Boolean @default(false)
+  pool             Boolean @default(false)
+  seaView          Boolean @default(false)
+  airConditioning  Boolean @default(false)
+
+  // Localisation
+  citySlug         String
+  city             City           @relation(fields: [citySlug], references: [slug])
+  neighborhoodId   String?
+  neighborhood     Neighborhood?  @relation(fields: [neighborhoodId], references: [id])
+  lat              Float
+  lng              Float
+
+  // Publisher (simplifié : pas d'auth, type + nom + vérifié)
+  publisherType    PublisherType  @default(PARTICULIER)
+  publisherName    String
+  publisherVerified Boolean       @default(false)
+  publisherPhone   String?
+
+  // Media
+  coverImage       String
+  images           ListingMedia[]
+
+  featured         Boolean        @default(false)
+
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  publishedAt      DateTime?
+
+  @@index([citySlug, transaction, propertyType])
+  @@index([status, publishedAt])
+  @@index([price])
+}
+
+model ListingMedia {
+  id         String   @id @default(cuid())
+  listingId  String
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url        String
+  alt        String?
+  position   Int      @default(0)
+
+  @@index([listingId])
+}
