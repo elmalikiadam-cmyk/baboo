@@ -4,6 +4,8 @@ import { z } from "zod";
 import { db, hasDb } from "@/lib/db";
 import { verifyPassword } from "@/lib/password";
 
+type UserRole = "USER" | "AGENCY" | "DEVELOPER" | "ADMIN";
+
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
@@ -52,20 +54,32 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
-        token.agencyId = user.agencyId ?? null;
-        token.agencySlug = user.agencySlug ?? null;
-        token.agencyName = user.agencyName ?? null;
+        const u = user as typeof user & {
+          role?: UserRole;
+          agencyId?: string | null;
+          agencySlug?: string | null;
+          agencyName?: string | null;
+        };
+        token.role = u.role;
+        token.agencyId = u.agencyId ?? null;
+        token.agencySlug = u.agencySlug ?? null;
+        token.agencyName = u.agencyName ?? null;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.sub ?? session.user.id;
-        session.user.role = token.role;
-        session.user.agencyId = token.agencyId;
-        session.user.agencySlug = token.agencySlug;
-        session.user.agencyName = token.agencyName;
+        const t = token as typeof token & {
+          role?: UserRole;
+          agencyId?: string | null;
+          agencySlug?: string | null;
+          agencyName?: string | null;
+        };
+        session.user.id = (token.sub as string | undefined) ?? session.user.id;
+        session.user.role = t.role ?? "USER";
+        session.user.agencyId = t.agencyId ?? null;
+        session.user.agencySlug = t.agencySlug ?? null;
+        session.user.agencyName = t.agencyName ?? null;
       }
       return session;
     },
