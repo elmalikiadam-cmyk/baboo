@@ -62,36 +62,39 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Masthead — editorial type-first hero */}
-      <section className="border-b border-foreground/10">
-        <div className="container pt-10 pb-10 md:pt-16 md:pb-14">
-          <p className="eyebrow">{issue}</p>
+      {/* Masthead — hero avec ambient glow, contenu centré */}
+      <section className="relative isolate overflow-hidden">
+        <div className="ambient-glow" aria-hidden />
+        <div className="container pt-16 pb-16 md:pt-24 md:pb-20">
+          <div className="mx-auto max-w-4xl text-center">
+            <p className="eyebrow">{issue}</p>
 
-          <h1 className="display-xl mt-4 text-[clamp(3rem,11vw,9rem)]">
-            <span className="block">À vendre,</span>
-            <span className="block">à louer.</span>
-          </h1>
+            <h1 className="display-xl mt-5 text-[clamp(3rem,10vw,8rem)]">
+              <span className="block">À vendre,</span>
+              <span className="block italic font-display-stack">à louer.</span>
+            </h1>
 
-          <p className="mono mt-6 text-xs uppercase text-muted-foreground">
-            {hasData ? `${formatTotal(total)} annonces` : "Base en cours d'initialisation"}
-            {hasData && " · particuliers & professionnels"}
-          </p>
+            <p className="mono mt-6 text-xs uppercase text-muted-foreground">
+              {hasData ? `${formatTotal(total)} annonces` : "Base en cours d'initialisation"}
+              {hasData && " · particuliers & professionnels"}
+            </p>
 
-          <div className="mt-8 flex flex-wrap gap-2">
-            <Link href="/recherche?t=sale" className="pill-soft">Je veux acheter</Link>
-            <Link href="/recherche?t=rent" className="pill-soft">Je veux louer</Link>
-            <Link href="/pro/publier" className="pill-soft">Je veux publier</Link>
-          </div>
+            <div className="mt-8 flex flex-wrap justify-center gap-2">
+              <Link href="/recherche?t=sale" className="pill-soft">Je veux acheter</Link>
+              <Link href="/recherche?t=rent" className="pill-soft">Je veux louer</Link>
+              <Link href="/pro/publier" className="pill-soft">Je veux publier</Link>
+            </div>
 
-          <div className="mt-8 flex w-full justify-start md:mt-10">
-            <HeroSearch />
+            <div className="mt-10 flex w-full justify-center">
+              <HeroSearch />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Featured hero — V1 editorial à la une */}
+      {/* Featured hero — grande carte à la une */}
       {featured && (
-        <section className="container pt-12 md:pt-16">
+        <section className="container pt-6 md:pt-10">
           <FeaturedHeroCard listing={featured} />
         </section>
       )}
@@ -99,14 +102,14 @@ export default async function HomePage() {
       {/* Latest grid */}
       {latest.length > 0 && (
         <section className="container py-14 md:py-20">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-6 border-b border-foreground/15 pb-4">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-6 border-b border-foreground/10 pb-5">
             <div>
               <p className="eyebrow">Sélection</p>
               <h2 className="display-xl mt-2 text-3xl md:text-5xl">Dernières annonces.</h2>
             </div>
             <Link
               href="/recherche"
-              className="mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+              className="mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground"
             >
               Voir tout ({formatTotal(total)}) →
             </Link>
@@ -120,14 +123,13 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Empty state — visible only if DB has no data yet */}
       {!hasData && (
         <section className="container py-20">
-          <div className="rounded-3xl border border-dashed border-foreground/20 bg-paper-2/40 p-10 text-center">
+          <div className="glass rounded-3xl p-10 text-center">
             <p className="eyebrow">Base vide</p>
             <h2 className="display-xl mt-3 text-3xl md:text-4xl">Pas encore d'annonces ici.</h2>
             <p className="mt-3 text-sm text-muted-foreground">
-              Lance le seed pour charger 60+ annonces de démonstration :
+              Lance le seed pour charger 60+ annonces de démonstration.
             </p>
             <code className="mt-4 inline-block rounded-full bg-foreground px-4 py-2 mono text-xs text-background">
               pnpm db:push && pnpm db:seed

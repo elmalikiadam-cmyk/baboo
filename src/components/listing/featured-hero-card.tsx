@@ -17,19 +17,22 @@ export function FeaturedHeroCard({ listing }: Props) {
   return (
     <Link
       href={href}
-      className="group grid gap-5 overflow-hidden rounded-3xl border border-foreground/10 bg-paper-2/50 md:grid-cols-[1.4fr_1fr]"
+      className="group relative grid gap-5 overflow-hidden rounded-[2rem] bg-surface shadow-soft-lg transition-all duration-300 ease-out-soft hover:-translate-y-1 hover:shadow-[0_30px_60px_-20px_rgba(17,24,39,0.18)] md:grid-cols-[1.4fr_1fr]"
     >
-      <div className="relative aspect-[4/3] overflow-hidden md:aspect-auto md:min-h-[420px]">
+      <div className="relative aspect-[4/3] overflow-hidden md:aspect-auto md:min-h-[440px]">
         <Image
           src={listing.coverImage}
           alt={listing.title}
           fill
           sizes="(min-width: 768px) 55vw, 100vw"
           priority
-          className="object-cover transition-transform duration-500 ease-out-soft group-hover:scale-[1.02]"
+          className="object-cover transition-transform duration-700 ease-out-soft group-hover:scale-[1.04]"
         />
-        <span className="pointer-events-none absolute left-4 top-4 inline-flex items-center gap-2 rounded-sm bg-background/95 px-2 py-1 text-[9px] font-medium tracking-[0.14em] mono text-foreground">
-          ◉ À LA UNE
+
+        {/* Glass badge top-left */}
+        <span className="glass pointer-events-none absolute left-4 top-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-medium tracking-[0.14em] mono text-foreground">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+          À LA UNE
         </span>
       </div>
 
@@ -63,7 +66,7 @@ export function FeaturedHeroCard({ listing }: Props) {
           {listing.garden && <Chip>JARDIN</Chip>}
           {listing.terrace && <Chip>TERRASSE</Chip>}
           {listing.seaView && <Chip>VUE MER</Chip>}
-          <span className="ml-auto mono text-[10px] text-muted-foreground">
+          <span className="mono ml-auto inline-flex items-center gap-1 text-[10px] text-foreground/70 transition-transform group-hover:translate-x-1">
             DÉCOUVRIR →
           </span>
         </div>
@@ -74,7 +77,7 @@ export function FeaturedHeroCard({ listing }: Props) {
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="mono rounded-sm border border-foreground/20 px-2 py-0.5 text-[10px] font-medium text-foreground/90">
+    <span className="mono rounded-full border border-foreground/15 bg-background/60 px-2.5 py-0.5 text-[10px] font-medium text-foreground/90">
       {children}
     </span>
   );

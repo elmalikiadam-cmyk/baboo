@@ -17,18 +17,22 @@ export async function SiteHeader() {
   const user = session?.user;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-foreground/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75">
-      <div className="container flex h-16 items-center md:h-20">
-        <Link href="/" aria-label="Baboo, accueil" className="text-foreground">
-          <BabooLogo className="h-6 w-auto md:h-7" />
+    <header className="sticky top-0 z-40 px-3 pt-3">
+      <div className="glass mx-auto flex h-14 max-w-7xl items-center rounded-full px-4 md:h-16 md:px-6">
+        <Link
+          href="/"
+          aria-label="Baboo, accueil"
+          className="text-foreground transition-opacity hover:opacity-80"
+        >
+          <BabooLogo className="h-7 w-auto md:h-8" />
         </Link>
 
-        <nav className="mx-auto hidden items-center gap-9 md:flex">
+        <nav className="mx-auto hidden items-center gap-7 md:flex">
           {NAV.map((n) => (
             <Link
               key={n.href}
               href={n.href}
-              className="text-sm font-medium text-foreground/75 transition-colors hover:text-foreground"
+              className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
             >
               {n.label}
             </Link>

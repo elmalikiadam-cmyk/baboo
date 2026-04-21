@@ -68,7 +68,7 @@ export function SearchFiltersPanel({ initial }: Props) {
 
   return (
     <aside
-      className="sticky top-20 max-h-[calc(100vh-6rem)] w-full overflow-y-auto rounded-3xl border border-foreground/15 bg-surface p-5"
+      className="glass-strong sticky top-24 max-h-[calc(100vh-7rem)] w-full overflow-y-auto rounded-3xl p-5"
       aria-busy={isPending}
     >
       <p className="eyebrow mb-3">Affiner</p>

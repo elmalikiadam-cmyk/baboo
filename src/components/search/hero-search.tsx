@@ -38,15 +38,21 @@ export function HeroSearch() {
   return (
     <div className="w-full max-w-3xl">
       <div className="mb-3 flex items-center justify-center">
-        <div role="tablist" aria-label="Type de transaction" className="inline-flex rounded-full bg-foreground/[0.06] p-1 text-sm">
+        <div
+          role="tablist"
+          aria-label="Type de transaction"
+          className="glass inline-flex rounded-full p-1 text-sm"
+        >
           {(["SALE", "RENT"] as const).map((t) => (
             <button
               key={t}
               role="tab"
               aria-selected={tab === t}
               onClick={() => setTab(t)}
-              className={`rounded-full px-5 py-1.5 font-medium transition-colors ${
-                tab === t ? "bg-foreground text-background" : "text-foreground/70 hover:text-foreground"
+              className={`rounded-full px-5 py-1.5 font-medium transition-all ${
+                tab === t
+                  ? "bg-foreground text-background shadow-sm"
+                  : "text-foreground/70 hover:text-foreground"
               }`}
             >
               {t === "SALE" ? "Acheter" : "Louer"}
@@ -57,7 +63,7 @@ export function HeroSearch() {
 
       <form
         onSubmit={onSubmit}
-        className="grid gap-2 rounded-full border border-foreground/15 bg-background p-2 shadow-soft sm:grid-cols-[1.2fr_1fr_1fr_auto]"
+        className="glass-strong ring-warm grid gap-2 rounded-full p-2 sm:grid-cols-[1.2fr_1fr_1fr_auto]"
       >
         <Select
           value={city}

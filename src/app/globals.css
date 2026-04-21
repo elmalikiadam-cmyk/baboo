@@ -4,35 +4,45 @@
 
 @layer base {
   :root {
-    /* Surfaces — warm paper, deep ink */
-    --background: 44 22% 93%;        /* #f2efe8 */
-    --paper-2: 44 20% 88%;           /* #e9e5db — subtle variants, dividers */
-    --paper-3: 42 19% 82%;           /* #dcd7c9 — stripes, quiet surfaces */
-    --foreground: 0 0% 4%;           /* #0a0a0a */
-    --surface: 44 22% 93%;
-    --surface-muted: 44 20% 88%;
-    --border: 0 0% 4% / 0.12;        /* hairlines */
-    --border-strong: 0 0% 4% / 0.85;
-    --muted: 44 4% 42%;              /* #6a6a66 */
-    --muted-foreground: 44 4% 38%;
+    /* ─── Surfaces ───────────────────────────────────────────────────
+       Ton warm paper plus crémeux, plus lumineux. L'ancien #f2efe8
+       tirait vers le beige industriel ; on adoucit vers un cream
+       légèrement rosé pour mieux accueillir les ambient gradients. */
+    --background: 40 30% 96%;          /* #f8f5ee */
+    --paper-2: 38 25% 91%;             /* subtle card shading */
+    --paper-3: 36 22% 85%;             /* quieter sections */
+    --foreground: 220 30% 8%;          /* near-black bleuté plus chaleureux */
+    --surface: 0 0% 100%;              /* cartes = blanc pur pour contraster */
+    --surface-muted: 40 25% 93%;
+
+    --muted: 220 10% 42%;
+    --muted-foreground: 220 10% 38%;
 
     /* Dark inversion */
-    --ink: 0 0% 4%;
-    --ink-2: 0 0% 10%;
-    --ink-3: 0 0% 16%;
-    --ink-foreground: 44 22% 93%;
+    --ink: 220 30% 8%;
+    --ink-2: 220 24% 14%;
+    --ink-3: 220 20% 22%;
+    --ink-foreground: 40 30% 97%;
 
     /* Primary = ink */
-    --primary: 0 0% 4%;
-    --primary-foreground: 44 22% 93%;
+    --primary: 220 30% 8%;
+    --primary-foreground: 40 30% 97%;
 
-    /* Accent — quiet yellow, used sparingly */
-    --accent: 48 96% 58%;
-    --accent-foreground: 0 0% 4%;
+    /* Accents : trio chaud pour les ambient glows et hover states */
+    --accent: 42 96% 62%;              /* amber warm */
+    --accent-foreground: 220 30% 8%;
+    --accent-peach: 16 92% 70%;        /* peach soft */
+    --accent-sage: 152 28% 48%;        /* sage discret */
 
     /* Status */
-    --success: 155 46% 34%;
-    --danger: 2 72% 41%;
+    --success: 155 50% 38%;
+    --danger: 2 72% 48%;
+
+    /* Glass — translucide blanc + blur utilisé via la classe .glass */
+    --glass: 0 0% 100% / 0.58;
+    --glass-border: 220 30% 8% / 0.08;
+    --glass-dark: 220 30% 8% / 0.62;
+    --glass-dark-border: 40 30% 97% / 0.12;
 
     /* Fonts */
     --font-display-stack: "Bahnschrift", var(--font-barlow), "Arial Narrow", system-ui, sans-serif;
@@ -41,7 +51,7 @@
   }
 
   * {
-    border-color: hsl(var(--foreground) / 0.12);
+    border-color: hsl(var(--foreground) / 0.1);
   }
 
   html {
@@ -50,11 +60,25 @@
   }
 
   body {
-    background-color: hsl(var(--background));
+    background: hsl(var(--background));
     color: hsl(var(--foreground));
     font-family: var(--font-sans-stack);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Ambient glow global discret — deux blobs colorés en fond, fixed,
+     très flou et très transparent. Donne du relief sans charger. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background:
+      radial-gradient(60% 50% at 82% 0%, hsl(var(--accent) / 0.22) 0%, transparent 60%),
+      radial-gradient(55% 45% at 0% 100%, hsl(var(--accent-peach) / 0.18) 0%, transparent 55%);
   }
 
   h1, h2, h3, h4 {
@@ -108,28 +132,137 @@
     letter-spacing: 0.06em;
   }
 
+  /* ─── Glass surfaces ──────────────────────────────────────────────
+     Utilisées sur header, hero search, sheets, bottom nav. Blur léger
+     + border interne fine pour le bord lumineux. */
+  .glass {
+    background: hsl(var(--glass));
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.4),
+      0 1px 2px 0 rgb(0 0 0 / 0.04),
+      0 8px 24px -8px rgb(0 0 0 / 0.08);
+  }
+
+  .glass-strong {
+    background: hsl(0 0% 100% / 0.78);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.5),
+      0 4px 16px -4px rgb(0 0 0 / 0.06),
+      0 24px 48px -16px rgb(0 0 0 / 0.12);
+  }
+
+  .glass-dark {
+    background: hsl(var(--glass-dark));
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid hsl(var(--glass-dark-border));
+    color: hsl(var(--ink-foreground));
+  }
+
+  /* Card de base — blanc pur, shadow douce en couches, hover qui monte. */
+  .card {
+    background: hsl(var(--surface));
+    border: 1px solid hsl(var(--foreground) / 0.06);
+    box-shadow:
+      0 1px 2px 0 rgb(17 24 39 / 0.04),
+      0 4px 12px -4px rgb(17 24 39 / 0.06);
+    border-radius: 1.25rem;
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 2px 4px 0 rgb(17 24 39 / 0.04),
+      0 12px 28px -8px rgb(17 24 39 / 0.1),
+      0 24px 48px -16px rgb(17 24 39 / 0.08);
+  }
+
+  /* Gradient border — wrapper, pour les accents sur hero search. */
+  .ring-warm {
+    box-shadow:
+      0 0 0 1px hsl(var(--foreground) / 0.08),
+      0 20px 40px -20px hsl(var(--accent) / 0.4);
+  }
+
   .pill {
-    @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors;
+    @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all;
   }
 
   .pill-dark {
-    @apply pill bg-foreground text-background hover:bg-foreground/90;
+    @apply pill bg-foreground text-background;
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.08),
+      0 1px 2px 0 rgb(0 0 0 / 0.2);
+  }
+  .pill-dark:hover {
+    background: hsl(var(--foreground) / 0.9);
+    transform: translateY(-1px);
   }
 
   .pill-soft {
-    @apply pill bg-foreground/[0.08] text-foreground hover:bg-foreground/[0.14];
+    @apply pill;
+    background: hsl(var(--foreground) / 0.06);
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--foreground) / 0.08);
+  }
+  .pill-soft:hover {
+    background: hsl(var(--foreground) / 0.12);
+    border-color: hsl(var(--foreground) / 0.16);
+  }
+
+  .pill-glass {
+    @apply pill glass;
+    color: hsl(var(--foreground));
   }
 
   .hairline {
-    border-color: hsl(var(--foreground) / 0.12);
+    border-color: hsl(var(--foreground) / 0.1);
   }
 }
 
 @layer utilities {
-  .font-stretch-condensed {
-    font-stretch: 75%;
+  .font-stretch-condensed { font-stretch: 75%; }
+  .font-stretch-normal { font-stretch: 100%; }
+
+  /* Ambient blobs pour décors de sections. */
+  .ambient-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
   }
-  .font-stretch-normal {
-    font-stretch: 100%;
+  .ambient-glow::before,
+  .ambient-glow::after {
+    content: "";
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    opacity: 0.6;
+  }
+  .ambient-glow::before {
+    width: 520px;
+    height: 520px;
+    top: -160px;
+    right: -120px;
+    background: hsl(var(--accent) / 0.55);
+  }
+  .ambient-glow::after {
+    width: 420px;
+    height: 420px;
+    bottom: -180px;
+    left: -80px;
+    background: hsl(var(--accent-peach) / 0.5);
+  }
+
+  /* Soft-mask top fade, utilisé pour fondre un hero sur le contenu. */
+  .fade-b {
+    mask-image: linear-gradient(to bottom, black 70%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent);
   }
 }

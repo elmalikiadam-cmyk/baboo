@@ -24,21 +24,29 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
   const ref = listing.id.slice(-4).toUpperCase();
 
   return (
-    <article className="group relative flex flex-col transition-transform duration-200 hover:-translate-y-0.5">
-      <Link href={href} className="relative block aspect-[4/3] overflow-hidden rounded-3xl bg-foreground/5">
+    <article className="group relative flex flex-col">
+      <Link
+        href={href}
+        className="relative block aspect-[4/3] overflow-hidden rounded-3xl bg-foreground/5 transition-transform duration-300 ease-out-soft group-hover:-translate-y-1 group-hover:shadow-soft-lg"
+      >
         <Image
           src={listing.coverImage}
           alt={listing.title}
           fill
           sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 92vw"
-          className="object-cover transition-transform duration-500 ease-out-soft group-hover:scale-[1.03]"
+          className="object-cover transition-transform duration-700 ease-out-soft group-hover:scale-[1.05]"
           priority={priority}
         />
+        {/* Subtle gradient at the bottom of image for badge legibility */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        />
         <span
-          className={`pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-sm px-2 py-0.5 text-[9px] font-medium tracking-[0.12em] mono ${
+          className={`pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full px-2.5 py-1 text-[9px] font-medium tracking-[0.12em] mono backdrop-blur-md ${
             isPro
-              ? "bg-foreground text-background"
-              : "border border-foreground bg-background text-foreground"
+              ? "bg-foreground/90 text-background"
+              : "bg-background/80 text-foreground border border-foreground/20"
           }`}
         >
           {isPro ? "PRO" : "PARTICULIER"}
@@ -85,7 +93,7 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
 
 function MetaChip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="mono rounded-sm border border-foreground/15 px-1.5 py-0.5 text-[9px] font-medium text-foreground/85">
+    <span className="mono rounded-full border border-foreground/15 bg-background/60 px-2 py-0.5 text-[9px] font-medium text-foreground/80">
       {children}
     </span>
   );
