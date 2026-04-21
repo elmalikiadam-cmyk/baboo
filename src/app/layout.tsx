@@ -6,6 +6,7 @@ import { MobileBottomBar } from "@/components/layout/mobile-bottom-bar";
 import { FavoritesProvider } from "@/components/favorites/favorites-provider";
 import { auth } from "@/auth";
 import { getFavoriteSlugs } from "@/actions/favorites";
+import { countUnreadConversations } from "@/lib/messaging";
 import "./globals.css";
 
 const inter = Inter({
@@ -55,16 +56,26 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  const initialFavorites = session?.user?.id ? await getFavoriteSlugs(session.user.id) : null;
+  const userId = session?.user?.id ?? null;
+  const [initialFavorites, unread] = await Promise.all([
+    userId ? getFavoriteSlugs(userId) : Promise.resolve(null),
+    userId ? countUnreadConversations(userId) : Promise.resolve(null),
+  ]);
 
   return (
     <html lang="fr" className={`${inter.variable} ${barlow.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen flex flex-col pb-16 md:pb-0">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-foreground focus:px-4 focus:py-2 focus:text-sm focus:text-background focus:outline-none"
+        >
+          Aller au contenu principal
+        </a>
         <FavoritesProvider initial={initialFavorites}>
           <SiteHeader />
-          <main className="flex-1">{children}</main>
+          <main id="main" className="flex-1">{children}</main>
           <SiteFooter />
-          <MobileBottomBar />
+          <MobileBottomBar unreadMessages={unread} />
         </FavoritesProvider>
       </body>
     </html>

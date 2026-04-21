@@ -92,7 +92,7 @@ export default async function AdminDashboard() {
           </p>
         </div>
         <div className="mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-          ◉ CONNECTÉ · ADMIN@BABOO.MA
+          ◉ CONNECTÉ · {(session.user.email ?? "admin").toUpperCase()}
         </div>
       </div>
 

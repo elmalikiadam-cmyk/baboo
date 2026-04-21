@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { db, hasDb } from "@/lib/db";
 
 /**
@@ -206,7 +207,9 @@ export async function getConversation(conversationId: string, userId: string) {
   }
 }
 
-export async function countUnreadConversations(userId: string): Promise<number> {
+/** Dédupliqué par request grâce à React `cache` — deux appels dans la
+ *  même requête (layout + header) ne déclenchent qu'une seule query. */
+export const countUnreadConversations = cache(async (userId: string): Promise<number> => {
   if (!hasDb()) return 0;
   try {
     const participants = await db.conversationParticipant.findMany({
@@ -235,4 +238,4 @@ export async function countUnreadConversations(userId: string): Promise<number> 
   } catch {
     return 0;
   }
-}
+});
