@@ -1,0 +1,61 @@
+name: Push schema (non-destructive)
+
+# Synchronise le schéma Prisma avec la base de production sans toucher aux
+# données. À utiliser après un changement de schema.prisma (ajout de colonne,
+# index, enum) — ne reseed PAS les annonces.
+#
+# Pour un reseed complet (avec wipe), utiliser le workflow "Seed database".
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Tape PUSH pour confirmer (applique les changements de schéma)'
+        required: true
+        default: 'no'
+
+permissions:
+  contents: read
+
+jobs:
+  push:
+    if: github.event.inputs.confirm == 'PUSH'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Verify env vars are set
+        run: |
+          if [ -z "$DATABASE_URL" ] || [ -z "$DIRECT_URL" ]; then
+            echo "❌ DATABASE_URL ou DIRECT_URL manquant dans les secrets."
+            exit 1
+          fi
+          echo "✓ Secrets détectés"
+
+      - name: Push schema
+        run: pnpm db:push --skip-generate
+
+      - name: Summary
+        run: |
+          echo "## ✅ Schéma synchronisé" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Aucune donnée n'a été modifiée. Les nouvelles colonnes éventuelles sont créées." >> $GITHUB_STEP_SUMMARY
