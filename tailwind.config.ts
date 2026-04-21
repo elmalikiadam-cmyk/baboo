@@ -58,13 +58,15 @@ const config: Config = {
         "display-md": ["clamp(2rem, 4.5vw, 3.5rem)", { lineHeight: "0.92", letterSpacing: "-0.03em" }],
       },
       borderRadius: {
-        // Strict handoff: rounded-lg / xl / 2xl réservés aux pills uniquement.
-        // Les rectangles brutalistes sont rayons 0-2px.
+        // UI guidelines : un seul rayon par famille.
+        // - rounded-md (6px) → cards, surfaces, inputs
+        // - rounded-full     → pills et boutons ronds
+        // - rounded-none     → photos
+        // Les rayons lg / xl / 2xl / 3xl sont bannis.
         none: "0",
         xs: "2px",
         sm: "4px",
         md: "6px",
-        lg: "0.5rem",
         full: "9999px",
       },
       transitionTimingFunction: {

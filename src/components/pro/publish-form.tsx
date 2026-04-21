@@ -63,7 +63,7 @@ export function PublishForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-3xl border border-success/30 bg-success/5 p-10 text-center">
+      <div className="rounded-md border border-success/30 bg-success/5 p-10 text-center">
         <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-success/15 text-success">
           <CheckIcon className="h-6 w-6" />
         </span>
@@ -153,7 +153,7 @@ export function PublishForm() {
               name="notes"
               rows={4}
               placeholder="Dispo pour les photos, points forts du bien, délai souhaité…"
-              className="w-full rounded-2xl border border-foreground/15 bg-background p-4 text-sm focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+              className="w-full rounded-md border border-foreground/15 bg-background p-4 text-sm focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
             />
           </div>
         </div>

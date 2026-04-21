@@ -43,11 +43,11 @@ export function SavedSearchesPage() {
       {!hydrated ? (
         <ul className="mt-10 space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <li key={i} className="h-32 animate-pulse rounded-3xl bg-foreground/5" />
+            <li key={i} className="h-32 animate-pulse rounded-md bg-foreground/5" />
           ))}
         </ul>
       ) : items.length === 0 ? (
-        <div className="mt-16 rounded-3xl border border-dashed border-foreground/25 bg-paper-2/40 p-10 text-center">
+        <div className="mt-16 rounded-md border border-dashed border-foreground/25 bg-paper-2/40 p-10 text-center">
           <span className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-foreground/20">
             <SearchIcon className="h-6 w-6" />
           </span>
@@ -92,7 +92,7 @@ function SavedSearchRow({
 }) {
   const isPaused = search.frequency === "paused";
   return (
-    <li className="rounded-3xl border border-foreground/15 bg-surface p-6">
+    <li className="rounded-md border border-foreground/15 bg-surface p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-start gap-4">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-foreground text-background">

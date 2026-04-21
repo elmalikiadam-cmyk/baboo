@@ -105,14 +105,14 @@ export default async function AdminDashboard() {
 
           <ul className="space-y-3">
             {pending.length === 0 ? (
-              <li className="rounded-2xl border border-dashed border-foreground/25 p-8 text-center text-sm text-muted-foreground">
+              <li className="rounded-md border border-dashed border-foreground/25 p-8 text-center text-sm text-muted-foreground">
                 Rien à modérer. Bonne journée.
               </li>
             ) : (
               pending.map((l) => (
-                <li key={l.id} className="rounded-2xl border border-foreground/15 bg-surface p-4">
+                <li key={l.id} className="rounded-md border border-foreground/15 bg-surface p-4">
                   <div className="flex items-center gap-4">
-                    <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-foreground/5">
+                    <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-foreground/5">
                       <Image src={l.coverImage} alt={l.title} fill sizes="80px" className="object-cover" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -149,13 +149,13 @@ export default async function AdminDashboard() {
               </div>
             </div>
             {recentLeads.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-foreground/25 p-6 text-center text-sm text-muted-foreground">
+              <p className="rounded-md border border-dashed border-foreground/25 p-6 text-center text-sm text-muted-foreground">
                 Aucun lead reçu pour l'instant.
               </p>
             ) : (
               <ul className="space-y-3">
                 {recentLeads.map((l) => (
-                  <li key={l.id} className="rounded-2xl border border-foreground/15 bg-surface p-4">
+                  <li key={l.id} className="rounded-md border border-foreground/15 bg-surface p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="display-lg text-base">{l.name}</p>
@@ -186,7 +186,7 @@ export default async function AdminDashboard() {
           </div>
           <ul className="space-y-3">
             {MOCK_MODERATION.map((m, i) => (
-              <li key={i} className="rounded-2xl border border-foreground/15 bg-surface p-4">
+              <li key={i} className="rounded-md border border-foreground/15 bg-surface p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="display-lg text-base">{m.listing}</p>
@@ -211,7 +211,7 @@ export default async function AdminDashboard() {
             ))}
           </ul>
 
-          <div className="mt-6 rounded-3xl bg-ink p-6 text-ink-foreground">
+          <div className="mt-6 rounded-md bg-ink p-6 text-ink-foreground">
             <p className="eyebrow text-ink-foreground/60">Action rapide</p>
             <h3 className="display-lg mt-2 text-xl">Publier un message global.</h3>
             <p className="mt-2 text-sm text-ink-foreground/75">
@@ -230,7 +230,7 @@ export default async function AdminDashboard() {
 function Stat({ label, value, tone = "light" }: { label: string; value: string; tone?: "light" | "dark" }) {
   return (
     <div
-      className={`rounded-2xl border p-4 ${
+      className={`rounded-md border p-4 ${
         tone === "dark" ? "border-foreground bg-foreground text-background" : "border-foreground/15 bg-surface"
       }`}
     >

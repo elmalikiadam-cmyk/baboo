@@ -52,7 +52,7 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
   }
 
   return (
-    <aside id="contact-form" className="sticky top-24 rounded-3xl border border-foreground/15 bg-surface p-6">
+    <aside id="contact-form" className="sticky top-24 rounded-md border border-foreground/15 bg-surface p-6">
       {agency && (
         <div className="mb-4 flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-full bg-foreground/5 text-sm font-semibold text-foreground">
@@ -84,7 +84,7 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
       )}
 
       {submitted ? (
-        <div className="rounded-2xl border border-success/30 bg-success/5 p-5 text-center">
+        <div className="rounded-md border border-success/30 bg-success/5 p-5 text-center">
           <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-success/15 text-success">
             <CheckIcon className="h-5 w-5" />
           </span>
@@ -118,7 +118,7 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
               rows={4}
               required
               defaultValue={`Bonjour, je suis intéressé(e) par "${listingTitle}". Pourriez-vous me contacter pour organiser une visite ?`}
-              className="flex w-full rounded-2xl border border-foreground/15 bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+              className="flex w-full rounded-md border border-foreground/15 bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
             />
           </Field>
 

@@ -135,7 +135,7 @@ export default async function ProDashboard() {
           </div>
 
           {leads.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-foreground/25 p-8 text-center text-sm text-muted-foreground">
+            <div className="rounded-md border border-dashed border-foreground/25 p-8 text-center text-sm text-muted-foreground">
               Pas encore de leads. Vos prochaines demandes de contact apparaîtront ici.
             </div>
           ) : (
@@ -143,7 +143,7 @@ export default async function ProDashboard() {
               {leads.map((l) => (
                 <li
                   key={l.id}
-                  className="group rounded-2xl border border-foreground/15 bg-surface p-5 transition-colors hover:border-foreground/40"
+                  className="group rounded-md border border-foreground/15 bg-surface p-5 transition-colors hover:border-foreground/40"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex min-w-0 items-start gap-3">
@@ -219,7 +219,7 @@ export default async function ProDashboard() {
 
           <ul className="space-y-3">
             {listings.length === 0 ? (
-              <li className="rounded-2xl border border-dashed border-foreground/25 p-6 text-center text-sm text-muted-foreground">
+              <li className="rounded-md border border-dashed border-foreground/25 p-6 text-center text-sm text-muted-foreground">
                 Aucune annonce publiée.{" "}
                 <Link
                   href="/pro/publier"
@@ -233,9 +233,9 @@ export default async function ProDashboard() {
               listings.map((l) => (
                 <li
                   key={l.id}
-                  className="flex items-center gap-3 rounded-2xl border border-foreground/15 bg-surface p-3"
+                  className="flex items-center gap-3 rounded-md border border-foreground/15 bg-surface p-3"
                 >
-                  <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-foreground/5">
+                  <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-foreground/5">
                     <Image src={l.coverImage} alt={l.title} fill sizes="80px" className="object-cover" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -271,7 +271,7 @@ export default async function ProDashboard() {
 function DashboardDemo({ signedIn, signedInName }: { signedIn: boolean; signedInName?: string }) {
   return (
     <div className="container py-10 md:py-16">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-foreground bg-foreground px-5 py-4 text-background">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-md border border-foreground bg-foreground px-5 py-4 text-background">
         <div>
           <p className="mono text-[10px] uppercase tracking-[0.14em] text-background/60">
             {signedIn ? "Aperçu — aucun compte agence rattaché" : "Aperçu — non connecté"}
@@ -325,7 +325,7 @@ function StatCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border p-5 ${
+      className={`rounded-md border p-5 ${
         tone === "dark"
           ? "border-foreground bg-foreground text-background"
           : "border-foreground/15 bg-surface"

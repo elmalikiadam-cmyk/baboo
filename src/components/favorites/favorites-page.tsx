@@ -60,11 +60,11 @@ export function FavoritesPage() {
       {!hydrated || items === null ? (
         <div className="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="aspect-[4/3] animate-pulse rounded-3xl bg-foreground/5" />
+            <div key={i} className="aspect-[4/3] animate-pulse rounded-md bg-foreground/5" />
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="mt-16 rounded-3xl border border-dashed border-foreground/25 bg-paper-2/40 p-10 text-center">
+        <div className="mt-16 rounded-md border border-dashed border-foreground/25 bg-paper-2/40 p-10 text-center">
           <p className="eyebrow">Aucun favori</p>
           <h2 className="display-xl mt-2 text-2xl">Commencez votre sélection.</h2>
           <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">

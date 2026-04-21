@@ -74,7 +74,7 @@ export function AccountDashboard({ isSignedIn, isAgency }: Props) {
       </section>
 
       {!isSignedIn && (
-        <section className="mt-14 rounded-3xl border border-dashed border-foreground/20 bg-paper-2/40 p-8">
+        <section className="mt-14 rounded-md border border-dashed border-foreground/20 bg-paper-2/40 p-8">
           <p className="eyebrow">Compte Baboo</p>
           <h2 className="display-xl mt-2 text-2xl md:text-3xl">Synchronisation entre vos appareils.</h2>
           <p className="mt-3 max-w-xl text-muted-foreground">
@@ -102,7 +102,7 @@ export function AccountDashboard({ isSignedIn, isAgency }: Props) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-foreground/15 bg-surface p-5">
+    <div className="rounded-md border border-foreground/15 bg-surface p-5">
       <p className="eyebrow">{label}</p>
       <p className="display-lg mt-2 text-3xl">{value}</p>
     </div>
@@ -123,7 +123,7 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-4 rounded-2xl border border-foreground/15 bg-surface p-5 transition-colors hover:border-foreground/40"
+      className="group flex items-center gap-4 rounded-md border border-foreground/15 bg-surface p-5 transition-colors hover:border-foreground/40"
     >
       <span className="grid h-10 w-10 place-items-center rounded-full bg-foreground text-background">{icon}</span>
       <div className="min-w-0 flex-1">

@@ -65,7 +65,7 @@ export function UserMenu({ name, email, agencyName, isAgency, isAdmin }: Props) 
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-11 z-50 w-64 overflow-hidden rounded-2xl border border-foreground/15 bg-surface shadow-lg"
+          className="absolute right-0 top-11 z-50 w-64 overflow-hidden rounded-md border border-foreground/15 bg-surface shadow-lg"
         >
           <div className="border-b border-foreground/10 p-4">
             <p className="truncate text-sm font-medium text-foreground">{name}</p>

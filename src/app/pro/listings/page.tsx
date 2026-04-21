@@ -77,7 +77,7 @@ export default async function ListingsPage({ searchParams }: Props) {
       </div>
 
       {created && (
-        <div className="mt-6 rounded-2xl border border-success/40 bg-success/10 p-4 text-success">
+        <div className="mt-6 rounded-md border border-success/40 bg-success/10 p-4 text-success">
           <p className="mono text-[11px] uppercase tracking-[0.14em]">✓ Annonce publiée</p>
           <p className="mt-1 text-sm">
             Voir{" "}
@@ -90,7 +90,7 @@ export default async function ListingsPage({ searchParams }: Props) {
       )}
 
       {listings.length === 0 ? (
-        <div className="mt-12 rounded-3xl border border-dashed border-foreground/25 bg-paper-2/40 p-10 text-center">
+        <div className="mt-12 rounded-md border border-dashed border-foreground/25 bg-paper-2/40 p-10 text-center">
           <p className="eyebrow">Aucune annonce</p>
           <h2 className="display-xl mt-3 text-2xl md:text-3xl">Commencez votre portefeuille.</h2>
           <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
@@ -106,9 +106,9 @@ export default async function ListingsPage({ searchParams }: Props) {
       ) : (
         <ul className="mt-8 space-y-3">
           {listings.map((l) => (
-            <li key={l.id} className="rounded-2xl border border-foreground/15 bg-surface p-4">
+            <li key={l.id} className="rounded-md border border-foreground/15 bg-surface p-4">
               <div className="flex items-start gap-4">
-                <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-xl bg-foreground/5">
+                <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-md bg-foreground/5">
                   <Image
                     src={l.coverImage}
                     alt={l.title}

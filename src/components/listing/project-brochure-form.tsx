@@ -42,7 +42,7 @@ export function ProjectBrochureForm({ projectId, projectName }: Props) {
   }
 
   return (
-    <aside className="sticky top-24 h-fit rounded-3xl border border-foreground/15 bg-surface p-6">
+    <aside className="sticky top-24 h-fit rounded-md border border-foreground/15 bg-surface p-6">
       <p className="eyebrow">Demande de brochure</p>
       <h3 className="display-lg mt-2 text-xl">Recevez le dossier complet.</h3>
       <p className="mt-2 text-sm text-muted-foreground">
@@ -50,7 +50,7 @@ export function ProjectBrochureForm({ projectId, projectName }: Props) {
       </p>
 
       {submitted ? (
-        <div className="mt-5 rounded-2xl border border-success/30 bg-success/5 p-5 text-center">
+        <div className="mt-5 rounded-md border border-success/30 bg-success/5 p-5 text-center">
           <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-success/15 text-success">
             <CheckIcon className="h-5 w-5" />
           </span>

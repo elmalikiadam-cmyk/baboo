@@ -53,7 +53,7 @@ export default async function ProjectsIndex() {
       </div>
 
       {projects.length === 0 ? (
-        <div className="mt-16 rounded-3xl border border-dashed border-foreground/25 p-10 text-center">
+        <div className="mt-16 rounded-md border border-dashed border-foreground/25 p-10 text-center">
           <p className="eyebrow">À venir</p>
           <h2 className="display-xl mt-3 text-2xl">Les programmes arrivent.</h2>
           <p className="mt-3 text-sm text-muted-foreground">Seedez la base pour voir les projets de démonstration.</p>
@@ -67,7 +67,7 @@ export default async function ProjectsIndex() {
               <Link
                 key={p.id}
                 href={`/projets/${p.slug}`}
-                className="group flex flex-col overflow-hidden rounded-3xl border border-foreground/10 bg-surface transition-transform hover:-translate-y-0.5"
+                className="group flex flex-col overflow-hidden rounded-md border border-foreground/10 bg-surface transition-transform hover:-translate-y-0.5"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-foreground/5">
                   <Image

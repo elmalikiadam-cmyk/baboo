@@ -50,7 +50,7 @@ export default async function AgenciesIndex() {
             <Link
               key={a.id}
               href={`/agence/${a.slug}`}
-              className="group flex flex-col rounded-3xl border border-foreground/10 bg-surface p-6 transition-transform hover:-translate-y-0.5"
+              className="group flex flex-col rounded-md border border-foreground/10 bg-surface p-6 transition-transform hover:-translate-y-0.5"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-foreground/5">
@@ -86,7 +86,7 @@ export default async function AgenciesIndex() {
       </div>
 
       {agencies.length === 0 && (
-        <div className="mt-16 rounded-3xl border border-dashed border-foreground/25 p-10 text-center">
+        <div className="mt-16 rounded-md border border-dashed border-foreground/25 p-10 text-center">
           <p className="eyebrow">Aucune agence</p>
           <h2 className="display-xl mt-3 text-2xl">Seedez la base pour voir les agences.</h2>
         </div>

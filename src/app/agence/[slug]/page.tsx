@@ -107,7 +107,7 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
           </dl>
         </div>
 
-        <aside className="rounded-3xl border border-foreground/15 bg-surface p-6 md:sticky md:top-24 md:self-start">
+        <aside className="rounded-md border border-foreground/15 bg-surface p-6 md:sticky md:top-24 md:self-start">
           <p className="eyebrow">Contact</p>
           <h3 className="display-lg mt-2 text-xl">Parlez à l'équipe.</h3>
 
@@ -164,7 +164,7 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
         </div>
 
         {agency.listings.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-foreground/25 p-10 text-center">
+          <div className="rounded-md border border-dashed border-foreground/25 p-10 text-center">
             <p className="eyebrow">Aucune annonce</p>
             <h3 className="display-lg mt-3 text-xl">Aucune annonce publiée pour l'instant.</h3>
           </div>

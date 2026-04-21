@@ -37,7 +37,7 @@ export function CityStrip({ counts = [] }: Props) {
             <li key={c.slug}>
               <Link
                 href={buildSearchHref({ transaction: "SALE", citySlug: c.slug })}
-                className="group relative block aspect-[16/9] overflow-hidden rounded-2xl bg-foreground/5"
+                className="group relative block aspect-[16/9] overflow-hidden rounded-md bg-foreground/5"
               >
                 {c.cover && (
                   <Image

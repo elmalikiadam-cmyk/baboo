@@ -38,7 +38,7 @@ export function WaitlistCard({ kind }: Props) {
 
   if (submitted) {
     return (
-      <div className="rounded-3xl border border-success/30 bg-success/5 p-8 text-center">
+      <div className="rounded-md border border-success/30 bg-success/5 p-8 text-center">
         <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-success/15 text-success">
           <CheckIcon className="h-6 w-6" />
         </span>

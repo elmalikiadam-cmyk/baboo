@@ -14,11 +14,11 @@
     --paper-2: 44 20% 88%;           /* #e9e5db — dividers, cards muettes */
     --paper-3: 42 19% 82%;           /* #dcd7c9 — stripes placeholder */
     --foreground: 0 0% 4%;           /* #0a0a0a — ink */
-    --surface: 44 22% 93%;
+    --surface: 44 22% 95%;           /* cards, surfaces élevées */
     --surface-muted: 44 20% 88%;
 
-    --muted: 44 4% 42%;              /* #6a6a66 */
-    --muted-foreground: 44 4% 38%;
+    --muted: 0 0% 32%;
+    --muted-foreground: 0 0% 28%;    /* passe AA sur paper #f2efe8 (ratio ~7.5:1) */
 
     --line: 0 0% 4% / 0.12;          /* hairline */
     --line-strong: 0 0% 4% / 0.85;
@@ -33,9 +33,10 @@
     --primary: 0 0% 4%;
     --primary-foreground: 44 22% 93%;
 
-    /* Accent — jaune chaud, sobre, pour highlights subtils uniquement */
-    --accent: 48 96% 58%;
-    --accent-foreground: 0 0% 4%;
+    /* Accent — vert Maroc discret, RÉSERVÉ aux badges verified/success.
+       Jamais sur CTA principal. Pas de jaune (brûlé par Avito), pas d'or. */
+    --accent: 155 46% 34%;
+    --accent-foreground: 44 22% 95%;
 
     /* Status */
     --success: 155 46% 34%;
@@ -84,21 +85,22 @@
 }
 
 @layer components {
-  /* Classes typographiques strict handoff */
+  /* Classes typographiques — letter-spacing cadré par UI guidelines.
+     ≥48px → -0.03em, 24-47px → -0.015em, <24px → 0. Jamais -0.04em. */
   .display-xl {
     font-family: var(--font-display-stack);
-    font-weight: 900;
+    font-weight: 700;
     font-stretch: 75%;
-    letter-spacing: -0.04em;
-    line-height: 0.9;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
   }
 
   .display-lg {
     font-family: var(--font-display-stack);
-    font-weight: 800;
+    font-weight: 600;
     font-stretch: 75%;
-    letter-spacing: -0.03em;
-    line-height: 0.92;
+    letter-spacing: -0.015em;
+    line-height: 1;
   }
 
   .eyebrow {

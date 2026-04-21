@@ -46,7 +46,7 @@ export default async function CitiesIndex() {
             <li key={c.slug}>
               <Link
                 href={`/ville/${c.slug}`}
-                className="group block overflow-hidden rounded-3xl border border-foreground/10 bg-surface transition-transform hover:-translate-y-0.5"
+                className="group block overflow-hidden rounded-md border border-foreground/10 bg-surface transition-transform hover:-translate-y-0.5"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-foreground/5">
                   {c.cover && (

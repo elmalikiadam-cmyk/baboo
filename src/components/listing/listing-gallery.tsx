@@ -21,7 +21,7 @@ export function ListingGallery({ cover, images, title }: Props) {
   }
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-foreground/5">
+    <section className="overflow-hidden rounded-md border border-border bg-foreground/5">
       <div className="grid grid-cols-4 gap-1">
         <div className="relative col-span-4 aspect-[16/10] md:col-span-2 md:row-span-2 md:aspect-auto">
           <Image

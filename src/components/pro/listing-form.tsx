@@ -202,7 +202,7 @@ export function ListingForm({ initial = {}, editId }: Props) {
               required
               defaultValue={initial.description ?? ""}
               placeholder="Caractéristiques, atouts, environnement, conditions de visite…"
-              className="w-full rounded-2xl border border-foreground/15 bg-background p-4 text-sm focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+              className="w-full rounded-md border border-foreground/15 bg-background p-4 text-sm focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
             />
           </Field>
         </div>

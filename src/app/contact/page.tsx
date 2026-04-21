@@ -19,7 +19,7 @@ export default function ContactPage() {
         <ContactForm />
 
         <aside className="space-y-4">
-          <div className="rounded-3xl border border-foreground/15 bg-surface p-6">
+          <div className="rounded-md border border-foreground/15 bg-surface p-6">
             <p className="eyebrow">Téléphone</p>
             <a href="tel:+212500000000" className="display-xl mt-2 block text-2xl hover:underline">
               +212 5 22 00 00 00
@@ -33,7 +33,7 @@ export default function ContactPage() {
             href="https://wa.me/212600000000"
             target="_blank"
             rel="noreferrer"
-            className="block rounded-3xl border border-foreground/15 bg-surface p-6 transition-colors hover:border-foreground/40"
+            className="block rounded-md border border-foreground/15 bg-surface p-6 transition-colors hover:border-foreground/40"
           >
             <div className="flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-full bg-success/10 text-success">
@@ -46,7 +46,7 @@ export default function ContactPage() {
             </div>
           </a>
 
-          <div className="rounded-3xl border border-foreground/15 bg-surface p-6">
+          <div className="rounded-md border border-foreground/15 bg-surface p-6">
             <div className="flex items-start gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-full border border-foreground/20">
                 <MapPinIcon className="h-5 w-5" />
@@ -61,7 +61,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl bg-ink p-6 text-ink-foreground">
+          <div className="rounded-md bg-ink p-6 text-ink-foreground">
             <p className="eyebrow text-ink-foreground/60">Agences & promoteurs</p>
             <h3 className="display-lg mt-2 text-xl">Partenariats Pro.</h3>
             <p className="mt-2 text-sm text-ink-foreground/75">

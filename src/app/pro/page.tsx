@@ -92,7 +92,7 @@ export default function ProLanding() {
             </div>
 
             {/* Mini wireframe preview */}
-            <div className="rounded-2xl border border-ink-foreground/15 bg-ink-2 p-5">
+            <div className="rounded-md border border-ink-foreground/15 bg-ink-2 p-5">
               <p className="mono text-[9px] uppercase tracking-[0.14em] text-ink-foreground/50">
                 Dashboard · Atlas Realty
               </p>
@@ -102,7 +102,7 @@ export default function ProLanding() {
                   { l: "Vues", v: "12.4K" },
                   { l: "Leads", v: "18" },
                 ].map((s) => (
-                  <div key={s.l} className="rounded-lg border border-ink-foreground/10 p-3">
+                  <div key={s.l} className="rounded-md border border-ink-foreground/10 p-3">
                     <p className="mono text-[8px] uppercase tracking-[0.12em] text-ink-foreground/50">{s.l}</p>
                     <p className="display-lg mt-1 text-lg text-ink-foreground">{s.v}</p>
                   </div>

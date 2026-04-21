@@ -24,7 +24,7 @@ export function ListingMapPreview({ lat, lng, cityName, neighborhoodName }: Prop
         {neighborhoodName ? `${neighborhoodName}, ` : ""}{cityName}
         <span className="text-xs">· adresse exacte communiquée à la visite</span>
       </p>
-      <div className="mt-4 overflow-hidden rounded-xl border border-border">
+      <div className="mt-4 overflow-hidden rounded-md border border-border">
         <iframe
           title={`Carte — ${neighborhoodName ?? cityName}`}
           src={src}

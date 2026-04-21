@@ -67,7 +67,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
       </nav>
 
       <section className="container">
-        <div className="relative aspect-[16/9] overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/5 md:aspect-[21/9]">
+        <div className="relative aspect-[16/9] overflow-hidden rounded-md border border-foreground/10 bg-foreground/5 md:aspect-[21/9]">
           <Image src={p.cover} alt={p.name} fill priority sizes="100vw" className="object-cover" />
           <span className="absolute left-4 top-4 mono rounded-sm bg-background/95 px-2.5 py-1 text-[10px] font-medium tracking-[0.14em]">
             ◉ {STATUS_LABEL[p.status]?.toUpperCase() ?? p.status}
@@ -126,7 +126,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
 
           <div className="py-8">
             <h2 className="display-xl text-2xl md:text-3xl">Typologies disponibles.</h2>
-            <div className="mt-6 overflow-hidden rounded-3xl border border-foreground/15">
+            <div className="mt-6 overflow-hidden rounded-md border border-foreground/15">
               <table className="w-full text-left text-sm">
                 <thead className="bg-paper-2/60">
                   <tr>

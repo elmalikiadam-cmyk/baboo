@@ -74,7 +74,7 @@ export default async function CityLandingPage({ params }: { params: Promise<{ sl
 
       {/* Hero cover */}
       <section className="container">
-        <div className="relative aspect-[21/9] overflow-hidden rounded-3xl bg-foreground/5">
+        <div className="relative aspect-[21/9] overflow-hidden rounded-md bg-foreground/5">
           {city.cover && (
             <Image src={city.cover} alt={city.name} fill priority sizes="100vw" className="object-cover" />
           )}
@@ -136,7 +136,7 @@ export default async function CityLandingPage({ params }: { params: Promise<{ sl
               <li key={t}>
                 <Link
                   href={buildSearchHref({ transaction: "SALE", citySlug: city.slug, propertyTypes: [t] })}
-                  className="flex items-center justify-between rounded-2xl border border-foreground/15 bg-surface p-5 hover:border-foreground/40"
+                  className="flex items-center justify-between rounded-md border border-foreground/15 bg-surface p-5 hover:border-foreground/40"
                 >
                   <span className="display-lg text-lg">{PROPERTY_TYPE_LABEL_PLURAL[t]}</span>
                   <span className="mono text-[11px] text-muted-foreground">

@@ -20,7 +20,7 @@ export default async function SignUpPage({ searchParams }: Props) {
 
   return (
     <div className="container flex min-h-[70vh] items-center justify-center py-16">
-      <div className="w-full max-w-md rounded-3xl border border-foreground/15 bg-surface p-8">
+      <div className="w-full max-w-md rounded-md border border-foreground/15 bg-surface p-8">
         <div className="mb-8 text-center">
           <p className="eyebrow">{defaultRole === "AGENCY" ? "Baboo Pro" : "Inscription"}</p>
           <h1 className="display-xl mt-2 text-3xl">

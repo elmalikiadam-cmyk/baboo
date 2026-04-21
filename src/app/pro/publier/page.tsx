@@ -41,7 +41,7 @@ export default async function PublishPage() {
         <PublishForm />
 
         <aside className="space-y-6">
-          <div className="rounded-3xl border border-foreground/15 bg-surface p-6">
+          <div className="rounded-md border border-foreground/15 bg-surface p-6">
             <p className="eyebrow">Ce qu'on fait pour vous</p>
             <h3 className="display-lg mt-2 text-xl">Publication accompagnée.</h3>
             <ul className="mt-5 space-y-3">
@@ -56,7 +56,7 @@ export default async function PublishPage() {
             </ul>
           </div>
 
-          <div className="rounded-3xl bg-ink p-6 text-ink-foreground">
+          <div className="rounded-md bg-ink p-6 text-ink-foreground">
             <p className="eyebrow text-ink-foreground/60">Agences & promoteurs</p>
             <h3 className="display-lg mt-2 text-xl">Baboo Pro.</h3>
             <p className="mt-2 text-sm text-ink-foreground/75">

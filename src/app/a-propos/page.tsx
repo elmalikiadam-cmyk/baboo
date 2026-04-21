@@ -75,7 +75,7 @@ export default function AboutPage() {
         </div>
         <ul className="grid gap-5 md:grid-cols-2">
           {VALUES.map((v) => (
-            <li key={v.n} className="rounded-3xl border border-foreground/15 p-7 md:p-9">
+            <li key={v.n} className="rounded-md border border-foreground/15 p-7 md:p-9">
               <p className="mono text-[10px] tracking-[0.14em] text-muted-foreground">/{v.n}</p>
               <h3 className="display-xl mt-4 text-3xl">{v.title}</h3>
               <p className="mt-4 leading-relaxed text-muted-foreground">{v.body}</p>
@@ -85,7 +85,7 @@ export default function AboutPage() {
       </section>
 
       <section className="container py-14 md:py-20">
-        <div className="rounded-3xl bg-ink p-10 text-ink-foreground md:p-16">
+        <div className="rounded-md bg-ink p-10 text-ink-foreground md:p-16">
           <p className="eyebrow text-ink-foreground/60">Rejoindre Baboo</p>
           <h2 className="display-xl mt-3 text-4xl text-ink-foreground md:text-5xl">
             Vous vendez, vous louez, vous publiez ?

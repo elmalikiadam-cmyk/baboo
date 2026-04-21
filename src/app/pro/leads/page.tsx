@@ -31,7 +31,7 @@ export default async function LeadsInbox({ searchParams }: Props) {
   if (!agencyId) {
     return (
       <div className="container py-16">
-        <div className="rounded-2xl border border-dashed border-foreground/25 p-10 text-center">
+        <div className="rounded-md border border-dashed border-foreground/25 p-10 text-center">
           <p className="eyebrow">Accès refusé</p>
           <h1 className="display-xl mt-3 text-2xl md:text-3xl">Cette page est réservée aux agences Pro.</h1>
           <Link
@@ -116,7 +116,7 @@ export default async function LeadsInbox({ searchParams }: Props) {
       </div>
 
       {leads.length === 0 ? (
-        <div className="mt-12 rounded-3xl border border-dashed border-foreground/25 bg-paper-2/40 p-10 text-center">
+        <div className="mt-12 rounded-md border border-dashed border-foreground/25 bg-paper-2/40 p-10 text-center">
           <p className="eyebrow">Aucun lead</p>
           <h2 className="display-xl mt-3 text-2xl">
             {activeStatus === "ALL"
@@ -132,7 +132,7 @@ export default async function LeadsInbox({ searchParams }: Props) {
       ) : (
         <ul className="mt-8 space-y-3">
           {leads.map((l) => (
-            <li key={l.id} className="rounded-2xl border border-foreground/15 bg-surface p-5">
+            <li key={l.id} className="rounded-md border border-foreground/15 bg-surface p-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex min-w-0 items-start gap-3">
                   <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-foreground text-background display-lg text-sm">
