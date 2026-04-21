@@ -24,7 +24,10 @@ export default async function EditListingPage({ params }: Props) {
   const listing = await db.listing
     .findUnique({
       where: { id },
-      include: { neighborhood: { select: { slug: true } } },
+      include: {
+        neighborhood: { select: { slug: true } },
+        images: { orderBy: { position: "asc" }, select: { url: true } },
+      },
     })
     .catch(() => null);
 
@@ -61,6 +64,7 @@ export default async function EditListingPage({ params }: Props) {
             citySlug: listing.citySlug,
             neighborhoodSlug: listing.neighborhood?.slug ?? null,
             coverImage: listing.coverImage,
+            additionalImages: listing.images.map((i) => i.url).join("\n"),
             condition: listing.condition,
             parking: listing.parking,
             elevator: listing.elevator,

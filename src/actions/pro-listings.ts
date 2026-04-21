@@ -19,6 +19,7 @@ const ListingInput = z.object({
   citySlug: z.string().min(1, "Ville requise."),
   neighborhoodSlug: z.string().optional().nullable(),
   coverImage: z.string().url("URL de photo invalide."),
+  additionalImages: z.string().optional().nullable(),
   condition: z.nativeEnum(Condition).optional().nullable(),
   // amenities
   parking: z.boolean().default(false),
@@ -65,7 +66,7 @@ function parseFormData(form: FormData): Record<string, unknown> {
   const o: Record<string, unknown> = {};
   const stringKeys = [
     "title", "description", "transaction", "propertyType", "citySlug",
-    "neighborhoodSlug", "coverImage", "condition",
+    "neighborhoodSlug", "coverImage", "additionalImages", "condition",
   ];
   for (const k of stringKeys) {
     const v = form.get(k);
@@ -88,6 +89,25 @@ function flatten(err: z.ZodError): { error: string; fieldErrors: Record<string, 
   const fieldErrors: Record<string, string> = {};
   for (const issue of err.issues) fieldErrors[issue.path.join(".")] = issue.message;
   return { error: "Formulaire invalide.", fieldErrors };
+}
+
+/** Parse un bloc texte où chaque ligne est une URL d'image. Ignore les lignes
+ *  vides et filtre les URLs syntaxiquement invalides. Max 12 images. */
+function parseAdditionalImages(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  return raw
+    .split(/[\n,]/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .filter((s) => {
+      try {
+        new URL(s);
+        return true;
+      } catch {
+        return false;
+      }
+    })
+    .slice(0, 12);
 }
 
 export async function createListing(form: FormData): Promise<CrudResult> {
@@ -123,6 +143,7 @@ export async function createListing(form: FormData): Promise<CrudResult> {
   const slug = await uniqueSlug(slugify(data.title));
 
   try {
+    const additionalImages = parseAdditionalImages(data.additionalImages);
     const listing = await db.listing.create({
       data: {
         slug,
@@ -130,7 +151,7 @@ export async function createListing(form: FormData): Promise<CrudResult> {
         description: data.description,
         transaction: data.transaction,
         propertyType: data.propertyType,
-        status: ListingStatus.PUBLISHED,
+        status: ListingStatus.PENDING,
         price: data.price,
         surface: data.surface,
         bedrooms: data.bedrooms ?? null,
@@ -152,12 +173,14 @@ export async function createListing(form: FormData): Promise<CrudResult> {
         pool: data.pool,
         seaView: data.seaView,
         airConditioning: data.airConditioning,
-        publishedAt: new Date(),
+        images: additionalImages.length
+          ? { create: additionalImages.map((url, i) => ({ url, position: i })) }
+          : undefined,
       },
     });
     revalidatePath("/pro/listings");
     revalidatePath("/pro/dashboard");
-    revalidatePath("/recherche");
+    revalidatePath("/admin");
     return { ok: true, id: listing.id, slug: listing.slug };
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
@@ -199,31 +222,42 @@ export async function updateListing(id: string, form: FormData): Promise<CrudRes
   }
 
   try {
-    const updated = await db.listing.update({
-      where: { id },
-      data: {
-        title: data.title,
-        description: data.description,
-        transaction: data.transaction,
-        propertyType: data.propertyType,
-        price: data.price,
-        surface: data.surface,
-        bedrooms: data.bedrooms ?? null,
-        bathrooms: data.bathrooms ?? null,
-        condition: data.condition ?? null,
-        coverImage: data.coverImage,
-        citySlug: data.citySlug,
-        neighborhoodId,
-        parking: data.parking,
-        elevator: data.elevator,
-        furnished: data.furnished,
-        terrace: data.terrace,
-        balcony: data.balcony,
-        garden: data.garden,
-        pool: data.pool,
-        seaView: data.seaView,
-        airConditioning: data.airConditioning,
-      },
+    const additionalImages = parseAdditionalImages(data.additionalImages);
+    const updated = await db.$transaction(async (tx) => {
+      const u = await tx.listing.update({
+        where: { id },
+        data: {
+          title: data.title,
+          description: data.description,
+          transaction: data.transaction,
+          propertyType: data.propertyType,
+          price: data.price,
+          surface: data.surface,
+          bedrooms: data.bedrooms ?? null,
+          bathrooms: data.bathrooms ?? null,
+          condition: data.condition ?? null,
+          coverImage: data.coverImage,
+          citySlug: data.citySlug,
+          neighborhoodId,
+          parking: data.parking,
+          elevator: data.elevator,
+          furnished: data.furnished,
+          terrace: data.terrace,
+          balcony: data.balcony,
+          garden: data.garden,
+          pool: data.pool,
+          seaView: data.seaView,
+          airConditioning: data.airConditioning,
+        },
+      });
+      // On remplace les images additionnelles en bloc.
+      await tx.listingMedia.deleteMany({ where: { listingId: id } });
+      if (additionalImages.length) {
+        await tx.listingMedia.createMany({
+          data: additionalImages.map((url, i) => ({ listingId: id, url, position: i })),
+        });
+      }
+      return u;
     });
     revalidatePath("/pro/listings");
     revalidatePath("/pro/dashboard");

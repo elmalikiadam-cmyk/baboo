@@ -22,6 +22,7 @@ export interface ListingFormInitial {
   citySlug?: string;
   neighborhoodSlug?: string | null;
   coverImage?: string;
+  additionalImages?: string;
   condition?: Condition | null;
   parking?: boolean;
   elevator?: boolean;
@@ -208,12 +209,12 @@ export function ListingForm({ initial = {}, editId }: Props) {
         </div>
       </Section>
 
-      {/* Photo */}
-      <Section n="06" title="Photo principale">
+      {/* Photos */}
+      <Section n="06" title="Photos">
         <Field
-          label="URL de l'image"
+          label="Photo principale (URL)"
           error={fieldErrors.coverImage}
-          hint="Pour l'instant, l'upload direct n'est pas disponible — collez une URL d'image publique (ex : Unsplash, Cloudinary)."
+          hint="Collez l'URL publique d'une image (Unsplash, Cloudinary, votre CDN…)."
         >
           <Input
             name="coverImage"
@@ -223,6 +224,21 @@ export function ListingForm({ initial = {}, editId }: Props) {
             placeholder="https://images.unsplash.com/photo-…"
           />
         </Field>
+        <div className="mt-4">
+          <Field
+            label="Photos supplémentaires (optionnel)"
+            error={fieldErrors.additionalImages}
+            hint="Une URL par ligne. Jusqu'à 12 images. L'ordre est préservé."
+          >
+            <textarea
+              name="additionalImages"
+              rows={5}
+              defaultValue={initial.additionalImages ?? ""}
+              placeholder={"https://…/photo-1.jpg\nhttps://…/photo-2.jpg"}
+              className="w-full rounded-md border border-foreground/15 bg-background p-4 text-sm focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+            />
+          </Field>
+        </div>
       </Section>
 
       {error && (
