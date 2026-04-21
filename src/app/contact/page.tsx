@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Button } from "@/components/ui/button";
-import { Input, Label, Select } from "@/components/ui/input";
-import { PhoneIcon, WhatsAppIcon, MapPinIcon } from "@/components/ui/icons";
+import { ContactForm } from "@/components/contact/contact-form";
+import { WhatsAppIcon, MapPinIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Contact" };
 
@@ -17,46 +16,7 @@ export default function ContactPage() {
       </div>
 
       <div className="mt-12 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
-        <form className="space-y-5">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="name">Nom complet</Label>
-              <Input id="name" required />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="subject">Sujet</Label>
-            <Select id="subject" defaultValue="general">
-              <option value="general">Question générale</option>
-              <option value="listing">Question sur une annonce</option>
-              <option value="pro">Espace Pro / partenariat</option>
-              <option value="bug">Signaler un problème</option>
-              <option value="press">Presse</option>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="message">Votre message</Label>
-            <textarea
-              id="message"
-              rows={7}
-              className="w-full rounded-2xl border border-foreground/15 bg-background p-4 text-sm focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
-              placeholder="Racontez-nous ce qu'on peut faire pour vous."
-              required
-            />
-          </div>
-
-          <Button size="lg">Envoyer</Button>
-
-          <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-            ○ Réponse garantie sous 24h ouvrées
-          </p>
-        </form>
+        <ContactForm />
 
         <aside className="space-y-4">
           <div className="rounded-3xl border border-foreground/15 bg-surface p-6">
@@ -107,7 +67,10 @@ export default function ContactPage() {
             <p className="mt-2 text-sm text-ink-foreground/75">
               Pour rejoindre Baboo Pro, écrivez directement à :
             </p>
-            <a href="mailto:pro@baboo.ma" className="mt-3 inline-flex items-center gap-2 rounded-full bg-ink-foreground px-4 py-2 mono text-[11px] uppercase tracking-[0.12em] text-ink">
+            <a
+              href="mailto:pro@baboo.ma"
+              className="mt-3 inline-flex items-center gap-2 rounded-full bg-ink-foreground px-4 py-2 mono text-[11px] uppercase tracking-[0.12em] text-ink"
+            >
               pro@baboo.ma
             </a>
           </div>

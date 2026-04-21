@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { PhoneIcon, WhatsAppIcon, CheckIcon } from "@/components/ui/icons";
+import { submitLead } from "@/actions/leads";
 
 interface Props {
   listingId: string;
@@ -18,27 +19,51 @@ interface Props {
   phone?: string | null;
 }
 
-export function ContactCard({ listingTitle, agency, phone }: Props) {
+export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
   const [submitted, setSubmitted] = useState(false);
-  const [isPending, setIsPending] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIsPending(true);
-    // Real lead submission will hit a server action in Phase B.
-    // For now, simulate a successful send to demonstrate the UX.
-    await new Promise((r) => setTimeout(r, 500));
-    setIsPending(false);
-    setSubmitted(true);
+    const form = new FormData(e.currentTarget);
+    setError(null);
+    setFieldErrors({});
+
+    const payload = {
+      listingId,
+      source: "form" as const,
+      name: String(form.get("name") ?? ""),
+      email: String(form.get("email") ?? ""),
+      phone: String(form.get("phone") ?? ""),
+      message: String(form.get("message") ?? ""),
+    };
+
+    startTransition(async () => {
+      const res = await submitLead(payload);
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        setError(res.error);
+        if (res.fieldErrors) setFieldErrors(res.fieldErrors);
+      }
+    });
   }
 
   return (
-    <aside className="sticky top-24 rounded-3xl border border-foreground/15 bg-surface p-6">
+    <aside id="contact-form" className="sticky top-24 rounded-3xl border border-foreground/15 bg-surface p-6">
       {agency && (
         <div className="mb-4 flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-full bg-foreground/5 text-sm font-semibold text-foreground">
             {agency.logo ? (
-              <Image src={agency.logo} alt={agency.name} width={44} height={44} className="rounded-full object-cover" />
+              <Image
+                src={agency.logo}
+                alt={agency.name}
+                width={44}
+                height={44}
+                className="rounded-full object-cover"
+              />
             ) : (
               agency.name
                 .split(" ")
@@ -59,40 +84,49 @@ export function ContactCard({ listingTitle, agency, phone }: Props) {
       )}
 
       {submitted ? (
-        <div className="rounded-xl border border-success/30 bg-success/5 p-5 text-center">
+        <div className="rounded-2xl border border-success/30 bg-success/5 p-5 text-center">
           <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-success/15 text-success">
             <CheckIcon className="h-5 w-5" />
           </span>
-          <h3 className="mt-3 font-display text-lg font-semibold">Message envoyé</h3>
+          <h3 className="mt-3 font-display text-lg font-semibold">Message envoyé.</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             L'agence vous répondra rapidement. Pensez à vérifier votre boîte de réception.
           </p>
         </div>
       ) : (
-        <form onSubmit={onSubmit} className="space-y-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="c-name">Votre nom</Label>
+        <form onSubmit={onSubmit} className="space-y-3" noValidate>
+          <Field id="c-name" label="Votre nom" error={fieldErrors.name}>
             <Input id="c-name" name="name" required autoComplete="name" placeholder="Sofia Bennani" />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="c-email">Email</Label>
-            <Input id="c-email" name="email" type="email" required autoComplete="email" placeholder="vous@email.ma" />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="c-phone">Téléphone</Label>
+          </Field>
+          <Field id="c-email" label="Email" error={fieldErrors.email}>
+            <Input
+              id="c-email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="vous@email.ma"
+            />
+          </Field>
+          <Field id="c-phone" label="Téléphone" error={fieldErrors.phone}>
             <Input id="c-phone" name="phone" type="tel" autoComplete="tel" placeholder="+212 6 00 00 00 00" />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="c-message">Message</Label>
+          </Field>
+          <Field id="c-message" label="Message" error={fieldErrors.message}>
             <textarea
               id="c-message"
               name="message"
               rows={4}
               required
               defaultValue={`Bonjour, je suis intéressé(e) par "${listingTitle}". Pourriez-vous me contacter pour organiser une visite ?`}
-              className="flex w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+              className="flex w-full rounded-2xl border border-foreground/15 bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
             />
-          </div>
+          </Field>
+
+          {error && (
+            <p className="rounded-full bg-danger/10 px-3 py-2 text-xs text-danger" role="alert">
+              {error}
+            </p>
+          )}
 
           <Button type="submit" size="lg" className="w-full" disabled={isPending}>
             {isPending ? "Envoi…" : "Envoyer une demande"}
@@ -101,18 +135,22 @@ export function ContactCard({ listingTitle, agency, phone }: Props) {
           <div className="grid grid-cols-2 gap-2 pt-1">
             <a
               href={phone ? `tel:${phone.replace(/\s+/g, "")}` : "#"}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground hover:bg-foreground/5"
+              aria-disabled={!phone}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-foreground/15 bg-surface px-4 py-2.5 text-sm font-medium text-foreground hover:bg-foreground/5"
             >
               <PhoneIcon className="h-4 w-4" /> Appeler
             </a>
             <a
               href={
                 phone
-                  ? `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Bonjour, je suis intéressé(e) par "${listingTitle}" sur Baboo.`)}`
+                  ? `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                      `Bonjour, je suis intéressé(e) par "${listingTitle}" sur Baboo.`,
+                    )}`
                   : "#"
               }
               target="_blank"
               rel="noreferrer"
+              aria-disabled={!phone}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-success/10 px-4 py-2.5 text-sm font-medium text-success hover:bg-success/15"
             >
               <WhatsAppIcon className="h-4 w-4" /> WhatsApp
@@ -125,5 +163,25 @@ export function ContactCard({ listingTitle, agency, phone }: Props) {
         </form>
       )}
     </aside>
+  );
+}
+
+function Field({
+  id,
+  label,
+  error,
+  children,
+}: {
+  id: string;
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id}>{label}</Label>
+      {children}
+      {error && <p className="text-[11px] text-danger">{error}</p>}
+    </div>
   );
 }

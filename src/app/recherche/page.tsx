@@ -5,6 +5,7 @@ import { SearchFiltersPanel } from "@/components/search/search-filters";
 import { SearchToolbar } from "@/components/search/search-toolbar";
 import { SearchPagination } from "@/components/search/search-pagination";
 import { AppliedChips } from "@/components/search/applied-chips";
+import { SaveSearchButton } from "@/components/search/save-search-button";
 import { findListings } from "@/lib/listings-query";
 import { parseSearchParams, buildSearchHref } from "@/lib/search-params";
 import { CITIES } from "@/data/cities";
@@ -57,8 +58,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <h1 className="display-xl text-3xl md:text-5xl">{heading}.</h1>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         <AppliedChips filters={filters} />
+        {total > 0 && <SaveSearchButton filters={filters} heading={heading} />}
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[320px_1fr]">

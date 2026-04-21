@@ -4,9 +4,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db, hasDb } from "@/lib/db";
 import { CITIES } from "@/data/cities";
-import { Button } from "@/components/ui/button";
 import { PROPERTY_TYPE_LABEL } from "@/data/taxonomy";
 import { MapPinIcon, CheckIcon } from "@/components/ui/icons";
+import { ProjectBrochureForm } from "@/components/listing/project-brochure-form";
 
 const PRICE_FR = new Intl.NumberFormat("fr-FR");
 
@@ -160,22 +160,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
           </div>
         </div>
 
-        <aside className="sticky top-24 h-fit rounded-3xl border border-foreground/15 bg-surface p-6">
-          <p className="eyebrow">Demande de brochure</p>
-          <h3 className="display-lg mt-2 text-xl">Recevez le dossier complet.</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Plans, prix détaillés, conditions commerciales. Réponse sous 24 h.
-          </p>
-          <form className="mt-4 space-y-3">
-            <input className="h-11 w-full rounded-full border border-foreground/15 bg-background px-4 text-sm" placeholder="Nom complet" />
-            <input className="h-11 w-full rounded-full border border-foreground/15 bg-background px-4 text-sm" placeholder="Email" type="email" />
-            <input className="h-11 w-full rounded-full border border-foreground/15 bg-background px-4 text-sm" placeholder="Téléphone" type="tel" />
-            <Button size="lg" className="w-full">Recevoir la brochure</Button>
-          </form>
-          <p className="mt-4 mono text-[10px] text-muted-foreground">
-            ○ RÉPONSE &lt; 24H · ○ DOSSIER COMPLET · ○ SANS ENGAGEMENT
-          </p>
-        </aside>
+        <ProjectBrochureForm projectId={p.id} projectName={p.name} />
       </section>
     </div>
   );

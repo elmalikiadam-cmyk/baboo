@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { HeartIcon, MapPinIcon } from "@/components/ui/icons";
+import { MapPinIcon } from "@/components/ui/icons";
 import { formatSurface } from "@/lib/format";
 import type { ListingWithRelations } from "@/lib/listings-query";
+import { FavoriteButton } from "@/components/listing/favorite-button";
 
 const PRICE_FR = new Intl.NumberFormat("fr-FR");
 
@@ -44,13 +45,7 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
         </span>
       </Link>
 
-      <button
-        type="button"
-        aria-label="Enregistrer dans mes favoris"
-        className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-background text-foreground ring-1 ring-foreground/10 transition hover:bg-paper-2"
-      >
-        <HeartIcon className="h-4 w-4" />
-      </button>
+      <FavoriteButton slug={listing.slug} />
 
       <Link href={href} className="mt-4 flex flex-1 flex-col gap-1 px-1">
         <div className="flex items-center justify-between">
