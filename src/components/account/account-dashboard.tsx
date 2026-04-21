@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useFavorites } from "@/hooks/use-favorites";
 import { useSavedSearches } from "@/hooks/use-saved-searches";
-import { HeartIcon, SearchIcon, PlusIcon } from "@/components/ui/icons";
+import { HeartIcon, SearchIcon, PlusIcon, UserIcon } from "@/components/ui/icons";
 
 interface Props {
   isSignedIn: boolean;
@@ -30,7 +30,7 @@ export function AccountDashboard({ isSignedIn, isAgency }: Props) {
             <h2 className="display-xl mt-2 text-2xl md:text-3xl">Accès rapide.</h2>
           </div>
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
           <QuickLink
             href="/favoris"
             icon={<HeartIcon className="h-5 w-5" />}
@@ -55,6 +55,14 @@ export function AccountDashboard({ isSignedIn, isAgency }: Props) {
                 : "…"
             }
           />
+          {isSignedIn && (
+            <QuickLink
+              href="/compte/profil"
+              icon={<UserIcon className="h-5 w-5" />}
+              label="Mon profil"
+              subtitle="Coordonnées, mot de passe"
+            />
+          )}
           {isAgency ? (
             <QuickLink
               href="/pro/dashboard"

@@ -3,6 +3,9 @@ import { Inter, Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MobileBottomBar } from "@/components/layout/mobile-bottom-bar";
+import { FavoritesProvider } from "@/components/favorites/favorites-provider";
+import { auth } from "@/auth";
+import { getFavoriteSlugs } from "@/actions/favorites";
 import "./globals.css";
 
 const inter = Inter({
@@ -50,14 +53,19 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+  const initialFavorites = session?.user?.id ? await getFavoriteSlugs(session.user.id) : null;
+
   return (
     <html lang="fr" className={`${inter.variable} ${barlow.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen flex flex-col pb-16 md:pb-0">
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
-        <MobileBottomBar />
+        <FavoritesProvider initial={initialFavorites}>
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+          <MobileBottomBar />
+        </FavoritesProvider>
       </body>
     </html>
   );

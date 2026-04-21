@@ -58,10 +58,42 @@ export default async function LeadsInbox({ searchParams }: Props) {
         .findMany({
           where,
           orderBy: { createdAt: "desc" },
-          include: { listing: { select: { title: true, slug: true } } },
+          include: { listing: { select: { title: true, slug: true, id: true } } },
         })
         .catch(() => [])
     : [];
+
+  // Pour chaque lead rattaché à une annonce ET créé par un user connecté,
+  // on cherche s'il existe une conversation sur cette annonce avec ce user.
+  // Optimisation : une seule requête groupée.
+  const leadsWithUser = leads.filter(
+    (l): l is typeof l & { userId: string; listingId: string } =>
+      !!l.userId && !!l.listingId,
+  );
+  const convMap = new Map<string, string>(); // key: `${userId}:${listingId}` -> conversationId
+  if (leadsWithUser.length > 0 && hasDb()) {
+    const convs = await db.conversation
+      .findMany({
+        where: {
+          listingId: { in: leadsWithUser.map((l) => l.listingId) },
+          participants: {
+            some: { userId: { in: leadsWithUser.map((l) => l.userId) } },
+          },
+        },
+        select: {
+          id: true,
+          listingId: true,
+          participants: { select: { userId: true } },
+        },
+      })
+      .catch(() => []);
+    for (const c of convs) {
+      if (!c.listingId) continue;
+      for (const p of c.participants) {
+        convMap.set(`${p.userId}:${c.listingId}`, c.id);
+      }
+    }
+  }
 
   const counts = hasDb()
     ? await db.$transaction(
@@ -168,6 +200,14 @@ export default async function LeadsInbox({ searchParams }: Props) {
               </p>
 
               <div className="mt-4 flex flex-wrap gap-2">
+                {l.userId && l.listingId && convMap.get(`${l.userId}:${l.listingId}`) && (
+                  <Link
+                    href={`/messages/${convMap.get(`${l.userId}:${l.listingId}`)}`}
+                    className="mono rounded-full border border-foreground bg-foreground px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-background hover:bg-foreground/90"
+                  >
+                    Ouvrir la conversation
+                  </Link>
+                )}
                 {l.listing?.slug && (
                   <Link
                     href={`/annonce/${l.listing.slug}`}

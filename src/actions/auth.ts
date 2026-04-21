@@ -35,9 +35,42 @@ export async function signUp(input: unknown): Promise<SignUpResult> {
   const { name, email, password, role } = parsed.data;
   const passwordHash = await hashPassword(password);
 
+  function baseSlug(s: string) {
+    return s
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 50) || "agence";
+  }
+
   try {
-    await db.user.create({
-      data: { name, email, passwordHash, role },
+    await db.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: { name, email, passwordHash, role },
+      });
+      if (role === "AGENCY") {
+        // Trouve un slug unique pour la nouvelle agence.
+        const base = baseSlug(name);
+        let slug = base;
+        let i = 2;
+        while (await tx.agency.findUnique({ where: { slug }, select: { id: true } })) {
+          slug = `${base}-${i++}`;
+          if (i > 50) {
+            slug = `${base}-${Date.now().toString(36)}`;
+            break;
+          }
+        }
+        await tx.agency.create({
+          data: {
+            userId: user.id,
+            slug,
+            name,
+            verified: false,
+          },
+        });
+      }
     });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {

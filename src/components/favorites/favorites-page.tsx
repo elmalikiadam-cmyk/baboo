@@ -49,7 +49,8 @@ export function FavoritesPage() {
           </p>
           <h1 className="display-xl mt-2 text-4xl md:text-6xl">Mes favoris.</h1>
           <p className="mt-3 max-w-xl text-muted-foreground">
-            Vos favoris sont stockés localement dans ce navigateur. Pas besoin de compte.
+            Vos favoris suivent votre compte — synchronisés sur tous vos appareils dès que vous
+            êtes connecté.
           </p>
         </div>
         {hydrated && favorites.length > 0 && (

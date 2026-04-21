@@ -108,6 +108,9 @@ export function UserMenu({ name, email, agencyName, isAgency, isAdmin, unreadMes
                 <MenuLink href="/pro/leads" onSelect={() => setOpen(false)}>
                   Leads
                 </MenuLink>
+                <MenuLink href="/pro/agence" onSelect={() => setOpen(false)}>
+                  Profil agence
+                </MenuLink>
               </>
             )}
             {isAdmin && (
