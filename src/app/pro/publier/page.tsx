@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { PublishForm } from "@/components/pro/publish-form";
 import { CheckIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Déposer une annonce" };
+export const dynamic = "force-dynamic";
 
 const BENEFITS = [
   "Publication gratuite pour les particuliers",
@@ -12,7 +15,12 @@ const BENEFITS = [
   "Mise en avant sur les pages de ville concernées",
 ];
 
-export default function PublishPage() {
+export default async function PublishPage() {
+  const session = await auth();
+  // Une agence connectée accède directement à son vrai form de création.
+  if (session?.user?.role === "AGENCY" && session.user.agencyId) {
+    redirect("/pro/listings/new");
+  }
   return (
     <div className="container py-10 md:py-16">
       <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">

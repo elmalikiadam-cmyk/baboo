@@ -1,18 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
-import { Button } from "@/components/ui/button";
 import { CheckIcon, CloseIcon } from "@/components/ui/icons";
+import { relativeDate } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Admin · Modération" };
 export const dynamic = "force-dynamic";
-
-// L'admin n'est pas gardé par une vraie auth pour l'instant. On évite au moins
-// de l'exposer publiquement en production : il faut ADMIN_ENABLED=true dans
-// les env vars Vercel pour y accéder. Pour un vrai lancement, remplacer par
-// NextAuth ou Supabase Auth avec un role ADMIN.
 
 const MOCK_MODERATION = [
   { reason: "Doublon potentiel", listing: "Villa avec piscine, Anfa", agency: "Atlas Realty", risk: "Moyen" },
@@ -20,10 +16,6 @@ const MOCK_MODERATION = [
   { reason: "Prix incohérent", listing: "Riad rénové, Médina", agency: "Medina Properties", risk: "Élevé" },
 ];
 
-const MOCK_REPORTS = [
-  { reporter: "sofia.b@example.ma", listing: "Duplex vue mer, Malabata", reason: "Annonce frauduleuse", date: "Il y a 3 h" },
-  { reporter: "karim.t@example.ma", listing: "Studio Gauthier", reason: "Photos trompeuses", date: "Hier" },
-];
 
 async function getAdminStats() {
   if (!hasDb()) return { total: 0, published: 0, pending: 12, agencies: 0, leads: 324 };
@@ -55,13 +47,29 @@ async function getPending() {
   }
 }
 
-export default async function AdminDashboard() {
-  if (process.env.ADMIN_ENABLED !== "true") {
-    notFound();
+async function getRecentLeadsAcrossAgencies() {
+  if (!hasDb()) return [];
+  try {
+    return await db.lead.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      include: {
+        listing: { select: { title: true, slug: true, agency: { select: { name: true } } } },
+      },
+    });
+  } catch {
+    return [];
   }
+}
+
+export default async function AdminDashboard() {
+  const session = await auth();
+  if (!session?.user) redirect("/connexion?callbackUrl=/admin");
+  if (session.user.role !== "ADMIN") redirect("/");
 
   const stats = await getAdminStats();
   const pending = await getPending();
+  const recentLeads = await getRecentLeadsAcrossAgencies();
 
   return (
     <div className="container py-10 md:py-16">
@@ -136,26 +144,36 @@ export default async function AdminDashboard() {
           <div className="mt-8">
             <div className="mb-4 flex items-end justify-between border-b border-foreground/15 pb-4">
               <div>
-                <p className="eyebrow">Signalements</p>
-                <h3 className="display-lg mt-2 text-xl">Reportés par les utilisateurs.</h3>
+                <p className="eyebrow">Leads récents — toutes agences</p>
+                <h3 className="display-lg mt-2 text-xl">Activité commerciale en temps réel.</h3>
               </div>
             </div>
-            <ul className="space-y-3">
-              {MOCK_REPORTS.map((r, i) => (
-                <li key={i} className="rounded-2xl border border-foreground/15 bg-surface p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="display-lg text-base">{r.listing}</p>
-                      <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-                        {r.reason.toUpperCase()} · {r.date.toUpperCase()}
-                      </p>
-                      <p className="mt-2 mono text-[10px] text-muted-foreground">↳ signalé par {r.reporter}</p>
+            {recentLeads.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-foreground/25 p-6 text-center text-sm text-muted-foreground">
+                Aucun lead reçu pour l'instant.
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {recentLeads.map((l) => (
+                  <li key={l.id} className="rounded-2xl border border-foreground/15 bg-surface p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="display-lg text-base">{l.name}</p>
+                        <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                          {(l.listing?.title ?? "Contact général").toUpperCase()}
+                          {l.listing?.agency?.name && ` · ${l.listing.agency.name.toUpperCase()}`}
+                          {" · "}{relativeDate(l.createdAt).toUpperCase()}
+                        </p>
+                        <p className="mt-2 line-clamp-1 text-xs text-muted-foreground">« {l.message} »</p>
+                      </div>
+                      <span className="mono shrink-0 rounded-full border border-foreground/20 px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+                        {l.source.toUpperCase()}
+                      </span>
                     </div>
-                    <Button variant="outline" size="sm">Ouvrir</Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </section>
 
