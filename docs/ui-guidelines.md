@@ -2,81 +2,74 @@
 
 ## Brand voice
 
-Premium, trustworthy, local. Editorial, not flashy. French-first copy with Moroccan real estate vocabulary (quartier, appartement, villa, riad, surface habitable, charges, vis-à-vis).
+Généraliste, clair, confiant, minimaliste. Pas premium, pas éditorial, pas luxe.
+Copy en français, vocabulaire marocain de l'immobilier (quartier, appartement, villa,
+riad, surface habitable, charges, vis-à-vis).
 
-## Color palette
+## Do / Don't vocabulaire
 
-Tokens live in `globals.css` as CSS variables and are exposed to Tailwind via `tailwind.config.ts`.
+### À bannir
+- "Sélection", "Coup de cœur", "Exclusivité" — nous sommes un moteur, pas un curateur
+- "Éditorial", "Premium", "Haut de gamme" — ce n'est pas notre positionnement
+- Masthead numéroté ("№ 04 — AVRIL 2026") — c'est de l'héritage maquette à supprimer
+- Caps sur plus de 3 mots — illisible en français
 
-| Token | Light | Usage |
-|-------|-------|-------|
-| `--background` | `#FAFAF7` | Page bg, warm off-white |
-| `--foreground` | `#0F1419` | Primary text |
-| `--muted` | `#6B7280` | Secondary text |
-| `--border` | `#E5E5E0` | Hairlines |
-| `--surface` | `#FFFFFF` | Cards |
-| `--primary` | `#0B3D2E` | Baboo deep green — CTAs, links |
-| `--primary-foreground` | `#FAFAF7` | Text on primary |
-| `--accent` | `#C9A961` | Baboo gold — trust marks, highlights |
-| `--success` | `#2F7D5B` | Verified, success states |
-| `--danger` | `#B3261E` | Destructive |
+### À privilégier
+- "Dernières annonces", "Annonces récentes", "Plus récentes à Casablanca"
+- "Vérifié" (badge simple, pas de superlatif)
+- "Il y a N jours" (date relative toujours visible)
 
-Rationale: deep green + warm off-white + editorial gold = premium, timeless, differentiated from the generic blue/orange of classifieds.
+## Palette
 
-## Typography
+Tokens dans `src/app/globals.css` en HSL.
 
-- **Display**: Fraunces (variable, serif) — headings on marketing pages, listing titles.
-- **Body / UI**: Inter (variable, sans) — body, UI, forms.
+| Token | Valeur | Usage |
+|---|---|---|
+| `--background` | `44 22% 93%` | Fond de page (paper chaud) |
+| `--foreground` | `0 0% 6%` | Texte primaire (ink) |
+| `--muted-foreground` | `0 0% 28%` | Texte secondaire, eyebrows — corrigé pour AA |
+| `--surface` | `44 22% 95%` | Cards, surfaces élevées |
+| `--border` | `0 0% 4% / 0.14` | Bordures standard |
+| `--accent` | `155 46% 34%` | Vert Maroc subtil — UNIQUEMENT pour `verified`, `success`. Jamais sur CTA principal. |
+| `--danger` | `2 72% 41%` | Erreurs, destructif |
 
-Scale (Tailwind):
-- `text-xs` 12 / `text-sm` 14 / `text-base` 16 / `text-lg` 18 / `text-xl` 20 / `text-2xl` 24 / `text-3xl` 30 / `text-4xl` 36 / `text-5xl` 48 / `text-6xl` 60
+**Pas de jaune.** L'accent jaune `48 96% 58%` de l'ancienne spec était brûlé par Avito.
+**Pas de vert or.** Le `#C9A961` est un faux-fuyant luxe.
 
-Line-height: 1.5 body, 1.15 display.
+## Typographie
 
-## Spacing
+- **Display** : Barlow Condensed 600-700 (avec Bahnschrift en premier choix si licence)
+- **Body** : Inter 400-500
+- **Mono** : JetBrains Mono 500 pour références, compteurs, eyebrows uniquement
 
-4px base grid. Section vertical rhythm: `py-16 md:py-24` marketing, `py-8` app.
+### Règles letter-spacing
 
-## Radius
+- `≥ 48px` → `-0.03em`
+- `24–47px` → `-0.015em`
+- `< 24px` → `0`
+- **Jamais `-0.04em`** : illisible sur écran mobile basse densité
 
-`rounded-lg` (10px) default cards, `rounded-xl` (14px) hero & featured cards, `rounded-full` pills/chips.
+### Classes utilitaires
 
-## Shadows
+- `.display-xl` → réservé au H1 de la home. UNE occurrence par page max.
+- `.display-lg` → H1 des pages internes (recherche, fiche, pro)
+- `.mono` → références, compteurs, eyebrows
+- `.eyebrow` → label pré-titre, 10px mono uppercase, tracking 0.12em
 
-Subtle only. `shadow-sm` for cards at rest, `shadow-lg` on hover for listing cards. Never heavy drop shadows.
+## Rayons
 
-## Components
+**Un seul rayon par famille.**
 
-- **Button**: solid (primary), outline, ghost, link. Minimum tap target 44px on mobile.
-- **Card**: surface bg, 1px border, subtle hover elevation, rounded.
-- **Input**: 44px tall, clear focus ring (`ring-2 ring-primary/30`), error state red border + message.
-- **ListingCard**: photo 4:3, price bold above title, neighborhood/city below, key facts row, favorite button top-right.
-- **Chip / FilterPill**: rounded-full, removable.
-- **Badge**: "Vérifié", "Nouveau", "Exclusivité" — small, accent color.
+- Cards et surfaces : `rounded-md` (6px)
+- Inputs : `rounded-md`
+- Pills et boutons ronds : `rounded-full`
+- Images : `rounded-none` (photos), `rounded-md` (avatars)
 
-## Motion
+Bannir : `rounded-3xl`, `rounded-2xl`, `rounded-xl`. Pas d'exception.
 
-- Hover: 150ms ease-out.
-- Page transitions: none (Next.js default). Skeletons during data fetch.
-- No bouncy springs. No confetti.
+## Accessibilité
 
-## Imagery
-
-- Never stretch. Use `object-cover`. 4:3 for cards, 16:9 for hero, full aspect on detail gallery.
-- Always include alt text derived from listing title + neighborhood.
-- Lazy-load below the fold.
-
-## Accessibility
-
-- All interactive elements reachable by keyboard.
-- Focus ring always visible (`focus-visible:ring-2`).
-- Color contrast ≥ 4.5:1 for body, 3:1 for large text.
-- Form labels always present (not placeholder-only).
-
-## Do / Don't
-
-- ✅ Use whitespace generously.
-- ✅ Use the gold accent sparingly (trust marks, featured badges).
-- ✅ Use serif for display only.
-- ❌ No gradients in brand UI. No emoji. No stock-photo clichés.
-- ❌ No "4.9★★★★★ based on 12,483 reviews" vanity widgets.
+- Contraste ≥ 4.5:1 pour texte normal, ≥ 3:1 pour texte ≥ 18px
+- Focus ring visible `:focus-visible` 2px outline foreground
+- Tap target ≥ 44px mobile
+- Labels de formulaires toujours présents, jamais placeholder-only
