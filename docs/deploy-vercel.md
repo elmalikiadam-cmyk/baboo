@@ -1,92 +1,180 @@
-# Déployer Baboo sur Vercel — étape par étape
+# Déployer Baboo sur Vercel — guide complet
 
-## 1. Créer la base de données (avant tout)
+## Pré-requis
 
-Sans base, le build passe mais les pages `/recherche` et `/annonce/...` renvoient des listes vides.
+- Un compte Vercel (gratuit)
+- Un compte Supabase (gratuit, pour Postgres)
+- Le repo GitHub `elmalikiadam-cmyk/baboo` connecté à Vercel
 
-Option la plus simple : **Neon** (gratuit, serverless Postgres).
+## 1. Créer la base Supabase
 
-1. Va sur https://neon.tech → sign up (gratuit)
-2. Crée un projet `baboo-prod`
-3. Copie la **connection string** (elle commence par `postgresql://user:password@ep-...neon.tech/neondb?sslmode=require`)
-4. Garde-la ouverte dans un onglet pour l'étape 3
+1. https://supabase.com/dashboard → **New project**
+2. Nom : `baboo`, région **eu-west-1** (Irlande, latence correcte depuis le Maroc)
+3. Mot de passe DB : génère-en un fort et **note-le dans un gestionnaire**
+4. Attends ~2 min que le projet soit provisionné
 
-Alternatives : **Vercel Postgres** (Vercel → Storage → Create → Postgres), **Supabase**, **Railway**.
+### Récupérer les deux connection strings
 
-## 2. Importer le repo dans Vercel
+Aller dans **Project Settings → Database**, section **Connection pooling** :
 
-1. https://vercel.com/new
-2. **Import Git Repository** → choisis `elmalikiadam-cmyk/baboo`
-3. **Framework Preset** : Next.js (détecté auto)
-4. **Root Directory** : laisse vide (racine du repo)
-5. **Build Command** : laisse vide (le `build` script du `package.json` est déjà `prisma generate && next build`)
-6. **Install Command** : laisse vide
-7. **Output Directory** : laisse vide
+- **Transaction mode** (port 6543) → c'est ton `DATABASE_URL`
+- **Session mode** (port 5432) → c'est ton `DIRECT_URL`
 
-## 3. Configurer les variables d'environnement
+Format général (remplacer `PASSWORD` par ton mot de passe, URL-encoder les caractères spéciaux) :
 
-Avant de cliquer "Deploy", déroule **Environment Variables** et ajoute :
+```
+# DATABASE_URL (runtime, pooler)
+postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
 
-| Key | Value | Environments |
-|-----|-------|--------------|
-| `DATABASE_URL` | la connection string Neon | Production, Preview, Development |
-| `NEXTAUTH_SECRET` | génère avec `openssl rand -base64 32` | Production, Preview, Development |
-| `NEXTAUTH_URL` | `https://baboo.vercel.app` (ou ton domaine) | Production |
-
-Les autres (Mapbox, Resend, Cloudinary) sont optionnelles à ce stade.
-
-## 4. Déployer
-
-Clique **Deploy**. Le build va :
-
-1. `pnpm install` (ou npm) → déclenche `postinstall` → `prisma generate`
-2. `pnpm build` → `prisma generate && next build`
-3. Déployer les fonctions Edge/Server
-
-Ça prend ~2 min.
-
-## 5. Initialiser la base (une seule fois)
-
-Après le premier déploiement, ta base est vide. Depuis ton poste local :
-
-```bash
-# pointer sur la prod (temporairement)
-export DATABASE_URL="postgresql://...neon.tech/neondb?sslmode=require"
-
-# créer les tables
-pnpm db:push
-
-# seeder 60+ annonces
-pnpm db:seed
-
-# revenir à ta base locale si besoin
-unset DATABASE_URL
+# DIRECT_URL (migrations, pooler session)
+postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-eu-west-1.pooler.supabase.com:5432/postgres
 ```
 
-Ou, mieux, depuis l'UI Neon : va dans SQL Editor et lance le seed via un script.
+⚠️ **URL-encoder le mot de passe** si il contient `@ # / ! $ & + ' ( ) : ; = ? espace`. Exemple : `@` → `%40`.
 
-Rafraîchis ton site Vercel → les annonces apparaissent.
+## 2. Configurer Vercel
 
-## 6. Déploiements suivants
+### Importer le repo
 
-Chaque push sur `main` déclenche un deploy prod. Chaque push sur une autre branche (ex: `claude/baboo-real-estate-platform-Q4rCr`) déclenche un **Preview deploy** avec une URL temporaire.
+1. https://vercel.com/new
+2. Import `elmalikiadam-cmyk/baboo`
+3. Framework preset : **Next.js** (auto-détecté)
+4. Root directory : laisser vide
+5. Build command : laisser vide (celui du `package.json` fait déjà `prisma generate && next build`)
 
-## Erreurs fréquentes et solutions
+### Production branch
 
-### "PrismaClient is unable to be run in the browser"
-→ tu fais un `import { db }` dans un composant client. Garde les appels Prisma dans Server Components / Server Actions / Route Handlers.
+Vercel → Settings → **Git** → Production Branch = `main`.
 
-### "Can't reach database server"
-→ `DATABASE_URL` n'est pas set, mal écrit, ou Neon est en pause (plan gratuit). Redémarre Neon et re-deploy.
+### Environment Variables
 
-### "Module not found: @prisma/client"
-→ `postinstall` n'a pas tourné. Dans Vercel → Settings → Build & Development Settings, force **Install Command** à `pnpm install --frozen-lockfile=false` ou `npm install`.
+Settings → **Environment Variables** → ajouter :
 
-### "React RC version conflict"
-→ déjà corrigé : on est sur React 19 stable + Next 15.1.6.
+| Key | Value | Environments |
+|---|---|---|
+| `DATABASE_URL` | la string pooler (port 6543) | Production, Preview, Development |
+| `DIRECT_URL` | la string session (port 5432) | Production, Preview, Development |
+| `NEXTAUTH_SECRET` | `openssl rand -base64 32` | Production, Preview, Development |
 
-### "X-Frame-Options bloque l'iframe OSM"
-→ l'iframe embed OSM dans nos pages (pas l'inverse), pas de conflit.
+Optionnelles :
 
-### Le site charge mais la recherche est vide
-→ c'est normal si la base n'a pas été seedée. Voir étape 5.
+| Key | Usage |
+|---|---|
+| `ADMIN_ENABLED` | `true` pour exposer `/admin` (sinon 404) |
+| `NEXT_PUBLIC_MAPBOX_TOKEN` | Token Mapbox public pour la carte |
+| `RESEND_API_KEY` | Envoi d'emails transactionnels (pas encore actif) |
+
+## 3. Seeder la base
+
+Tu n'as pas besoin de poste local — utilise le **workflow GitHub Actions**.
+
+### Secrets GitHub
+
+GitHub → repo → Settings → **Secrets and variables → Actions** → New repository secret :
+
+- `DATABASE_URL` = même string que Vercel
+- `DIRECT_URL` = même string que Vercel
+
+### Lancer le workflow
+
+GitHub → **Actions** → **Seed database** → **Run workflow**
+
+1. Branche : `main` (ou `claude/baboo-real-estate-platform-Q4rCr` si pas encore mergée)
+2. Tape **SEED** dans le champ de confirmation
+3. **Run workflow**
+
+Le workflow fait `pnpm install && pnpm db:push && pnpm db:seed`. ~2 min.
+
+Attendu à la fin :
+```
+✓ 12 cities seeded
+✓ 6 agencies seeded
+✓ 3 developers seeded
+✓ 5 projects seeded
+✓ 60 listings seeded
+```
+
+### RLS (Row-Level Security)
+
+Pour que la clé anon (mobile / requêtes côté client) puisse lire les annonces, exécuter dans Supabase **SQL Editor** :
+
+```sql
+alter table "Listing" enable row level security;
+create policy "public read published listings"
+  on "Listing" for select
+  using (status = 'PUBLISHED');
+
+alter table "City" enable row level security;
+create policy "public read cities" on "City" for select using (true);
+
+alter table "Neighborhood" enable row level security;
+create policy "public read neighborhoods" on "Neighborhood" for select using (true);
+
+alter table "Agency" enable row level security;
+create policy "public read agencies" on "Agency" for select using (true);
+
+alter table "Project" enable row level security;
+create policy "public read projects" on "Project" for select using (true);
+
+alter table "ProjectUnit" enable row level security;
+create policy "public read project units" on "ProjectUnit" for select using (true);
+```
+
+L'app web (server-side Prisma) n'est pas affectée par RLS, elle utilise le user `postgres` avec tous les droits. Les policies ci-dessus ne concernent que la clé anon, utilisée côté client (mobile).
+
+## 4. Vérifier le déploiement
+
+Une fois le deploy terminé :
+
+| URL | Attendu |
+|---|---|
+| `/` | Masthead « À vendre, à louer. », grille d'annonces featured, villes |
+| `/recherche` | ~60 annonces avec filtres fonctionnels |
+| `/recherche?city=casablanca` | Annonces de Casablanca uniquement |
+| `/annonce/<n'importe-quel-slug>` | Fiche complète + formulaire de contact qui **enregistre vraiment** |
+| `/projets` | 5 programmes neufs |
+| `/agences` | 6 agences avec logos |
+| `/ville/casablanca` | Landing ville |
+| `/contact` | Form qui enregistre un Lead |
+| `/favoris`, `/recherches` | Vides au premier passage (localStorage navigateur) |
+
+Tester le flow complet :
+
+1. Sur une annonce, remplir le formulaire de contact → message envoyé
+2. Retourner dans Supabase → Table Editor → `Lead` → la ligne doit être là
+3. Cliquer le cœur sur une carte → vérifier dans `/favoris` qu'elle apparaît
+4. Rechercher avec filtres → cliquer « Enregistrer cette recherche » → vérifier dans `/recherches`
+
+## 5. Checklist de production
+
+- [ ] `DATABASE_URL` et `DIRECT_URL` configurés dans Vercel
+- [ ] `NEXTAUTH_SECRET` configuré
+- [ ] Workflow `Seed database` passé au vert
+- [ ] Les 6 policies RLS créées dans Supabase
+- [ ] `/annonce/<slug>` — test de contact qui remonte un Lead en DB
+- [ ] `/favoris` — ajout/retrait d'un favori persiste au refresh
+- [ ] `/recherches` — création d'une alerte persiste
+- [ ] `/admin` renvoie 404 (sauf si `ADMIN_ENABLED=true` explicite)
+- [ ] `sitemap.xml` accessible
+- [ ] Branding final (logo, meta-description, favicon) validé
+
+## 6. Rotation du mot de passe
+
+⚠️ Le mot de passe DB a été partagé dans des logs / chat pendant le setup. Avant lancement public :
+
+1. Supabase → Project Settings → Database → **Reset database password**
+2. Régénérer les 2 connection strings avec le nouveau mot de passe
+3. Mettre à jour **Vercel Environment Variables** ET **GitHub Secrets**
+4. Redeploy Vercel
+5. Re-run workflow Seed si besoin
+
+## 7. Erreurs fréquentes
+
+| Symptôme | Cause probable | Fix |
+|---|---|---|
+| `Can't reach database server` | Région pooler incorrecte | Vérifier le host dans Supabase → Connection pooling |
+| `password authentication failed` | `@` ou autre caractère spécial non URL-encodé | Remplacer `@` par `%40`, etc. |
+| Pages vides malgré deploy OK | DB non seedée | Lancer le workflow `Seed database` |
+| « L'ancienne version s'affiche » | Cache navigateur ou branche production | Hard refresh + vérifier Production Branch = `main` dans Vercel |
+| Build OK mais erreurs Prisma dans les logs | `DATABASE_URL` absent | Ajouter la variable + redeploy (cocher les 3 environnements) |
+| `Module not found: @prisma/client` | `postinstall` n'a pas tourné | Vercel → Settings → forcer `npm install` ou `pnpm install` |
