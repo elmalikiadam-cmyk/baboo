@@ -1,24 +1,17 @@
-import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
-import { CheckIcon, CloseIcon } from "@/components/ui/icons";
 import { relativeDate } from "@/lib/format";
+import { ModerationActions } from "@/components/admin/moderation-actions";
+import { VerifyAgencyButton } from "@/components/admin/verify-agency-button";
 
 export const metadata: Metadata = { title: "Admin · Modération" };
 export const dynamic = "force-dynamic";
 
-const MOCK_MODERATION = [
-  { reason: "Doublon potentiel", listing: "Villa avec piscine, Anfa", agency: "Atlas Realty", risk: "Moyen" },
-  { reason: "Photos de faible qualité", listing: "Appartement lumineux, Gauthier", agency: "Oasis Immobilier", risk: "Bas" },
-  { reason: "Prix incohérent", listing: "Riad rénové, Médina", agency: "Medina Properties", risk: "Élevé" },
-];
-
-
 async function getAdminStats() {
-  if (!hasDb()) return { total: 0, published: 0, pending: 12, agencies: 0, leads: 324 };
+  if (!hasDb()) return { total: 0, published: 0, pending: 0, agencies: 0, leads: 0 };
   try {
     const [total, published, pending, agencies, leads] = await Promise.all([
       db.listing.count(),
@@ -27,9 +20,9 @@ async function getAdminStats() {
       db.agency.count(),
       db.lead.count(),
     ]);
-    return { total, published, pending: pending || 12, agencies, leads: leads || 324 };
+    return { total, published, pending, agencies, leads };
   } catch {
-    return { total: 0, published: 0, pending: 12, agencies: 0, leads: 324 };
+    return { total: 0, published: 0, pending: 0, agencies: 0, leads: 0 };
   }
 }
 
@@ -37,10 +30,24 @@ async function getPending() {
   if (!hasDb()) return [];
   try {
     return await db.listing.findMany({
-      where: { status: { in: ["PENDING", "PUBLISHED"] } },
+      where: { status: "PENDING" },
       orderBy: { updatedAt: "desc" },
-      take: 6,
+      take: 20,
       include: { city: true, agency: { select: { name: true, verified: true, logo: true } } },
+    });
+  } catch {
+    return [];
+  }
+}
+
+async function getUnverifiedAgencies() {
+  if (!hasDb()) return [];
+  try {
+    return await db.agency.findMany({
+      where: { verified: false },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      select: { id: true, name: true, slug: true, citySlug: true, createdAt: true },
     });
   } catch {
     return [];
@@ -67,9 +74,12 @@ export default async function AdminDashboard() {
   if (!session?.user) redirect("/connexion?callbackUrl=/admin");
   if (session.user.role !== "ADMIN") redirect("/");
 
-  const stats = await getAdminStats();
-  const pending = await getPending();
-  const recentLeads = await getRecentLeadsAcrossAgencies();
+  const [stats, pending, recentLeads, unverifiedAgencies] = await Promise.all([
+    getAdminStats(),
+    getPending(),
+    getRecentLeadsAcrossAgencies(),
+    getUnverifiedAgencies(),
+  ]);
 
   return (
     <div className="container py-10 md:py-16">
@@ -87,11 +97,11 @@ export default async function AdminDashboard() {
       </div>
 
       <dl className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-5">
-        <Stat label="Total annonces" value={String(stats.total || 60)} />
-        <Stat label="Publiées" value={String(stats.published || 60)} />
+        <Stat label="Total annonces" value={String(stats.total)} />
+        <Stat label="Publiées" value={String(stats.published)} />
         <Stat label="À modérer" value={String(stats.pending)} tone="dark" />
-        <Stat label="Agences" value={String(stats.agencies || 6)} />
-        <Stat label="Leads (30j)" value={String(stats.leads)} />
+        <Stat label="Agences" value={String(stats.agencies)} />
+        <Stat label="Leads" value={String(stats.leads)} />
       </dl>
 
       <div className="mt-14 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
@@ -121,20 +131,7 @@ export default async function AdminDashboard() {
                         {(l.agency?.name ?? "PARTICULIER").toUpperCase()} · {l.city.name.toUpperCase()}
                       </p>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        aria-label="Approuver"
-                        className="grid h-9 w-9 place-items-center rounded-full bg-foreground text-background"
-                      >
-                        <CheckIcon className="h-4 w-4" />
-                      </button>
-                      <button
-                        aria-label="Rejeter"
-                        className="grid h-9 w-9 place-items-center rounded-full border border-foreground/20 hover:border-danger hover:text-danger"
-                      >
-                        <CloseIcon className="h-4 w-4" />
-                      </button>
-                    </div>
+                    <ModerationActions listingId={l.id} />
                   </div>
                 </li>
               ))
@@ -180,47 +177,31 @@ export default async function AdminDashboard() {
         <aside>
           <div className="mb-4 flex items-end justify-between border-b border-foreground/15 pb-4">
             <div>
-              <p className="eyebrow">Alertes qualité</p>
-              <h3 className="display-lg mt-2 text-xl">Scoring automatique.</h3>
+              <p className="eyebrow">Agences à vérifier</p>
+              <h3 className="display-lg mt-2 text-xl">{unverifiedAgencies.length} en attente.</h3>
             </div>
           </div>
-          <ul className="space-y-3">
-            {MOCK_MODERATION.map((m, i) => (
-              <li key={i} className="rounded-md border border-foreground/15 bg-surface p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="display-lg text-base">{m.listing}</p>
-                    <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-                      {m.agency.toUpperCase()}
-                    </p>
-                    <p className="mt-2 text-sm">{m.reason}</p>
-                  </div>
-                  <span
-                    className={`mono shrink-0 rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] ${
-                      m.risk === "Élevé"
-                        ? "border-danger/40 bg-danger/10 text-danger"
-                        : m.risk === "Moyen"
-                          ? "border-foreground/30 text-foreground"
-                          : "border-foreground/15 text-muted-foreground"
-                    }`}
-                  >
-                    {m.risk}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-6 rounded-md bg-ink p-6 text-ink-foreground">
-            <p className="eyebrow text-ink-foreground/60">Action rapide</p>
-            <h3 className="display-lg mt-2 text-xl">Publier un message global.</h3>
-            <p className="mt-2 text-sm text-ink-foreground/75">
-              Apparaîtra en bannière haute sur toutes les pages publiques pendant 24 h.
+          {unverifiedAgencies.length === 0 ? (
+            <p className="rounded-md border border-dashed border-foreground/25 p-6 text-center text-sm text-muted-foreground">
+              Toutes les agences sont vérifiées.
             </p>
-            <button className="mt-5 inline-flex items-center gap-2 rounded-full bg-ink-foreground px-4 py-2 mono text-[11px] uppercase tracking-[0.12em] text-ink">
-              Composer
-            </button>
-          </div>
+          ) : (
+            <ul className="space-y-3">
+              {unverifiedAgencies.map((a) => (
+                <li key={a.id} className="rounded-md border border-foreground/15 bg-surface p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="display-lg text-base">{a.name}</p>
+                      <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                        /{a.slug} {a.citySlug ? ` · ${a.citySlug}` : ""}
+                      </p>
+                    </div>
+                    <VerifyAgencyButton agencyId={a.id} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </aside>
       </div>
     </div>
