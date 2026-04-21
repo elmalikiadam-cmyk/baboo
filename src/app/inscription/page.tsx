@@ -16,21 +16,34 @@ export default async function SignUpPage({ searchParams }: Props) {
   }
 
   const { role } = await searchParams;
-  const defaultRole = role === "agency" ? "AGENCY" : "USER";
+  const defaultRole =
+    role === "agency" ? "AGENCY" : role === "developer" ? "DEVELOPER" : "USER";
+
+  const copy = {
+    USER: {
+      eyebrow: "Inscription",
+      title: "Créer votre compte.",
+      subtitle: "Une adresse et un mot de passe, et vos favoris sont sauvegardés partout.",
+    },
+    AGENCY: {
+      eyebrow: "Baboo Pro",
+      title: "Rejoindre Baboo Pro.",
+      subtitle: "Publiez vos annonces, recevez des leads qualifiés, suivez votre pipeline.",
+    },
+    DEVELOPER: {
+      eyebrow: "Baboo Promoteur",
+      title: "Rejoindre Baboo Promoteur.",
+      subtitle: "Présentez vos programmes neufs, collectez demandes de brochure et visites.",
+    },
+  }[defaultRole];
 
   return (
     <div className="container flex min-h-[70vh] items-center justify-center py-16">
       <div className="w-full max-w-md rounded-md border border-foreground/15 bg-surface p-8">
         <div className="mb-8 text-center">
-          <p className="eyebrow">{defaultRole === "AGENCY" ? "Baboo Pro" : "Inscription"}</p>
-          <h1 className="display-xl mt-2 text-3xl">
-            {defaultRole === "AGENCY" ? "Rejoindre Baboo Pro." : "Créer votre compte."}
-          </h1>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {defaultRole === "AGENCY"
-              ? "Publiez vos annonces, recevez des leads qualifiés, suivez votre pipeline."
-              : "Une adresse et un mot de passe, et vos favoris sont sauvegardés partout."}
-          </p>
+          <p className="eyebrow">{copy.eyebrow}</p>
+          <h1 className="display-xl mt-2 text-3xl">{copy.title}</h1>
+          <p className="mt-3 text-sm text-muted-foreground">{copy.subtitle}</p>
         </div>
 
         <SignUpForm defaultRole={defaultRole} />

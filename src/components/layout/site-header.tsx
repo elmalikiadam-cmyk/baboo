@@ -73,6 +73,7 @@ export async function SiteHeader() {
                 agencySlug={user.agencySlug ?? null}
                 agencyName={user.agencyName ?? null}
                 isAgency={user.role === "AGENCY"}
+                isDeveloper={user.role === "DEVELOPER"}
                 isAdmin={user.role === "ADMIN"}
                 unreadMessages={unread}
               />

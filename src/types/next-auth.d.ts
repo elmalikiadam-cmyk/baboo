@@ -12,6 +12,9 @@ declare module "next-auth" {
       agencyId?: string | null;
       agencySlug?: string | null;
       agencyName?: string | null;
+      developerId?: string | null;
+      developerSlug?: string | null;
+      developerName?: string | null;
     } & DefaultSession["user"];
   }
 
@@ -20,6 +23,9 @@ declare module "next-auth" {
     agencyId?: string | null;
     agencySlug?: string | null;
     agencyName?: string | null;
+    developerId?: string | null;
+    developerSlug?: string | null;
+    developerName?: string | null;
   }
 }
 
@@ -32,6 +38,9 @@ declare module "next-auth/jwt" {
     agencyId?: string | null;
     agencySlug?: string | null;
     agencyName?: string | null;
+    developerId?: string | null;
+    developerSlug?: string | null;
+    developerName?: string | null;
   }
 }
 
@@ -41,5 +50,8 @@ declare module "@auth/core/jwt" {
     agencyId?: string | null;
     agencySlug?: string | null;
     agencyName?: string | null;
+    developerId?: string | null;
+    developerSlug?: string | null;
+    developerName?: string | null;
   }
 }

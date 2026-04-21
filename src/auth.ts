@@ -56,7 +56,10 @@ export const authConfig: NextAuthConfig = {
         const { email, password } = parsed.data;
         const user = await db.user.findUnique({
           where: { email: email.toLowerCase() },
-          include: { agency: { select: { id: true, slug: true, name: true } } },
+          include: {
+            agency: { select: { id: true, slug: true, name: true } },
+            developer: { select: { id: true, slug: true, name: true } },
+          },
         });
 
         if (!user?.passwordHash) return null;
@@ -72,6 +75,9 @@ export const authConfig: NextAuthConfig = {
           agencyId: user.agency?.id ?? null,
           agencySlug: user.agency?.slug ?? null,
           agencyName: user.agency?.name ?? null,
+          developerId: user.developer?.id ?? null,
+          developerSlug: user.developer?.slug ?? null,
+          developerName: user.developer?.name ?? null,
         };
       },
     }),
@@ -122,11 +128,17 @@ export const authConfig: NextAuthConfig = {
           agencyId?: string | null;
           agencySlug?: string | null;
           agencyName?: string | null;
+          developerId?: string | null;
+          developerSlug?: string | null;
+          developerName?: string | null;
         };
         token.role = u.role;
         token.agencyId = u.agencyId ?? null;
         token.agencySlug = u.agencySlug ?? null;
         token.agencyName = u.agencyName ?? null;
+        token.developerId = u.developerId ?? null;
+        token.developerSlug = u.developerSlug ?? null;
+        token.developerName = u.developerName ?? null;
       }
       // Pour OAuth : on recharge systématiquement depuis la DB quand on a
       // un email mais pas encore de rôle (first-pass post-login).
@@ -134,7 +146,10 @@ export const authConfig: NextAuthConfig = {
         try {
           const dbUser = await db.user.findUnique({
             where: { email: token.email.toLowerCase() },
-            include: { agency: { select: { id: true, slug: true, name: true } } },
+            include: {
+              agency: { select: { id: true, slug: true, name: true } },
+              developer: { select: { id: true, slug: true, name: true } },
+            },
           });
           if (dbUser) {
             token.sub = dbUser.id;
@@ -142,6 +157,9 @@ export const authConfig: NextAuthConfig = {
             token.agencyId = dbUser.agency?.id ?? null;
             token.agencySlug = dbUser.agency?.slug ?? null;
             token.agencyName = dbUser.agency?.name ?? null;
+            token.developerId = dbUser.developer?.id ?? null;
+            token.developerSlug = dbUser.developer?.slug ?? null;
+            token.developerName = dbUser.developer?.name ?? null;
           }
         } catch {
           // silencieux — le user reste non-connecté côté rôles
@@ -156,12 +174,18 @@ export const authConfig: NextAuthConfig = {
           agencyId?: string | null;
           agencySlug?: string | null;
           agencyName?: string | null;
+          developerId?: string | null;
+          developerSlug?: string | null;
+          developerName?: string | null;
         };
         session.user.id = (token.sub as string | undefined) ?? session.user.id;
         session.user.role = t.role ?? "USER";
         session.user.agencyId = t.agencyId ?? null;
         session.user.agencySlug = t.agencySlug ?? null;
         session.user.agencyName = t.agencyName ?? null;
+        session.user.developerId = t.developerId ?? null;
+        session.user.developerSlug = t.developerSlug ?? null;
+        session.user.developerName = t.developerName ?? null;
       }
       return session;
     },

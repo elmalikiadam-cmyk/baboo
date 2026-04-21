@@ -13,7 +13,7 @@ const signUpSchema = z.object({
   name: z.string().min(2, "Votre nom est requis.").max(120),
   email: z.string().email("Email invalide.").transform((v) => v.toLowerCase()),
   password: z.string().min(8, "8 caractères minimum.").max(72),
-  role: z.enum(["USER", "AGENCY"]).default("USER"),
+  role: z.enum(["USER", "AGENCY", "DEVELOPER"]).default("USER"),
 });
 
 export type SignUpResult =
@@ -65,6 +65,25 @@ export async function signUp(input: unknown): Promise<SignUpResult> {
           }
         }
         await tx.agency.create({
+          data: {
+            userId: user.id,
+            slug,
+            name,
+            verified: false,
+          },
+        });
+      } else if (role === "DEVELOPER") {
+        const base = baseSlug(name);
+        let slug = base;
+        let i = 2;
+        while (await tx.developer.findUnique({ where: { slug }, select: { id: true } })) {
+          slug = `${base}-${i++}`;
+          if (i > 50) {
+            slug = `${base}-${Date.now().toString(36)}`;
+            break;
+          }
+        }
+        await tx.developer.create({
           data: {
             userId: user.id,
             slug,

@@ -11,11 +11,20 @@ interface Props {
   agencySlug?: string | null;
   agencyName?: string | null;
   isAgency: boolean;
+  isDeveloper: boolean;
   isAdmin: boolean;
   unreadMessages?: number;
 }
 
-export function UserMenu({ name, email, agencyName, isAgency, isAdmin, unreadMessages = 0 }: Props) {
+export function UserMenu({
+  name,
+  email,
+  agencyName,
+  isAgency,
+  isDeveloper,
+  isAdmin,
+  unreadMessages = 0,
+}: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [isPending, startTransition] = useTransition();
@@ -110,6 +119,17 @@ export function UserMenu({ name, email, agencyName, isAgency, isAdmin, unreadMes
                 </MenuLink>
                 <MenuLink href="/pro/agence" onSelect={() => setOpen(false)}>
                   Profil agence
+                </MenuLink>
+              </>
+            )}
+            {isDeveloper && (
+              <>
+                <div className="border-t border-foreground/10" />
+                <MenuLink href="/developer/dashboard" onSelect={() => setOpen(false)}>
+                  Tableau promoteur
+                </MenuLink>
+                <MenuLink href="/developer/projets" onSelect={() => setOpen(false)}>
+                  Mes projets
                 </MenuLink>
               </>
             )}

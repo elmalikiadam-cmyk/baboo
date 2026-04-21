@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { signUp } from "@/actions/auth";
 
-export function SignUpForm({ defaultRole = "USER" }: { defaultRole?: "USER" | "AGENCY" }) {
+type Role = "USER" | "AGENCY" | "DEVELOPER";
+
+export function SignUpForm({ defaultRole = "USER" }: { defaultRole?: Role }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -23,13 +25,19 @@ export function SignUpForm({ defaultRole = "USER" }: { defaultRole?: "USER" | "A
       name: String(form.get("name") ?? ""),
       email: String(form.get("email") ?? ""),
       password: String(form.get("password") ?? ""),
-      role: (String(form.get("role") ?? defaultRole) as "USER" | "AGENCY"),
+      role: (String(form.get("role") ?? defaultRole) as Role),
     };
 
     startTransition(async () => {
       const res = await signUp(payload);
       if (res.ok) {
-        router.push(payload.role === "AGENCY" ? "/pro/dashboard" : "/compte");
+        const dest =
+          payload.role === "AGENCY"
+            ? "/pro/dashboard"
+            : payload.role === "DEVELOPER"
+              ? "/developer/dashboard"
+              : "/compte";
+        router.push(dest);
         router.refresh();
       } else {
         setError(res.error);
