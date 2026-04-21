@@ -5,20 +5,11 @@ import { buildSearchHref } from "@/lib/search-params";
 
 export function SiteFooter() {
   return (
-    <footer className="relative mt-24 overflow-hidden bg-ink text-ink-foreground">
-      {/* Ambient glow inside the footer for subtle warmth */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 right-0 h-[400px] w-[520px] rounded-full bg-accent/10 blur-[120px]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-40 -left-20 h-[380px] w-[420px] rounded-full bg-accent-peach/10 blur-[100px]"
-      />
-      <div className="container relative py-20">
+    <footer className="mt-24 border-t border-foreground/15 bg-ink text-ink-foreground">
+      <div className="container py-16">
         <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>
-            <div className="text-ink-foreground"><BabooLogo className="h-9 w-auto" /></div>
+            <BabooLogo variant="light" className="h-9 w-auto" />
             <p className="mt-5 max-w-xs text-sm text-ink-foreground/70">
               Annonces immobilières de particuliers et professionnels, partout au Maroc.
             </p>

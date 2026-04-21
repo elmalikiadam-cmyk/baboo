@@ -14,6 +14,8 @@ type Tab = "SALE" | "RENT";
 const BUDGETS_SALE = [500_000, 1_000_000, 2_000_000, 3_500_000, 5_000_000, 8_000_000, 15_000_000];
 const BUDGETS_RENT = [3_000, 6_000, 10_000, 15_000, 25_000, 40_000];
 
+// Strict handoff : recherche brutaliste. Segmented avec bordure complète 1px,
+// barre de recherche sharp (pas de rounded-full), bouton shape="sharp".
 export function HeroSearch() {
   const [tab, setTab] = useState<Tab>("SALE");
   const [city, setCity] = useState<string>("");
@@ -37,39 +39,36 @@ export function HeroSearch() {
 
   return (
     <div className="w-full max-w-3xl">
-      <div className="mb-3 flex items-center justify-center">
-        <div
-          role="tablist"
-          aria-label="Type de transaction"
-          className="glass inline-flex rounded-full p-1 text-sm"
-        >
-          {(["SALE", "RENT"] as const).map((t) => (
-            <button
-              key={t}
-              role="tab"
-              aria-selected={tab === t}
-              onClick={() => setTab(t)}
-              className={`rounded-full px-5 py-1.5 font-medium transition-all ${
-                tab === t
-                  ? "bg-foreground text-background shadow-sm"
-                  : "text-foreground/70 hover:text-foreground"
-              }`}
-            >
-              {t === "SALE" ? "Acheter" : "Louer"}
-            </button>
-          ))}
-        </div>
+      {/* Segmented VENTE / LOCATION avec bordure complète 1px */}
+      <div
+        role="tablist"
+        aria-label="Type de transaction"
+        className="mb-3 inline-flex border border-foreground"
+      >
+        {(["SALE", "RENT"] as const).map((t, i) => (
+          <button
+            key={t}
+            role="tab"
+            aria-selected={tab === t}
+            onClick={() => setTab(t)}
+            className={`mono px-5 py-2 text-xs font-bold uppercase tracking-[0.08em] transition-colors ${
+              i === 0 ? "border-r border-foreground" : ""
+            } ${tab === t ? "bg-foreground text-background" : "bg-background text-foreground hover:bg-foreground/5"}`}
+          >
+            {t === "SALE" ? "Acheter" : "Louer"}
+          </button>
+        ))}
       </div>
 
       <form
         onSubmit={onSubmit}
-        className="glass-strong ring-warm grid gap-2 rounded-full p-2 sm:grid-cols-[1.2fr_1fr_1fr_auto]"
+        className="grid gap-px border border-foreground bg-foreground/15 sm:grid-cols-[1.2fr_1fr_1fr_auto]"
       >
         <Select
           value={city}
           onChange={(e) => setCity(e.target.value)}
           aria-label="Ville"
-          className="h-11 border-transparent bg-transparent"
+          className="h-12 border-0 bg-surface"
         >
           <option value="">Toutes les villes</option>
           {CITIES.map((c) => (
@@ -81,7 +80,7 @@ export function HeroSearch() {
           value={type}
           onChange={(e) => setType(e.target.value)}
           aria-label="Type de bien"
-          className="h-11 border-transparent bg-transparent"
+          className="h-12 border-0 bg-surface"
         >
           <option value="">Tous les types</option>
           {PROPERTY_TYPES.map((t) => (
@@ -93,7 +92,7 @@ export function HeroSearch() {
           value={priceMax}
           onChange={(e) => setPriceMax(e.target.value)}
           aria-label="Budget maximum"
-          className="h-11 border-transparent bg-transparent"
+          className="h-12 border-0 bg-surface"
         >
           <option value="">Budget max</option>
           {budgets.map((b) => (
@@ -103,7 +102,7 @@ export function HeroSearch() {
           ))}
         </Select>
 
-        <Button type="submit" size="md" className="h-11 px-6">
+        <Button type="submit" size="md" shape="sharp" className="h-12 px-6">
           <SearchIcon className="h-4 w-4" />
           Rechercher
         </Button>

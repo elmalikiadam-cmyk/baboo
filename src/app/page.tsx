@@ -52,70 +52,71 @@ function formatTotal(n: number): string {
   return new Intl.NumberFormat("fr-FR").format(n);
 }
 
+// Masthead façon V1 Éditorial du handoff : eyebrow mono "N° XX — MOIS ANNÉE · MAROC",
+// titre "À VENDRE, À LOUER." géant condensé, compteur mono dessous.
 export default async function HomePage() {
   const { featured, latest, total, cityCounts } = await getHomeData();
   const hasData = latest.length > 0 || !!featured;
 
   const now = new Date();
-  const month = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" }).toUpperCase();
+  const month = now
+    .toLocaleDateString("fr-FR", { month: "long", year: "numeric" })
+    .toUpperCase();
   const issue = `N° ${String(now.getMonth() + 1).padStart(2, "0")} — ${month} · MAROC`;
 
   return (
     <>
-      {/* Masthead — hero avec ambient glow, contenu centré */}
-      <section className="relative isolate overflow-hidden">
-        <div className="ambient-glow" aria-hidden />
-        <div className="container pt-16 pb-16 md:pt-24 md:pb-20">
-          <div className="mx-auto max-w-4xl text-center">
-            <p className="eyebrow">{issue}</p>
+      {/* Masthead */}
+      <section className="border-b border-foreground/15">
+        <div className="container py-12 md:py-16">
+          <p className="eyebrow">{issue}</p>
 
-            <h1 className="display-xl mt-5 text-[clamp(3rem,10vw,8rem)]">
-              <span className="block">À vendre,</span>
-              <span className="block italic font-display-stack">à louer.</span>
-            </h1>
+          <h1 className="display-xl mt-4 text-[clamp(3rem,11vw,8rem)] uppercase">
+            <span className="block">À vendre,</span>
+            <span className="block">à louer.</span>
+          </h1>
 
-            <p className="mono mt-6 text-xs uppercase text-muted-foreground">
-              {hasData ? `${formatTotal(total)} annonces` : "Base en cours d'initialisation"}
-              {hasData && " · particuliers & professionnels"}
-            </p>
+          <p className="mono mt-6 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+            {hasData
+              ? `${formatTotal(total)} annonces vérifiées · particuliers & professionnels`
+              : "Base en cours d'initialisation"}
+          </p>
 
-            <div className="mt-8 flex flex-wrap justify-center gap-2">
-              <Link href="/recherche?t=sale" className="pill-soft">Je veux acheter</Link>
-              <Link href="/recherche?t=rent" className="pill-soft">Je veux louer</Link>
-              <Link href="/pro/publier" className="pill-soft">Je veux publier</Link>
-            </div>
+          <div className="mt-8 flex flex-wrap gap-2">
+            <Link href="/recherche?t=sale" className="pill-soft">Je veux acheter</Link>
+            <Link href="/recherche?t=rent" className="pill-soft">Je veux louer</Link>
+            <Link href="/pro/publier" className="pill-soft">Je veux publier</Link>
+          </div>
 
-            <div className="mt-10 flex w-full justify-center">
-              <HeroSearch />
-            </div>
+          <div className="mt-10">
+            <HeroSearch />
           </div>
         </div>
       </section>
 
-      {/* Featured hero — grande carte à la une */}
+      {/* Featured — hero full-bleed style éditorial */}
       {featured && (
-        <section className="container pt-6 md:pt-10">
+        <section className="container pt-10 md:pt-14">
           <FeaturedHeroCard listing={featured} />
         </section>
       )}
 
-      {/* Latest grid */}
+      {/* Rubrique SÉLECTION — grid 2-col sur mobile/tablet, 3-4 sur desktop */}
       {latest.length > 0 && (
         <section className="container py-14 md:py-20">
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-6 border-b border-foreground/10 pb-5">
-            <div>
-              <p className="eyebrow">Sélection</p>
-              <h2 className="display-xl mt-2 text-3xl md:text-5xl">Dernières annonces.</h2>
-            </div>
+          <div className="mb-8 flex items-end justify-between border-t border-foreground/15 pt-6">
+            <h2 className="display-xl text-[clamp(2rem,5vw,3.5rem)] uppercase">
+              Sélection
+            </h2>
             <Link
               href="/recherche"
-              className="mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground"
+              className="mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
             >
-              Voir tout ({formatTotal(total)}) →
+              Voir {formatTotal(total)} →
             </Link>
           </div>
 
-          <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-px bg-foreground/15 lg:grid-cols-3 xl:grid-cols-4">
             {latest.map((l, i) => (
               <ListingCard key={l.id} listing={l} priority={i < 4} />
             ))}
@@ -125,13 +126,13 @@ export default async function HomePage() {
 
       {!hasData && (
         <section className="container py-20">
-          <div className="glass rounded-3xl p-10 text-center">
+          <div className="border border-dashed border-foreground/30 bg-surface p-10 text-center">
             <p className="eyebrow">Base vide</p>
-            <h2 className="display-xl mt-3 text-3xl md:text-4xl">Pas encore d'annonces ici.</h2>
+            <h2 className="display-xl mt-3 text-3xl uppercase">Pas encore d'annonces ici.</h2>
             <p className="mt-3 text-sm text-muted-foreground">
               Lance le seed pour charger 60+ annonces de démonstration.
             </p>
-            <code className="mt-4 inline-block rounded-full bg-foreground px-4 py-2 mono text-xs text-background">
+            <code className="mono mt-4 inline-block border border-foreground bg-foreground px-3 py-1.5 text-xs text-background">
               pnpm db:push && pnpm db:seed
             </code>
           </div>

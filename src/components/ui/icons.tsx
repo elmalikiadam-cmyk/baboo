@@ -117,47 +117,25 @@ export const BuildingIcon = (p: IconProps) => (
 );
 
 // ─── Baboo logo ─────────────────────────────────────────────────────────
-// Wordmark "baboo" en Barlow Condensed 800, avec deux petits points ronds
-// au-dessus des deux "o" (oreilles de panda, hommage au nom).
-// Hérite de currentColor, scale proprement à toute taille.
+// Import direct du PNG source (design_handoff_baboo/assets/baboo-logo.png)
+// copié dans public/baboo-logo.png. Rendu fidèle au brief.
+// Sur fond sombre, passer variant="light" pour inverser la couleur.
 
-export const BabooLogo = ({ className }: { className?: string }) => (
-  <svg
-    viewBox="0 0 200 62"
-    className={className}
-    aria-label="Baboo"
-    role="img"
-  >
-    <g fill="currentColor">
-      {/* Oreilles panda au-dessus des "oo" */}
-      <circle cx="131" cy="13" r="5.5" />
-      <circle cx="166" cy="13" r="5.5" />
-      {/* Wordmark */}
-      <text
-        x="0"
-        y="52"
-        fontFamily="'Barlow Condensed', 'Bahnschrift', system-ui, sans-serif"
-        fontWeight="800"
-        fontSize="52"
-        fontStretch="condensed"
-        letterSpacing="-1.8"
-      >
-        baboo
-      </text>
-    </g>
-  </svg>
+interface BabooLogoProps {
+  className?: string;
+  variant?: "dark" | "light";
+}
+
+export const BabooLogo = ({ className, variant = "dark" }: BabooLogoProps) => (
+  // eslint-disable-next-line @next/next/no-img-element
+  <img
+    src="/baboo-logo.png"
+    alt="Baboo"
+    className={
+      (className ?? "h-7 w-auto") +
+      (variant === "light" ? " [filter:brightness(0)_invert(1)]" : "")
+    }
+  />
 );
 
-export const BabooMark = ({ className }: { className?: string }) => (
-  // Icône compacte — les deux "oo" avec oreilles. Pour favicons / avatars.
-  <svg viewBox="0 0 96 64" className={className} aria-hidden>
-    <g fill="currentColor">
-      <circle cx="24" cy="10" r="6" />
-      <circle cx="72" cy="10" r="6" />
-      <circle cx="24" cy="42" r="20" />
-      <circle cx="72" cy="42" r="20" />
-      <circle cx="24" cy="42" r="8" fill="hsl(var(--background))" />
-      <circle cx="72" cy="42" r="8" fill="hsl(var(--background))" />
-    </g>
-  </svg>
-);
+export const BabooMark = BabooLogo;

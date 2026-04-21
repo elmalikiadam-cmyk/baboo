@@ -26,12 +26,12 @@ export function FavoriteButton({ slug, size = "sm", position = "top-right" }: Pr
         toggle(slug);
       }}
       className={cn(
-        "grid place-items-center rounded-full ring-1 transition",
-        size === "sm" ? "h-9 w-9" : "h-11 w-11",
+        "grid place-items-center border transition",
+        size === "sm" ? "h-8 w-8" : "h-10 w-10",
         position === "top-right" && "absolute right-3 top-3 z-10",
         active
-          ? "bg-foreground text-background ring-foreground"
-          : "bg-background text-foreground ring-foreground/10 hover:bg-paper-2",
+          ? "border-foreground bg-foreground text-background"
+          : "border-foreground bg-background text-foreground hover:bg-paper-2",
       )}
     >
       <svg

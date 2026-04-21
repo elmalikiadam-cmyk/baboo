@@ -68,20 +68,29 @@ export function SearchFiltersPanel({ initial }: Props) {
 
   return (
     <aside
-      className="glass-strong sticky top-24 max-h-[calc(100vh-7rem)] w-full overflow-y-auto rounded-3xl p-5"
+      className="sticky top-6 max-h-[calc(100vh-3rem)] w-full overflow-y-auto border border-foreground/15 bg-surface p-5"
       aria-busy={isPending}
     >
-      <p className="eyebrow mb-3">Affiner</p>
+      <p className="mono mb-3 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+        Affiner
+      </p>
 
-      <div className="mb-5 inline-flex w-full rounded-full bg-foreground/[0.06] p-1 text-sm" role="tablist">
-        {(["SALE", "RENT"] as const).map((t) => (
+      <div
+        className="mb-5 inline-flex w-full border border-foreground"
+        role="tablist"
+      >
+        {(["SALE", "RENT"] as const).map((t, i) => (
           <button
             key={t}
             role="tab"
             aria-selected={draft.transaction === t}
             onClick={() => apply({ transaction: t })}
-            className={`flex-1 rounded-full px-3 py-1.5 font-medium transition-colors ${
-              draft.transaction === t ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
+            className={`mono flex-1 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.08em] transition-colors ${
+              i === 0 ? "border-r border-foreground" : ""
+            } ${
+              draft.transaction === t
+                ? "bg-foreground text-background"
+                : "bg-surface text-foreground hover:bg-foreground/5"
             }`}
           >
             {t === "SALE" ? "Acheter" : "Louer"}
@@ -131,10 +140,10 @@ export function SearchFiltersPanel({ initial }: Props) {
                   type="button"
                   onClick={() => toggleType(t)}
                   aria-pressed={active}
-                  className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                  className={`mono border px-2.5 py-1 text-[10px] uppercase tracking-[0.08em] transition-colors ${
                     active
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-surface text-foreground hover:bg-foreground/5"
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-foreground/30 bg-surface text-foreground hover:bg-foreground/5"
                   }`}
                 >
                   {PROPERTY_TYPE_LABEL[t]}
@@ -221,10 +230,10 @@ export function SearchFiltersPanel({ initial }: Props) {
                   type="button"
                   onClick={() => apply({ bedroomsMin: active ? undefined : n })}
                   aria-pressed={active}
-                  className={`w-10 rounded-full border py-1.5 text-xs transition-colors ${
+                  className={`mono w-10 border py-1.5 text-[11px] font-bold transition-colors ${
                     active
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-surface text-foreground hover:bg-foreground/5"
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-foreground/30 bg-surface text-foreground hover:bg-foreground/5"
                   }`}
                 >
                   {n}+
@@ -245,10 +254,10 @@ export function SearchFiltersPanel({ initial }: Props) {
                   type="button"
                   onClick={() => toggleAmenity(a.key)}
                   aria-pressed={active}
-                  className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                  className={`mono border px-2.5 py-1 text-[10px] uppercase tracking-[0.08em] transition-colors ${
                     active
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-surface text-foreground hover:bg-foreground/5"
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-foreground/30 bg-surface text-foreground hover:bg-foreground/5"
                   }`}
                 >
                   {a.label}

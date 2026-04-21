@@ -1,11 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { MapPinIcon } from "@/components/ui/icons";
 import { formatSurface } from "@/lib/format";
 import type { ListingWithRelations } from "@/lib/listings-query";
 import { FavoriteButton } from "@/components/listing/favorite-button";
 
 const PRICE_FR = new Intl.NumberFormat("fr-FR");
+
+// Style "GridCard" issu de design_handoff_baboo/mockups/feed-editorial.jsx
+// Brutaliste : photo sharp, bord 1px, eyebrow mono, prix géant condensé,
+// divider top 1px sous les méta, mono pour la localisation.
 
 interface ListingCardProps {
   listing: ListingWithRelations;
@@ -16,37 +19,30 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
   const isRent = listing.transaction === "RENT";
   const href = `/annonce/${listing.slug}`;
   const isPro = Boolean(listing.agency);
-
-  const priceText = PRICE_FR.format(listing.price);
-  const unitText = isRent ? "MAD/MOIS" : "MAD";
   const transactionLabel = isRent ? "LOCATION" : "VENTE";
-
+  const unitText = isRent ? "MAD/MOIS" : "MAD";
   const ref = listing.id.slice(-4).toUpperCase();
 
   return (
-    <article className="group relative flex flex-col">
+    <article className="group relative flex flex-col border border-foreground/15 bg-surface">
       <Link
         href={href}
-        className="relative block aspect-[4/3] overflow-hidden rounded-3xl bg-foreground/5 transition-transform duration-300 ease-out-soft group-hover:-translate-y-1 group-hover:shadow-soft-lg"
+        className="relative block aspect-[4/3] overflow-hidden bg-paper-2"
       >
         <Image
           src={listing.coverImage}
           alt={listing.title}
           fill
           sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 92vw"
-          className="object-cover transition-transform duration-700 ease-out-soft group-hover:scale-[1.05]"
+          className="object-cover transition-transform duration-500 ease-out-soft group-hover:scale-[1.03]"
           priority={priority}
         />
-        {/* Subtle gradient at the bottom of image for badge legibility */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        />
+        {/* Badge Pro/Particulier — rectangulaire strict, mono */}
         <span
-          className={`pointer-events-none absolute left-3 top-3 inline-flex items-center rounded-full px-2.5 py-1 text-[9px] font-medium tracking-[0.12em] mono backdrop-blur-md ${
+          className={`pointer-events-none absolute left-3 top-3 mono border px-2 py-0.5 text-[9px] font-medium tracking-[0.14em] ${
             isPro
-              ? "bg-foreground/90 text-background"
-              : "bg-background/80 text-foreground border border-foreground/20"
+              ? "border-foreground bg-foreground text-background"
+              : "border-foreground bg-background text-foreground"
           }`}
         >
           {isPro ? "PRO" : "PARTICULIER"}
@@ -55,30 +51,36 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
 
       <FavoriteButton slug={listing.slug} />
 
-      <Link href={href} className="mt-4 flex flex-1 flex-col gap-1 px-1">
-        <div className="flex items-center justify-between">
-          <span className="eyebrow">{transactionLabel}</span>
-          <span className="mono text-[10px] text-muted-foreground">BB-{ref}</span>
-        </div>
-
-        <div className="flex items-baseline gap-2">
-          <span className="display-xl text-[2rem] leading-none md:text-[2.25rem]">{priceText}</span>
-          <span className="mono text-[10px] text-muted-foreground">{unitText}</span>
-        </div>
-
-        <h3 className="display-lg mt-1 line-clamp-1 text-lg tracking-[0.01em]">
-          {listing.title}
-        </h3>
-
-        <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
-          <MapPinIcon className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate">
-            {listing.neighborhood?.name ? `${listing.neighborhood.name}, ` : ""}
-            {listing.city.name}
+      <Link href={href} className="flex flex-1 flex-col p-4">
+        <div className="flex items-baseline justify-between">
+          <span className="mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+            {transactionLabel}
           </span>
-        </p>
+          <span className="mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+            BB-{ref}
+          </span>
+        </div>
 
-        <div className="mt-3 flex flex-wrap gap-1.5 border-t border-foreground/10 pt-3">
+        <div className="display-xl mt-1 text-[2rem] leading-none">
+          {PRICE_FR.format(listing.price)}
+        </div>
+        <div className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+          {unitText}
+        </div>
+
+        <div className="mt-3 border-t border-foreground/15 pt-3">
+          <p className="display-lg text-[15px] leading-tight tracking-[0.01em]">
+            {listing.title}
+          </p>
+          <p className="mono mt-2 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+            {listing.neighborhood?.name
+              ? `${listing.neighborhood.name.toUpperCase()} · `
+              : ""}
+            {listing.city.name.toUpperCase()}
+          </p>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-1.5">
           <MetaChip>{formatSurface(listing.surface).toUpperCase()}</MetaChip>
           {listing.bedrooms != null && <MetaChip>{listing.bedrooms} CH</MetaChip>}
           {listing.bathrooms != null && <MetaChip>{listing.bathrooms} SDB</MetaChip>}
@@ -93,7 +95,7 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
 
 function MetaChip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="mono rounded-full border border-foreground/15 bg-background/60 px-2 py-0.5 text-[9px] font-medium text-foreground/80">
+    <span className="mono border border-foreground/20 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.08em] text-foreground/85">
       {children}
     </span>
   );
