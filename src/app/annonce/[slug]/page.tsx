@@ -13,6 +13,7 @@ import { HeartIcon, ShareIcon, MapPinIcon } from "@/components/ui/icons";
 import { formatPrice, formatPricePerMonth, relativeDate } from "@/lib/format";
 import { PROPERTY_TYPE_LABEL, TRANSACTION_VERB } from "@/data/taxonomy";
 import { buildSearchHref } from "@/lib/search-params";
+import { listingJsonLd } from "@/lib/jsonld";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -89,32 +90,8 @@ export default async function ListingPage({ params }: Props) {
     concierge: listing.concierge,
   };
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "RealEstateListing",
-    name: listing.title,
-    description: listing.description,
-    url: `https://baboo.ma/annonce/${listing.slug}`,
-    image: listing.images.map((i) => i.url).slice(0, 6),
-    offers: {
-      "@type": "Offer",
-      price: listing.price,
-      priceCurrency: "MAD",
-      availability: "https://schema.org/InStock",
-    },
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: listing.city.name,
-      addressRegion: listing.city.region,
-      addressCountry: "MA",
-    },
-    floorSize: {
-      "@type": "QuantitativeValue",
-      value: listing.surface,
-      unitCode: "MTK",
-    },
-    numberOfRooms: listing.bedrooms ?? undefined,
-  };
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://baboo.ma").replace(/\/+$/, "");
+  const jsonLd = listingJsonLd(listing, siteUrl);
 
   return (
     <div className="container py-8">
@@ -286,7 +263,7 @@ export default async function ListingPage({ params }: Props) {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
     </div>
   );

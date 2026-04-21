@@ -36,7 +36,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const p = await getProject(slug);
   if (!p) return { title: "Projet introuvable" };
-  return { title: p.name, description: p.description.slice(0, 160) };
+  const description = p.description.slice(0, 160).replace(/\s+\S*$/, "") + "…";
+  return {
+    title: p.name,
+    description,
+    alternates: { canonical: `/projets/${p.slug}` },
+    openGraph: {
+      title: p.name,
+      description,
+      type: "article",
+      images: [p.cover],
+    },
+  };
 }
 
 export default async function ProjectDetail({ params }: { params: Promise<{ slug: string }> }) {

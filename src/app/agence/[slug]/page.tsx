@@ -7,6 +7,7 @@ import { CITIES } from "@/data/cities";
 import { ListingCard } from "@/components/listing/listing-card";
 import { Button } from "@/components/ui/button";
 import { PhoneIcon, WhatsAppIcon, CheckIcon, MapPinIcon } from "@/components/ui/icons";
+import { agencyJsonLd } from "@/lib/jsonld";
 
 async function getAgency(slug: string) {
   if (!hasDb()) return null;
@@ -34,7 +35,23 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const a = await getAgency(slug);
   if (!a) return { title: "Agence introuvable" };
-  return { title: a.name, description: a.tagline ?? undefined };
+  const count = a.listings.length;
+  const description =
+    a.tagline ??
+    a.description?.slice(0, 160) ??
+    `${a.name} — ${count} annonce${count > 1 ? "s" : ""} sur Baboo.`;
+  const og = a.cover ?? a.logo ?? undefined;
+  return {
+    title: a.name,
+    description,
+    alternates: { canonical: `/agence/${a.slug}` },
+    openGraph: {
+      title: a.name,
+      description,
+      type: "profile",
+      ...(og ? { images: [og] } : {}),
+    },
+  };
 }
 
 export default async function AgencyPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -44,9 +61,15 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
   const city = CITIES.find((c) => c.slug === agency.citySlug);
   const saleCount = agency.listings.filter((l) => l.transaction === "SALE").length;
   const rentCount = agency.listings.length - saleCount;
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://baboo.ma").replace(/\/+$/, "");
+  const jsonLd = agencyJsonLd(agency, siteUrl);
 
   return (
     <div className="container py-10 md:py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
+      />
       <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
         <Link href="/" className="hover:text-foreground">Accueil</Link>
         <span className="mx-2">·</span>
