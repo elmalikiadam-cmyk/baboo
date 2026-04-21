@@ -1,0 +1,196 @@
+/* ============================================================================
+ * Baboo — design tokens de référence (direction "Maison ouverte")
+ * 
+ * Ces valeurs sont les valeurs visuelles de la maquette baboo-redesign.jsx.
+ * Dans l'implémentation Next.js, elles doivent être déclarées en HSL dans 
+ * src/app/globals.css (voir README.md section 3).
+ * 
+ * Ce fichier sert uniquement de référence visuelle pour comprendre la palette.
+ * ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ==========================================================================
+   * SURFACES — crème chaude (vs le noir & blanc cassé de la V1)
+   * ========================================================================== */
+  --bb-paper:       #FAF6F0;  /* fond principal, crème chaude */
+  --bb-paper-warm:  #F4EDE1;  /* cards soft, separators, toggles inactifs */
+  --bb-paper-cool:  #EFE9DC;  /* surface +2, éventuelles zones distinctes */
+
+  /* ==========================================================================
+   * ENCRES — presque noir légèrement chaud (vs noir froid pur #0a0a0a)
+   * ========================================================================== */
+  --bb-ink:         #1A1815;  /* texte principal, CTAs primary */
+  --bb-ink-soft:    #4A4641;  /* texte secondaire, labels, body */
+  --bb-ink-muted:   #8A837A;  /* métadonnées, placeholder, unit */
+
+  /* ==========================================================================
+   * BORDURES — tons sable chauds (vs bordures noires 12% opacity)
+   * ========================================================================== */
+  --bb-border:      #E8DFC9;  /* bordure standard sur cards et inputs */
+  --bb-border-soft: #EFE5CF;  /* separators très discrets, border-t interne */
+
+  /* ==========================================================================
+   * ACCENT — terracotta discret (remplace le jaune criard 48 96% 58%)
+   * Réservé aux : eyebrows, liens actifs, badges "Nouveau", underlines 
+   * d'italique sur titres. JAMAIS sur les CTAs principaux.
+   * ========================================================================== */
+  --bb-accent:      #B8442A;  /* terracotta */
+  --bb-accent-soft: #F3DCD1;  /* fond doux pour chips accent */
+
+  /* ==========================================================================
+   * SEMANTIC
+   * ========================================================================== */
+  --bb-success:      #5B6B3F;  /* olive — vérifié, succès, banner publier */
+  --bb-success-soft: #E4E7D5;  /* fond doux pour les zones success */
+  --bb-danger:       #B03A2A;
+
+  /* ==========================================================================
+   * TYPOGRAPHIE
+   * ========================================================================== */
+  --bb-font-display: 'Fraunces', Georgia, serif;
+  --bb-font-body:    'Inter Tight', system-ui, sans-serif;
+  --bb-font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* ==========================================================================
+   * RAYONS
+   * ========================================================================== */
+  --bb-r-sm:  0.5rem;    /* 8px — badges rectangulaires "À vendre" */
+  --bb-r-md:  0.75rem;   /* 12px — cellules de facts */
+  --bb-r-lg:  1rem;      /* 16px — cards internes, map */
+  --bb-r-xl:  1.25rem;   /* 20px — listing cards, city cards */
+  --bb-r-2xl: 1.75rem;   /* 28px — sheet qui remonte sur fiche détail */
+  --bb-r-full: 9999px;   /* pills, boutons, avatars, inputs */
+}
+
+/* ============================================================================
+ * HELPERS TYPOGRAPHIQUES (référence)
+ * ============================================================================ */
+
+/* Hero/section title — "Bonjour Salma. Où cherchez-vous ?" */
+.bb-display-xl {
+  font-family: var(--bb-font-display);
+  font-weight: 500;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+}
+
+/* Section title — "Ajoutées récemment" */
+.bb-display-lg {
+  font-family: var(--bb-font-display);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+
+/* Subsection title — "Explorer par ville" */
+.bb-display-md {
+  font-family: var(--bb-font-display);
+  font-weight: 500;
+  font-size: 1.375rem;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
+/* Prix sur les cartes et fiches — signature émotionnelle */
+.bb-price-display {
+  font-family: var(--bb-font-display);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3vw, 2.125rem);
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+
+/* Eyebrow — monospace, terracotta par défaut */
+.bb-eyebrow {
+  font-family: var(--bb-font-mono);
+  font-size: 0.625rem;       /* 10px */
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--bb-accent);
+}
+
+/* Variante eyebrow neutre — pour les labels de facts etc. */
+.bb-eyebrow-muted {
+  font-family: var(--bb-font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--bb-ink-muted);
+}
+
+/* ============================================================================
+ * PATTERN DÉCORATIF — points fins, évoque de loin un moucharabieh/zellige
+ * À appliquer en overlay sur les photos de listing et de ville.
+ * ============================================================================ */
+.bb-dot-pattern {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(255, 255, 255, 0.08) 1px,
+    transparent 0
+  );
+  background-size: 16px 16px;
+}
+
+/* ============================================================================
+ * RESET / DEFAULTS
+ * ============================================================================ */
+body {
+  font-family: var(--bb-font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--bb-ink-soft);
+  background: var(--bb-paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--bb-font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  color: var(--bb-ink);
+}
+
+a {
+  color: var(--bb-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+a:hover {
+  color: var(--bb-ink);
+}
+
+/* ============================================================================
+ * NOTES D'IMPLÉMENTATION
+ * ============================================================================
+ *
+ * 1. Italiques Fraunces : encouragés sur les titres émotionnels. Ex :
+ *    "Bonjour Salma. <em>Où cherchez-vous ?</em>"
+ *    "L'immobilier, <em>sans friction.</em>"
+ *    Cela donne sa personnalité à l'app sans crier.
+ *
+ * 2. Prix : toujours en Fraunces 400 (regular, pas bold). Le poids léger + 
+ *    le serif = confiance tranquille. Pas besoin de hurler le montant.
+ *
+ * 3. Eyebrows : par défaut en terracotta. Passer en ink-muted uniquement 
+ *    pour les labels internes de facts (SURFACE, CHAMBRES, etc.).
+ *
+ * 4. Bordures : toujours via --bb-border (sable chaud), JAMAIS via 
+ *    rgba(0,0,0,0.x). Les bordures chaudes sont la signature de la palette.
+ *
+ * 5. CTAs principaux : toujours en --bb-ink sur --bb-paper. Le terracotta 
+ *    est UNIQUEMENT pour les accents mineurs. Un CTA terracotta = erreur.
+ *
+ * 6. Shadows : très discrètes, teintées warm. Éviter les shadows neutres 
+ *    rgba(0,0,0,0.1) qui cassent la chaleur. Préférer :
+ *    box-shadow: 0 12px 30px -10px rgba(26, 24, 21, 0.15);
+ *
+ * ========================================================================= */
