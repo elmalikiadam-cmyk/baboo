@@ -1,4 +1,8 @@
+import Link from "next/link";
 import Image from "next/image";
+import { IconButton } from "@/components/ui/icon-button";
+import { Badge } from "@/components/ui/badge";
+import { ChevronLeftIcon, ShareIcon, HeartIcon } from "@/components/ui/icons";
 
 interface Media {
   url: string;
@@ -9,47 +13,68 @@ interface Props {
   cover: string;
   images: Media[];
   title: string;
+  transactionLabel: string;
+  propertyTypeLabel: string;
 }
 
-export function ListingGallery({ cover, images, title }: Props) {
-  const others = images
-    .filter((i) => i.url !== cover)
-    .slice(0, 4);
-
-  while (others.length < 4 && images.length > 0) {
-    others.push(images[others.length % images.length]);
-  }
+/**
+ * Hero photo de la fiche détail. V2 :
+ * - Mobile : full-bleed 420px
+ * - Desktop : ratio 16:10, rounded-2xl
+ * - Top : retour (floating) + partage + cœur
+ * - Bottom : sticker transaction + compteur photos
+ */
+export function ListingGallery({
+  cover,
+  images,
+  title,
+  transactionLabel,
+  propertyTypeLabel,
+}: Props) {
+  const photos = images.length > 0 ? images : [{ url: cover, alt: title }];
+  const primary = photos[0];
+  const total = Math.max(photos.length, 1);
 
   return (
-    <section className="overflow-hidden rounded-md border border-border bg-foreground/5">
-      <div className="grid grid-cols-4 gap-1">
-        <div className="relative col-span-4 aspect-[16/10] md:col-span-2 md:row-span-2 md:aspect-auto">
-          <Image
-            src={cover}
-            alt={`${title} — photo principale`}
-            fill
-            priority
-            sizes="(min-width: 1024px) 640px, 100vw"
-            className="object-cover"
-          />
+    <div className="relative h-[420px] w-full overflow-hidden bg-surface-warm md:h-auto md:aspect-[16/10] md:rounded-2xl">
+      <Image
+        src={primary.url}
+        alt={primary.alt ?? title}
+        fill
+        priority
+        sizes="(max-width: 768px) 100vw, 66vw"
+        className="object-cover"
+      />
+      <div className="pointer-events-none absolute inset-0 dot-pattern" aria-hidden />
+
+      {/* Top controls */}
+      <div className="absolute inset-x-4 top-4 z-10 flex items-center justify-between md:top-6">
+        <Link href="/recherche" aria-label="Retour aux annonces">
+          <IconButton variant="floating" size="md">
+            <ChevronLeftIcon className="h-5 w-5" />
+          </IconButton>
+        </Link>
+        <div className="flex gap-2">
+          <IconButton variant="floating" size="md" aria-label="Partager">
+            <ShareIcon className="h-4 w-4" />
+          </IconButton>
+          <IconButton variant="floating" size="md" aria-label="Ajouter aux favoris">
+            <HeartIcon className="h-4 w-4" />
+          </IconButton>
         </div>
-        {others.slice(0, 4).map((img, i) => (
-          <div key={`${img.url}-${i}`} className="relative col-span-2 hidden aspect-[4/3] md:col-span-1 md:block">
-            <Image
-              src={img.url}
-              alt={img.alt ?? `${title} — photo ${i + 2}`}
-              fill
-              sizes="(min-width: 1024px) 320px, 45vw"
-              className="object-cover"
-            />
-            {i === 3 && images.length > 5 && (
-              <div className="absolute inset-0 grid place-items-center bg-black/40 text-sm font-medium text-white">
-                +{images.length - 5} photos
-              </div>
-            )}
-          </div>
-        ))}
       </div>
-    </section>
+
+      {/* Sticker transaction + type */}
+      <div className="absolute bottom-4 left-4 z-10">
+        <Badge tone="light" size="md" shape="sticker">
+          {transactionLabel} · {propertyTypeLabel}
+        </Badge>
+      </div>
+
+      {/* Compteur photos */}
+      <div className="absolute bottom-4 right-4 z-10 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-semibold text-ink-foreground backdrop-blur">
+        1 / {total}
+      </div>
+    </div>
   );
 }

@@ -4,8 +4,13 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input, Label } from "@/components/ui/input";
-import { PhoneIcon, WhatsAppIcon, CheckIcon } from "@/components/ui/icons";
+import { Input, Textarea, Label } from "@/components/ui/input";
+import {
+  PhoneIcon,
+  WhatsAppIcon,
+  CheckIcon,
+  ShieldCheckIcon,
+} from "@/components/ui/icons";
 import { submitLead } from "@/actions/leads";
 
 interface Props {
@@ -20,6 +25,12 @@ interface Props {
   phone?: string | null;
 }
 
+/**
+ * V2 "Maison ouverte" : carte sticky rounded-3xl, avatar terracotta avec
+ * initiales en Fraunces 500, check olive si vérifié, formulaire rounded-full
+ * + textarea rounded-2xl, CTA primary ink full-width, rangée Appeler/WhatsApp
+ * en variant soft.
+ */
 export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -54,62 +65,77 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
     });
   }
 
+  const displayName = agency?.name ?? "Annonceur";
+  const initials = displayName
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0] ?? "")
+    .join("")
+    .toUpperCase();
+
   return (
-    <aside id="contact-form" className="sticky top-24 rounded-md border border-foreground/15 bg-surface p-6">
-      {agency && (
-        <div className="mb-4 flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-full bg-foreground/5 text-sm font-semibold text-foreground">
-            {agency.logo ? (
-              <Image
-                src={agency.logo}
-                alt={agency.name}
-                width={44}
-                height={44}
-                className="rounded-full object-cover"
-              />
-            ) : (
-              agency.name
-                .split(" ")
-                .slice(0, 2)
-                .map((w) => w[0])
-                .join("")
-            )}
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-foreground">{agency.name}</p>
-            {agency.verified && (
-              <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                <CheckIcon className="h-3.5 w-3.5" /> Agence vérifiée
-              </p>
-            )}
-          </div>
+    <aside
+      id="contact-form"
+      className="sticky top-24 rounded-3xl border border-border bg-surface p-5 md:p-6"
+    >
+      <div className="flex items-center gap-3">
+        <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-accent text-ink-foreground font-display text-[17px] font-medium">
+          {agency?.logo ? (
+            <Image
+              src={agency.logo}
+              alt={agency.name}
+              width={48}
+              height={48}
+              className="h-12 w-12 object-cover"
+            />
+          ) : (
+            initials
+          )}
         </div>
-      )}
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <p className="display-md truncate text-[15px] leading-tight">{displayName}</p>
+            {agency?.verified && (
+              <ShieldCheckIcon
+                className="h-3.5 w-3.5 shrink-0 text-success"
+                aria-label="Agence vérifiée"
+              />
+            )}
+          </div>
+          <p className="mt-0.5 text-[11px] text-ink-muted">
+            {agency
+              ? agency.verified
+                ? "Agence vérifiée"
+                : "Professionnel"
+              : "Particulier"}
+          </p>
+        </div>
+      </div>
 
       {submitted ? (
-        <div className="rounded-md border border-success/30 bg-success/5 p-5 text-center">
-          <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-success/15 text-success">
-            <CheckIcon className="h-5 w-5" />
+        <div className="mt-5 rounded-2xl border border-success/30 bg-success-soft p-5 text-center">
+          <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-success text-ink-foreground">
+            <CheckIcon className="h-4 w-4" />
           </span>
-          <h3 className="mt-3 font-display text-lg font-semibold">Message envoyé.</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="display-md mt-3 text-[17px]">Message envoyé.</p>
+          <p className="mt-1 text-sm text-ink-soft">
             {conversationId
-              ? "Une conversation a été ouverte. Suivez la réponse de l'agence dans votre messagerie."
-              : "L'agence vous répondra rapidement. Pensez à vérifier votre boîte de réception."}
+              ? "Une conversation a été ouverte. Suivez la réponse dans votre messagerie."
+              : `${displayName} vous répondra rapidement.`}
           </p>
           {conversationId && (
             <Link
               href={`/messages/${conversationId}`}
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition hover:bg-foreground/90"
+              className="mt-4 inline-flex h-10 items-center rounded-full bg-ink px-4 text-sm font-medium text-ink-foreground hover:bg-ink/90"
             >
               Ouvrir la conversation
             </Link>
           )}
         </div>
       ) : (
-        <form onSubmit={onSubmit} className="space-y-3" noValidate>
+        <form onSubmit={onSubmit} className="mt-5 space-y-3" noValidate>
           <Field id="c-name" label="Votre nom" error={fieldErrors.name}>
-            <Input id="c-name" name="name" required autoComplete="name" placeholder="Sofia Bennani" />
+            <Input id="c-name" name="name" required autoComplete="name" placeholder="Salma A." />
           </Field>
           <Field id="c-email" label="Email" error={fieldErrors.email}>
             <Input
@@ -122,16 +148,21 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
             />
           </Field>
           <Field id="c-phone" label="Téléphone" error={fieldErrors.phone}>
-            <Input id="c-phone" name="phone" type="tel" autoComplete="tel" placeholder="+212 6 00 00 00 00" />
+            <Input
+              id="c-phone"
+              name="phone"
+              type="tel"
+              autoComplete="tel"
+              placeholder="+212 6 00 00 00 00"
+            />
           </Field>
           <Field id="c-message" label="Message" error={fieldErrors.message}>
-            <textarea
+            <Textarea
               id="c-message"
               name="message"
               rows={4}
               required
-              defaultValue={`Bonjour, je suis intéressé(e) par "${listingTitle}". Pourriez-vous me contacter pour organiser une visite ?`}
-              className="flex w-full rounded-md border border-foreground/15 bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+              defaultValue={`Bonjour, je suis intéressé(e) par « ${listingTitle} ». Pourriez-vous me contacter pour organiser une visite ?`}
             />
           </Field>
 
@@ -147,31 +178,33 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
 
           <div className="grid grid-cols-2 gap-2 pt-1">
             <a
-              href={phone ? `tel:${phone.replace(/\s+/g, "")}` : "#"}
+              href={phone ? `tel:${phone.replace(/\s+/g, "")}` : undefined}
               aria-disabled={!phone}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-foreground/15 bg-surface px-4 py-2.5 text-sm font-medium text-foreground hover:bg-foreground/5"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-surface-warm text-sm font-medium text-ink hover:bg-surface-cool aria-disabled:pointer-events-none aria-disabled:opacity-50"
             >
-              <PhoneIcon className="h-4 w-4" /> Appeler
+              <PhoneIcon className="h-4 w-4" aria-hidden /> Appeler
             </a>
             <a
               href={
                 phone
                   ? `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                      `Bonjour, je suis intéressé(e) par "${listingTitle}" sur Baboo.`,
+                      `Bonjour, je suis intéressé(e) par « ${listingTitle} » sur Baboo.`,
                     )}`
-                  : "#"
+                  : undefined
               }
               target="_blank"
               rel="noreferrer"
               aria-disabled={!phone}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-success/10 px-4 py-2.5 text-sm font-medium text-success hover:bg-success/15"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-surface-warm text-sm font-medium text-ink hover:bg-surface-cool aria-disabled:pointer-events-none aria-disabled:opacity-50"
             >
-              <WhatsAppIcon className="h-4 w-4" /> WhatsApp
+              <WhatsAppIcon className="h-4 w-4" aria-hidden /> WhatsApp
             </a>
           </div>
 
-          <p className="pt-2 text-[11px] leading-relaxed text-muted-foreground">
-            En envoyant ce message, vous acceptez que vos coordonnées soient transmises au professionnel en charge de l'annonce.
+          <p className="pt-2 text-[11px] leading-relaxed text-ink-muted">
+            En envoyant ce message, vous acceptez que vos coordonnées soient transmises au
+            professionnel en charge de l'annonce. Vos données sont traitées conformément à la loi
+            09-08.
           </p>
         </form>
       )}

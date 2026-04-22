@@ -5,15 +5,32 @@ import { cn } from "@/lib/cn";
 
 interface Props {
   slug: string;
-  /** ex : "h-9 w-9" (carte) ou "h-11 w-11" (fiche détail) */
+  /** sm : 32px (carte), md : 40px (hero fiche détail) */
   size?: "sm" | "md";
-  /** position absolue si le parent est relatif */
-  position?: "top-right" | "inline";
+  /** Style : "floating" pour overlay sur photo (V2 défaut),
+   *  "outlined" pour fond clair. */
+  variant?: "floating" | "outlined";
 }
 
-export function FavoriteButton({ slug, size = "sm", position = "top-right" }: Props) {
+/**
+ * Bouton heart — V2 "Maison ouverte". Rond, blanc translucide en default
+ * (floating sur photo), bordé sable si outlined. Actif = rempli ink.
+ */
+export function FavoriteButton({ slug, size = "sm", variant = "floating" }: Props) {
   const { isFavorite, toggle, hydrated } = useFavorites();
   const active = hydrated && isFavorite(slug);
+
+  const sizeClass = size === "sm" ? "h-9 w-9" : "h-10 w-10";
+  const iconSize = size === "sm" ? 16 : 18;
+
+  const styleClass =
+    variant === "floating"
+      ? active
+        ? "bg-ink text-ink-foreground"
+        : "bg-white/95 text-ink backdrop-blur-sm hover:bg-white"
+      : active
+        ? "border border-ink bg-ink text-ink-foreground"
+        : "border border-border bg-surface text-ink hover:border-ink";
 
   return (
     <button
@@ -26,17 +43,15 @@ export function FavoriteButton({ slug, size = "sm", position = "top-right" }: Pr
         toggle(slug);
       }}
       className={cn(
-        "grid place-items-center border transition",
-        size === "sm" ? "h-8 w-8" : "h-10 w-10",
-        position === "top-right" && "absolute right-3 top-3 z-10",
-        active
-          ? "border-foreground bg-foreground text-background"
-          : "border-foreground bg-background text-foreground hover:bg-paper-2",
+        "grid place-items-center rounded-full transition-colors duration-200 ease-out",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        sizeClass,
+        styleClass,
       )}
     >
       <svg
-        width={size === "sm" ? 16 : 18}
-        height={size === "sm" ? 16 : 18}
+        width={iconSize}
+        height={iconSize}
         viewBox="0 0 24 24"
         fill={active ? "currentColor" : "none"}
         stroke="currentColor"

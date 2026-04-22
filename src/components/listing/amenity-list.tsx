@@ -3,21 +3,24 @@ import { AMENITIES } from "@/data/taxonomy";
 
 export function AmenityList({ flags }: { flags: Record<string, boolean> }) {
   const present = AMENITIES.filter((a) => flags[a.key]);
-  if (present.length === 0) return null;
+  if (present.length === 0) {
+    return (
+      <p className="rounded-2xl border border-dashed border-border p-5 text-center text-sm text-ink-muted">
+        Le propriétaire n'a pas précisé de commodité spécifique.
+      </p>
+    );
+  }
 
   return (
-    <section className="py-8">
-      <h2 className="font-display text-2xl font-semibold">Commodités</h2>
-      <ul className="mt-5 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-        {present.map((a) => (
-          <li key={a.key} className="flex items-center gap-2.5 text-sm text-foreground">
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-success/10 text-success">
-              <CheckIcon className="h-4 w-4" />
-            </span>
-            {a.label}
-          </li>
-        ))}
-      </ul>
-    </section>
+    <ul className="grid grid-cols-2 gap-3 md:grid-cols-3">
+      {present.map((a) => (
+        <li key={a.key} className="flex items-center gap-3">
+          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-success-soft text-success">
+            <CheckIcon className="h-3 w-3" />
+          </span>
+          <span className="text-sm text-ink">{a.label}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

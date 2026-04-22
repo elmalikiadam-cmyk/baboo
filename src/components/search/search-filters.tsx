@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Input, Label, Select } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { PillToggle } from "@/components/ui/pill-toggle";
 import { CITIES } from "@/data/cities";
 import {
   AMENITIES,
@@ -13,12 +13,18 @@ import {
 } from "@/data/taxonomy";
 import type { SearchFilters } from "@/lib/search-params";
 import { filtersToQueryString } from "@/lib/search-params";
+import { cn } from "@/lib/cn";
 
 interface Props {
   initial: SearchFilters;
+  className?: string;
 }
 
-export function SearchFiltersPanel({ initial }: Props) {
+/**
+ * V2 "Maison ouverte" — panneau filtres sticky (desktop) ou inline (mobile).
+ * Card rounded-2xl, toggle Acheter/Louer, chips ronds bordés.
+ */
+export function SearchFiltersPanel({ initial, className }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, start] = useTransition();
@@ -66,41 +72,37 @@ export function SearchFiltersPanel({ initial }: Props) {
 
   const selectedCity = CITIES.find((c) => c.slug === draft.citySlug);
 
+  const chipClass = (active: boolean) =>
+    cn(
+      "inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors",
+      active
+        ? "border-ink bg-ink text-ink-foreground"
+        : "border-border text-ink-soft hover:border-ink",
+    );
+
   return (
     <aside
-      className="sticky top-6 max-h-[calc(100vh-3rem)] w-full overflow-y-auto border border-foreground/15 bg-surface p-5"
+      className={cn(
+        "rounded-2xl border border-border bg-surface p-5",
+        className,
+      )}
       aria-busy={isPending}
+      aria-label="Filtres"
     >
-      <p className="mono mb-3 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        Affiner
-      </p>
+      <p className="eyebrow-muted mb-3">Affiner</p>
 
-      <div
-        className="mb-5 inline-flex w-full border border-foreground"
-        role="tablist"
-      >
-        {(["SALE", "RENT"] as const).map((t, i) => (
-          <button
-            key={t}
-            role="tab"
-            aria-selected={draft.transaction === t}
-            onClick={() => apply({ transaction: t })}
-            className={`mono flex-1 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.08em] transition-colors ${
-              i === 0 ? "border-r border-foreground" : ""
-            } ${
-              draft.transaction === t
-                ? "bg-foreground text-background"
-                : "bg-surface text-foreground hover:bg-foreground/5"
-            }`}
-          >
-            {t === "SALE" ? "Acheter" : "Louer"}
-          </button>
-        ))}
-      </div>
+      <PillToggle
+        ariaLabel="Type de transaction"
+        value={draft.transaction}
+        onChange={(v) => apply({ transaction: v })}
+        options={[
+          { value: "SALE", label: "Acheter" },
+          { value: "RENT", label: "Louer" },
+        ]}
+      />
 
-      <div className="space-y-5">
-        <div className="space-y-1.5">
-          <Label htmlFor="f-city">Ville</Label>
+      <div className="mt-5 space-y-5">
+        <Block label="Ville" id="f-city">
           <Select
             id="f-city"
             value={draft.citySlug ?? ""}
@@ -108,14 +110,15 @@ export function SearchFiltersPanel({ initial }: Props) {
           >
             <option value="">Toutes les villes</option>
             {CITIES.map((c) => (
-              <option key={c.slug} value={c.slug}>{c.name}</option>
+              <option key={c.slug} value={c.slug}>
+                {c.name}
+              </option>
             ))}
           </Select>
-        </div>
+        </Block>
 
         {selectedCity && selectedCity.neighborhoods.length > 0 && (
-          <div className="space-y-1.5">
-            <Label htmlFor="f-n">Quartier</Label>
+          <Block label="Quartier" id="f-n">
             <Select
               id="f-n"
               value={draft.neighborhoodSlug ?? ""}
@@ -123,15 +126,16 @@ export function SearchFiltersPanel({ initial }: Props) {
             >
               <option value="">Tous les quartiers</option>
               {selectedCity.neighborhoods.map((n) => (
-                <option key={n.slug} value={n.slug}>{n.name}</option>
+                <option key={n.slug} value={n.slug}>
+                  {n.name}
+                </option>
               ))}
             </Select>
-          </div>
+          </Block>
         )}
 
-        <div className="space-y-2">
-          <Label>Type de bien</Label>
-          <div className="flex flex-wrap gap-1.5">
+        <Block label="Type de bien">
+          <div className="flex flex-wrap gap-2">
             {PROPERTY_TYPES.slice(0, 7).map((t) => {
               const active = draft.propertyTypes.includes(t);
               return (
@@ -140,22 +144,17 @@ export function SearchFiltersPanel({ initial }: Props) {
                   type="button"
                   onClick={() => toggleType(t)}
                   aria-pressed={active}
-                  className={`mono border px-2.5 py-1 text-[10px] uppercase tracking-[0.08em] transition-colors ${
-                    active
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-foreground/30 bg-surface text-foreground hover:bg-foreground/5"
-                  }`}
+                  className={chipClass(active)}
                 >
                   {PROPERTY_TYPE_LABEL[t]}
                 </button>
               );
             })}
           </div>
-        </div>
+        </Block>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="f-pmin">Prix min</Label>
+          <Block label="Prix min" id="f-pmin">
             <Input
               id="f-pmin"
               type="number"
@@ -167,10 +166,10 @@ export function SearchFiltersPanel({ initial }: Props) {
                 if (v !== draft.priceMin) apply({ priceMin: v });
               }}
               placeholder="MAD"
+              className="h-11"
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="f-pmax">Prix max</Label>
+          </Block>
+          <Block label="Prix max" id="f-pmax">
             <Input
               id="f-pmax"
               type="number"
@@ -182,13 +181,13 @@ export function SearchFiltersPanel({ initial }: Props) {
                 if (v !== draft.priceMax) apply({ priceMax: v });
               }}
               placeholder="MAD"
+              className="h-11"
             />
-          </div>
+          </Block>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="f-smin">Surface min</Label>
+          <Block label="Surface min" id="f-smin">
             <Input
               id="f-smin"
               type="number"
@@ -200,10 +199,10 @@ export function SearchFiltersPanel({ initial }: Props) {
                 if (v !== draft.surfaceMin) apply({ surfaceMin: v });
               }}
               placeholder="m²"
+              className="h-11"
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="f-smax">Surface max</Label>
+          </Block>
+          <Block label="Surface max" id="f-smax">
             <Input
               id="f-smax"
               type="number"
@@ -215,13 +214,13 @@ export function SearchFiltersPanel({ initial }: Props) {
                 if (v !== draft.surfaceMax) apply({ surfaceMax: v });
               }}
               placeholder="m²"
+              className="h-11"
             />
-          </div>
+          </Block>
         </div>
 
-        <div className="space-y-2">
-          <Label>Chambres min.</Label>
-          <div className="flex flex-wrap gap-1.5">
+        <Block label="Chambres min.">
+          <div className="flex flex-wrap gap-2">
             {[1, 2, 3, 4, 5].map((n) => {
               const active = draft.bedroomsMin === n;
               return (
@@ -230,22 +229,17 @@ export function SearchFiltersPanel({ initial }: Props) {
                   type="button"
                   onClick={() => apply({ bedroomsMin: active ? undefined : n })}
                   aria-pressed={active}
-                  className={`mono w-10 border py-1.5 text-[11px] font-bold transition-colors ${
-                    active
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-foreground/30 bg-surface text-foreground hover:bg-foreground/5"
-                  }`}
+                  className={chipClass(active)}
                 >
                   {n}+
                 </button>
               );
             })}
           </div>
-        </div>
+        </Block>
 
-        <div className="space-y-2">
-          <Label>Commodités</Label>
-          <div className="flex flex-wrap gap-1.5">
+        <Block label="Commodités">
+          <div className="flex flex-wrap gap-2">
             {AMENITIES.map((a) => {
               const active = draft.amenities.includes(a.key);
               return (
@@ -254,21 +248,16 @@ export function SearchFiltersPanel({ initial }: Props) {
                   type="button"
                   onClick={() => toggleAmenity(a.key)}
                   aria-pressed={active}
-                  className={`mono border px-2.5 py-1 text-[10px] uppercase tracking-[0.08em] transition-colors ${
-                    active
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-foreground/30 bg-surface text-foreground hover:bg-foreground/5"
-                  }`}
+                  className={chipClass(active)}
                 >
                   {a.label}
                 </button>
               );
             })}
           </div>
-        </div>
+        </Block>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="f-q">Mot-clé</Label>
+        <Block label="Mot-clé" id="f-q">
           <Input
             id="f-q"
             type="search"
@@ -277,21 +266,39 @@ export function SearchFiltersPanel({ initial }: Props) {
               const v = e.currentTarget.value.trim() || undefined;
               if (v !== draft.keyword) apply({ keyword: v });
             }}
-            placeholder="ex : piscine, duplex, rénové…"
+            placeholder="rénové, vue mer…"
+            className="h-11"
           />
-        </div>
+        </Block>
 
         <div className="flex items-center justify-between pt-2">
           <button
             type="button"
             onClick={reset}
-            className="text-xs font-medium text-muted-foreground underline-offset-4 hover:underline"
+            className="text-xs font-medium text-ink-muted underline-offset-4 hover:text-ink hover:underline"
           >
             Réinitialiser
           </button>
-          {isPending && <span className="text-xs text-muted-foreground">Mise à jour…</span>}
+          {isPending && <span className="text-xs text-ink-muted">Mise à jour…</span>}
         </div>
       </div>
     </aside>
+  );
+}
+
+function Block({
+  label,
+  id,
+  children,
+}: {
+  label: string;
+  id?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id}>{label}</Label>
+      {children}
+    </div>
   );
 }

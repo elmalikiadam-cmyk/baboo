@@ -112,6 +112,8 @@ export default async function ListingPage({ params }: Props) {
         cover={listing.coverImage}
         images={listing.images.map((i) => ({ url: i.url, alt: i.alt }))}
         title={listing.title}
+        transactionLabel={isRent ? "À louer" : "À vendre"}
+        propertyTypeLabel={PROPERTY_TYPE_LABEL[listing.propertyType]}
       />
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_380px]">

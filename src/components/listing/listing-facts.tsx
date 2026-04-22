@@ -1,6 +1,18 @@
-import { BedIcon, BathIcon, RulerIcon } from "@/components/ui/icons";
+import {
+  BedIcon,
+  BathIcon,
+  Maximize2Icon,
+  CalendarIcon,
+  BuildingIcon,
+} from "@/components/ui/icons";
 import { formatSurface } from "@/lib/format";
-import { PROPERTY_TYPE_LABEL, CONDITION_LABEL, type PropertyType, type Condition } from "@/data/taxonomy";
+import {
+  PROPERTY_TYPE_LABEL,
+  CONDITION_LABEL,
+  type PropertyType,
+  type Condition,
+} from "@/data/taxonomy";
+import { cn } from "@/lib/cn";
 
 interface Props {
   surface: number;
@@ -14,26 +26,75 @@ interface Props {
   condition?: Condition | null;
 }
 
+type Fact = {
+  label: string;
+  value: string;
+  Icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+};
+
+/**
+ * V2 : grille 2 colonnes, bordure périmétrique sable, séparateurs internes.
+ * Icônes dans un carré surface-warm, label eyebrow-muted, valeur en Fraunces.
+ */
 export function ListingFacts(props: Props) {
-  const items: { label: string; value: string; Icon?: React.ComponentType<React.SVGProps<SVGSVGElement>> }[] = [];
-  items.push({ label: "Type", value: PROPERTY_TYPE_LABEL[props.propertyType] });
-  items.push({ label: "Surface habitable", value: formatSurface(props.surface), Icon: RulerIcon });
-  if (props.landSurface) items.push({ label: "Terrain", value: formatSurface(props.landSurface) });
-  if (props.bedrooms != null) items.push({ label: "Chambres", value: String(props.bedrooms), Icon: BedIcon });
-  if (props.bathrooms != null) items.push({ label: "Salles de bain", value: String(props.bathrooms), Icon: BathIcon });
-  if (props.floor != null) items.push({ label: "Étage", value: props.totalFloors ? `${props.floor}/${props.totalFloors}` : String(props.floor) });
-  if (props.yearBuilt) items.push({ label: "Année", value: String(props.yearBuilt) });
-  if (props.condition) items.push({ label: "État", value: CONDITION_LABEL[props.condition] });
+  const items: Fact[] = [];
+  items.push({
+    label: "Surface",
+    value: formatSurface(props.surface),
+    Icon: Maximize2Icon,
+  });
+  if (props.bedrooms != null)
+    items.push({ label: "Chambres", value: String(props.bedrooms), Icon: BedIcon });
+  if (props.bathrooms != null)
+    items.push({
+      label: "Salles de bain",
+      value: String(props.bathrooms),
+      Icon: BathIcon,
+    });
+  if (props.landSurface)
+    items.push({ label: "Terrain", value: formatSurface(props.landSurface) });
+  if (props.yearBuilt)
+    items.push({ label: "Construit", value: String(props.yearBuilt), Icon: CalendarIcon });
+  if (props.floor != null)
+    items.push({
+      label: "Étage",
+      value: props.totalFloors
+        ? `${props.floor}/${props.totalFloors}`
+        : String(props.floor),
+      Icon: BuildingIcon,
+    });
+  if (props.condition)
+    items.push({ label: "État", value: CONDITION_LABEL[props.condition] });
+  items.push({
+    label: "Type",
+    value: PROPERTY_TYPE_LABEL[props.propertyType],
+  });
+
+  // Force un nombre pair pour avoir une grille propre.
+  const even = items.slice(0, items.length - (items.length % 2));
 
   return (
-    <dl className="grid grid-cols-2 gap-y-5 gap-x-6 border-y border-border py-6 sm:grid-cols-3 md:grid-cols-4">
-      {items.map(({ label, value, Icon }) => (
-        <div key={label}>
-          <dt className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
-            {Icon && <Icon className="h-3.5 w-3.5" />}
-            {label}
-          </dt>
-          <dd className="mt-1 font-display text-lg font-semibold text-foreground">{value}</dd>
+    <dl className="grid grid-cols-2 overflow-hidden rounded-2xl border border-border">
+      {even.map(({ label, value, Icon }, i) => (
+        <div
+          key={label}
+          className={cn(
+            "flex items-center gap-3 p-4",
+            i % 2 === 0 ? "border-r border-border" : "",
+            i < even.length - 2 ? "border-b border-border" : "",
+          )}
+        >
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-warm">
+            {Icon ? (
+              <Icon className="h-4 w-4 text-ink" />
+            ) : (
+              <span className="mono text-[10px] font-semibold text-ink">·</span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <dt className="eyebrow-muted">{label}</dt>
+            <dd className="display-md mt-0.5 text-[1.0625rem] leading-none">{value}</dd>
+          </div>
         </div>
       ))}
     </dl>

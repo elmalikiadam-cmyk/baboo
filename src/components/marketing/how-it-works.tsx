@@ -1,53 +1,56 @@
-import Link from "next/link";
-import { Card } from "@/components/ui/card";
-import { SearchIllus, HeartIllus, ContactIllus } from "@/components/marketing/illustrations";
+import {
+  SearchIcon,
+  HomeIcon,
+  CheckIcon,
+} from "@/components/ui/icons";
 
 const STEPS = [
   {
     n: "01",
-    title: "Cherchez sans friction.",
-    body: "Ville, quartier, budget, surface. Les filtres sont clairs, les résultats sont rapides.",
-    Illus: SearchIllus,
+    Icon: SearchIcon,
+    title: "Recherchez",
+    body: "Ville, quartier, budget, surface. Filtres clairs, résultats rapides.",
   },
   {
     n: "02",
-    title: "Gardez le meilleur.",
-    body: "Sauvegardez vos favoris, créez une alerte et ne ratez aucune nouvelle annonce.",
-    Illus: HeartIllus,
+    Icon: HomeIcon,
+    title: "Visitez",
+    body: "Contactez directement par message, téléphone ou WhatsApp. Sans intermédiaire caché.",
   },
   {
     n: "03",
-    title: "Contactez directement.",
-    body: "Un message, un appel, ou WhatsApp. Vous parlez au particulier ou à l'agence, sans intermédiaire caché.",
-    Illus: ContactIllus,
+    Icon: CheckIcon,
+    title: "Emménagez",
+    body: "Signature, remise des clés. On vous accompagne jusqu'au dossier administratif.",
   },
 ];
 
+/**
+ * V2 "Maison ouverte" : 3 étapes sobres, photo pas héros (icône dans square
+ * surface-warm), pas d'illustrations lourdes.
+ */
 export function HowItWorks() {
   return (
-    <section className="container py-16 md:py-24">
-      <div className="mb-10 flex flex-wrap items-end justify-between gap-6 border-b border-foreground/15 pb-4">
-        <div>
-          <p className="eyebrow">Mode d'emploi</p>
-          <h2 className="display-xl mt-2 text-3xl md:text-5xl">Comment ça marche.</h2>
-        </div>
-        <Link href="/a-propos" className="pill-soft">En savoir plus</Link>
+    <section className="mt-14">
+      <div className="mb-8">
+        <p className="eyebrow-muted">Comment ça marche</p>
+        <h2 className="display-lg mt-2">Trois étapes, pas une de plus.</h2>
       </div>
-
-      <div className="grid gap-5 md:grid-cols-3">
-        {STEPS.map(({ n, title, body, Illus }) => (
-          <Card key={title} variant="light" className="flex aspect-[7/9] flex-col overflow-hidden p-7 md:p-9">
-            <div>
-              <p className="mono text-[10px] tracking-[0.14em] text-muted-foreground">/{n}</p>
-              <h3 className="display-xl mt-5 text-[1.75rem] md:text-[2rem]">{title}</h3>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-[0.95rem]">
-                {body}
-              </p>
+      <div className="grid gap-6 md:grid-cols-3">
+        {STEPS.map(({ n, Icon, title, body }) => (
+          <div
+            key={n}
+            className="rounded-2xl border border-border bg-surface p-5"
+          >
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-surface-warm">
+                <Icon className="h-4 w-4 text-ink" />
+              </span>
+              <p className="eyebrow-muted">{n}</p>
             </div>
-            <div className="mt-auto flex justify-center pt-8">
-              <Illus className="h-32 w-full text-foreground" />
-            </div>
-          </Card>
+            <h3 className="display-md mt-4 text-[1.125rem]">{title}</h3>
+            <p className="mt-2 text-sm text-ink-soft">{body}</p>
+          </div>
         ))}
       </div>
     </section>
