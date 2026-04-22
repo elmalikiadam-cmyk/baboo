@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { label: "Louer", href: "/recherche?t=rent" },
   { label: "Projets neufs", href: "/projets" },
   { label: "Agences", href: "/agences" },
+  { label: "Conseils", href: "/conseils" },
 ];
 
 /**
