@@ -36,8 +36,9 @@ export default async function HomePage() {
     getPlatformStats(),
   ]);
 
-  const totalLabel = stats.total > 0 ? stats.total.toLocaleString("fr-FR") : "—";
-  const agenciesLabel = stats.agencies > 0 ? `${stats.agencies}+` : "—";
+  const hasData = stats.total > 0;
+  const totalLabel = hasData ? stats.total.toLocaleString("fr-FR") : "";
+  const agenciesLabel = stats.agencies > 0 ? `${stats.agencies}+` : "";
 
   return (
     <>
@@ -56,7 +57,7 @@ export default async function HomePage() {
             </h1>
 
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              {stats.total > 0
+              {hasData
                 ? `${totalLabel} annonces vérifiées partout au Maroc.`
                 : "Annonces vérifiées partout au Maroc."}{" "}
               Particuliers et professionnels, une seule plateforme pour
@@ -67,14 +68,20 @@ export default async function HomePage() {
               <HeroSearchBlock />
             </div>
 
-            <StatsStrip
-              className="mt-10"
-              items={[
-                { value: totalLabel, label: "Annonces actives" },
-                { value: String(stats.cities), label: "Villes" },
-                { value: agenciesLabel, label: "Agences" },
-              ]}
-            />
+            {/* Stats masquées tant que la base est vide — évite les tirets
+             *  fantômes « — Annonces actives » sur une home sans données. */}
+            {hasData && (
+              <StatsStrip
+                className="mt-10"
+                items={[
+                  { value: totalLabel, label: "Annonces actives" },
+                  { value: String(stats.cities), label: "Villes" },
+                  ...(agenciesLabel
+                    ? [{ value: agenciesLabel, label: "Agences" }]
+                    : []),
+                ]}
+              />
+            )}
           </div>
 
           {featured && (

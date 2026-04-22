@@ -121,7 +121,8 @@ export async function getFeaturedListing(): Promise<ListingWithRelations | null>
       }),
     ]);
     return candidates.find((c) => c != null) ?? null;
-  } catch {
+  } catch (err) {
+    console.warn("[getFeaturedListing] DB error:", (err as Error).message);
     return null;
   }
 }
@@ -132,7 +133,10 @@ export async function getPlatformStats(): Promise<{
   agencies: number;
   cities: number;
 }> {
-  if (!hasDb()) return { total: 0, agencies: 0, cities: 12 };
+  if (!hasDb()) {
+    console.warn("[getPlatformStats] DATABASE_URL not set — returning zeros.");
+    return { total: 0, agencies: 0, cities: 12 };
+  }
   try {
     const [total, agencies, cities] = await Promise.all([
       db.listing.count({ where: { status: "PUBLISHED" } }),
@@ -140,7 +144,8 @@ export async function getPlatformStats(): Promise<{
       db.city.count(),
     ]);
     return { total, agencies, cities };
-  } catch {
+  } catch (err) {
+    console.warn("[getPlatformStats] DB error:", (err as Error).message);
     return { total: 0, agencies: 0, cities: 12 };
   }
 }
@@ -155,7 +160,8 @@ export async function getLatestListings(limit = 4): Promise<ListingWithRelations
       take: limit,
       include: LISTING_INCLUDE,
     });
-  } catch {
+  } catch (err) {
+    console.warn("[getLatestListings] DB error:", (err as Error).message);
     return [];
   }
 }
