@@ -49,12 +49,12 @@ export function ContactForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-md border border-success/30 bg-success/5 p-8 text-center">
-        <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-success/15 text-success">
+      <div className="rounded-md border border-forest/30 bg-forest/5 p-8 text-center">
+        <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-forest/15 text-forest">
           <CheckIcon className="h-6 w-6" />
         </span>
         <h3 className="display-xl mt-4 text-2xl md:text-3xl">Message reçu.</h3>
-        <p className="mt-2 text-sm text-ink-muted">
+        <p className="mt-2 text-sm text-muted">
           On vous répond dans la journée, du lundi au vendredi.
         </p>
       </div>
@@ -93,7 +93,7 @@ export function ContactForm() {
           id="message"
           name="message"
           rows={7}
-          className="w-full rounded-md border border-border bg-background p-4 text-sm focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10"
+          className="w-full rounded-md border border-border bg-cream p-4 text-sm focus-visible:border-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight/10"
           placeholder="Racontez-nous ce qu'on peut faire pour vous."
           required
         />
@@ -110,7 +110,7 @@ export function ContactForm() {
         {isPending ? "Envoi…" : "Envoyer"}
       </Button>
 
-      <p className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+      <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted">
         ○ Réponse garantie sous 24h ouvrées
       </p>
     </form>

@@ -37,7 +37,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   if (success) {
     return (
-      <p className="rounded-md bg-success/10 p-4 text-center text-sm text-success">
+      <p className="rounded-md bg-forest/10 p-4 text-center text-sm text-forest">
         Mot de passe mis à jour. Redirection vers la connexion…
       </p>
     );

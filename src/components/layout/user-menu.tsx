@@ -67,7 +67,7 @@ export function UserMenu({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="grid h-9 w-9 place-items-center rounded-full bg-ink text-background transition hover:bg-ink/90"
+        className="grid h-9 w-9 place-items-center rounded-full bg-midnight text-cream transition hover:bg-midnight/90"
       >
         <span className="mono text-[11px] font-semibold">{initials}</span>
       </button>
@@ -75,15 +75,15 @@ export function UserMenu({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-11 z-50 w-64 overflow-hidden rounded-md border border-border bg-surface shadow-lg"
+          className="absolute right-0 top-11 z-50 w-64 overflow-hidden rounded-md border border-border bg-cream shadow-lg"
         >
-          <div className="border-b border-ink/10 p-4">
-            <p className="truncate text-sm font-medium text-ink">{name}</p>
-            <p className="mono mt-0.5 truncate text-[10px] uppercase tracking-[0.1em] text-ink-muted">
+          <div className="border-b border-midnight/10 p-4">
+            <p className="truncate text-sm font-medium text-midnight">{name}</p>
+            <p className="mono mt-0.5 truncate text-[10px] uppercase tracking-[0.1em] text-muted">
               {email}
             </p>
             {isAgency && agencyName && (
-              <p className="mono mt-2 inline-flex rounded-full bg-ink px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-background">
+              <p className="mono mt-2 inline-flex rounded-full bg-midnight px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-cream">
                 {agencyName}
               </p>
             )}
@@ -96,7 +96,7 @@ export function UserMenu({
               <span className="flex items-center justify-between">
                 <span>Messagerie</span>
                 {unreadMessages > 0 && (
-                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-semibold text-accent-foreground">
+                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-terracotta px-1.5 text-[10px] font-semibold text-terracotta-foreground">
                     {unreadMessages > 99 ? "99+" : unreadMessages}
                   </span>
                 )}
@@ -110,7 +110,7 @@ export function UserMenu({
             </MenuLink>
             {isAgency && (
               <>
-                <div className="border-t border-ink/10" />
+                <div className="border-t border-midnight/10" />
                 <MenuLink href="/pro/dashboard" onSelect={() => setOpen(false)}>
                   Tableau de bord
                 </MenuLink>
@@ -124,7 +124,7 @@ export function UserMenu({
             )}
             {isDeveloper && (
               <>
-                <div className="border-t border-ink/10" />
+                <div className="border-t border-midnight/10" />
                 <MenuLink href="/developer/dashboard" onSelect={() => setOpen(false)}>
                   Tableau promoteur
                 </MenuLink>
@@ -135,17 +135,17 @@ export function UserMenu({
             )}
             {isAdmin && (
               <>
-                <div className="border-t border-ink/10" />
+                <div className="border-t border-midnight/10" />
                 <MenuLink href="/admin" onSelect={() => setOpen(false)}>
                   Admin
                 </MenuLink>
               </>
             )}
-            <div className="border-t border-ink/10" />
+            <div className="border-t border-midnight/10" />
             <button
               onClick={onSignOut}
               disabled={isPending}
-              className="px-4 py-3 text-left text-ink-soft transition hover:bg-surface-warm hover:text-ink disabled:opacity-50"
+              className="px-4 py-3 text-left text-muted-foreground transition hover:bg-cream-2 hover:text-midnight disabled:opacity-50"
             >
               {isPending ? "Déconnexion…" : "Se déconnecter"}
             </button>
@@ -170,7 +170,7 @@ function MenuLink({
       href={href}
       onClick={onSelect}
       role="menuitem"
-      className="px-4 py-3 text-ink-soft transition hover:bg-surface-warm hover:text-ink"
+      className="px-4 py-3 text-muted-foreground transition hover:bg-cream-2 hover:text-midnight"
     >
       {children}
     </Link>

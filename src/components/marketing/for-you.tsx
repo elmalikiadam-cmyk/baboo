@@ -40,22 +40,22 @@ export function ForYou() {
           <Card key={badge} variant="dark" className="relative overflow-hidden p-7 md:p-10">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="mono text-[10px] tracking-[0.14em] text-ink-foreground/60">/{n}</p>
-                <span className="mt-3 inline-flex items-center rounded-full bg-ink-foreground/10 px-3 py-1 text-xs font-medium text-ink-foreground">
+                <p className="mono text-[10px] tracking-[0.14em] text-cream/60">/{n}</p>
+                <span className="mt-3 inline-flex items-center rounded-full bg-cream/10 px-3 py-1 text-xs font-medium text-cream">
                   {badge}
                 </span>
               </div>
-              <Illus className="h-20 w-32 text-ink-foreground opacity-90" />
+              <Illus className="h-20 w-32 text-cream opacity-90" />
             </div>
 
             <div className="mt-14 md:mt-20">
-              <h3 className="display-xl text-3xl text-ink-foreground md:text-[2.5rem]">{title}</h3>
-              <p className="mt-4 max-w-md text-sm leading-relaxed text-ink-foreground/75 md:text-[0.95rem]">
+              <h3 className="display-xl text-3xl text-cream md:text-[2.5rem]">{title}</h3>
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-cream/75 md:text-[0.95rem]">
                 {body}
               </p>
               <Link
                 href={href}
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-surface-warm"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-cream px-5 py-2.5 text-sm font-medium text-midnight transition-colors hover:bg-cream-2"
               >
                 {cta} <ChevronRightIcon className="h-4 w-4" />
               </Link>

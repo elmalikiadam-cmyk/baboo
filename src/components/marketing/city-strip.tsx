@@ -25,7 +25,7 @@ export function CityStrip({ counts = [] }: Props) {
           <p className="eyebrow">Explorer</p>
           <h2 className="display-xl mt-2 text-3xl md:text-5xl">Par ville.</h2>
         </div>
-        <Link href="/villes" className="mono text-[11px] uppercase tracking-[0.14em] text-ink-muted hover:text-ink">
+        <Link href="/villes" className="mono text-[11px] uppercase tracking-[0.14em] text-muted hover:text-midnight">
           Toutes les villes →
         </Link>
       </div>
@@ -37,7 +37,7 @@ export function CityStrip({ counts = [] }: Props) {
             <li key={c.slug}>
               <Link
                 href={buildSearchHref({ transaction: "SALE", citySlug: c.slug })}
-                className="group relative block aspect-[16/9] overflow-hidden rounded-md bg-surface-warm"
+                className="group relative block aspect-[16/9] overflow-hidden rounded-md bg-cream-2"
               >
                 {c.cover && (
                   <Image
@@ -49,17 +49,17 @@ export function CityStrip({ counts = [] }: Props) {
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 text-background">
+                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 text-cream">
                   <div>
-                    <p className="mono text-[10px] uppercase tracking-[0.14em] text-background/75">
+                    <p className="mono text-[10px] uppercase tracking-[0.14em] text-cream/75">
                       {c.region}
                     </p>
-                    <h3 className="display-xl mt-1 text-3xl text-background">
+                    <h3 className="display-xl mt-1 text-3xl text-cream">
                       {c.name}
                     </h3>
                   </div>
                   {count != null && (
-                    <span className="mono text-[10px] uppercase tracking-[0.14em] text-background/85">
+                    <span className="mono text-[10px] uppercase tracking-[0.14em] text-cream/85">
                       {count} annonce{count > 1 ? "s" : ""}
                     </span>
                   )}

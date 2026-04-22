@@ -31,7 +31,7 @@ export function SearchPagination({ filters, totalPages }: Props) {
         aria-disabled={filters.page === 1}
         className={cn(
           "rounded-full border border-border px-3 py-2 text-sm",
-          filters.page === 1 ? "pointer-events-none opacity-50" : "hover:bg-surface-warm",
+          filters.page === 1 ? "pointer-events-none opacity-50" : "hover:bg-cream-2",
         )}
       >
         ← Précédent
@@ -41,7 +41,7 @@ export function SearchPagination({ filters, totalPages }: Props) {
         const gap = i > 0 && n - pages[i - 1] > 1;
         return (
           <span key={n} className="contents">
-            {gap && <span className="px-1 text-ink-muted">…</span>}
+            {gap && <span className="px-1 text-muted">…</span>}
             <Link
               href={`/recherche${filtersToQueryString({ ...filters, page: n })}`}
               aria-current={filters.page === n ? "page" : undefined}
@@ -49,7 +49,7 @@ export function SearchPagination({ filters, totalPages }: Props) {
                 "min-w-[2.5rem] rounded-full px-3 py-2 text-center text-sm",
                 filters.page === n
                   ? "bg-primary text-primary-foreground"
-                  : "border border-border hover:bg-surface-warm",
+                  : "border border-border hover:bg-cream-2",
               )}
             >
               {n}
@@ -63,7 +63,7 @@ export function SearchPagination({ filters, totalPages }: Props) {
         aria-disabled={filters.page === totalPages}
         className={cn(
           "rounded-full border border-border px-3 py-2 text-sm",
-          filters.page === totalPages ? "pointer-events-none opacity-50" : "hover:bg-surface-warm",
+          filters.page === totalPages ? "pointer-events-none opacity-50" : "hover:bg-cream-2",
         )}
       >
         Suivant →

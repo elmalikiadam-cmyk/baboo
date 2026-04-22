@@ -75,7 +75,7 @@ export function MobileBottomBar({ unreadMessages = null }: Props) {
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 z-50 h-[84px] border-t border-border bg-background/85 backdrop-blur-xl md:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 h-[84px] border-t border-border bg-cream/85 backdrop-blur-xl md:hidden"
     >
       <ul className="mx-auto flex h-full max-w-xl items-start justify-around pt-2.5">
         {items.map(({ href, label, Icon, match, badge }) => {
@@ -87,7 +87,7 @@ export function MobileBottomBar({ unreadMessages = null }: Props) {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex flex-col items-center gap-1 py-1",
-                  active ? "text-ink" : "text-ink-muted",
+                  active ? "text-midnight" : "text-muted",
                 )}
               >
                 <span className="relative">
@@ -99,7 +99,7 @@ export function MobileBottomBar({ unreadMessages = null }: Props) {
                   {badge && badge > 0 ? (
                     <span
                       aria-label={`${badge} non lu${badge > 1 ? "s" : ""}`}
-                      className="absolute -right-2 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] font-semibold text-accent-foreground"
+                      className="absolute -right-2 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-terracotta px-1 text-[9px] font-semibold text-terracotta-foreground"
                     >
                       {badge > 9 ? "9+" : badge}
                     </span>

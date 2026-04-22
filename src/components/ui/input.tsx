@@ -9,10 +9,10 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
       ref={ref}
       type={type}
       className={cn(
-        "flex h-12 w-full rounded-full border border-border bg-surface px-5",
-        "text-sm text-ink placeholder:text-ink-muted",
+        "flex h-12 w-full rounded-full border border-border bg-cream px-5",
+        "text-sm text-midnight placeholder:text-muted",
         "transition-colors duration-200 ease-out",
-        "focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10",
+        "focus-visible:border-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight/10",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
@@ -29,10 +29,10 @@ export const Textarea = React.forwardRef<
   <textarea
     ref={ref}
     className={cn(
-      "flex min-h-[96px] w-full rounded-2xl border border-border bg-surface p-4",
-      "text-sm text-ink placeholder:text-ink-muted",
+      "flex min-h-[96px] w-full rounded-2xl border border-border bg-cream p-4",
+      "text-sm text-midnight placeholder:text-muted",
       "transition-colors duration-200 ease-out",
-      "focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10",
+      "focus-visible:border-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight/10",
       "disabled:cursor-not-allowed disabled:opacity-50",
       className,
     )}
@@ -45,7 +45,7 @@ export const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttribute
   ({ className, ...props }, ref) => (
     <label
       ref={ref}
-      className={cn("block text-xs font-medium text-ink-muted", className)}
+      className={cn("block text-xs font-medium text-muted", className)}
       {...props}
     />
   ),
@@ -57,10 +57,10 @@ export const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttrib
     <select
       ref={ref}
       className={cn(
-        "flex h-12 w-full rounded-full border border-border bg-surface px-5 pr-9",
-        "text-sm text-ink",
+        "flex h-12 w-full rounded-full border border-border bg-cream px-5 pr-9",
+        "text-sm text-midnight",
         "transition-colors duration-200 ease-out",
-        "focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10",
+        "focus-visible:border-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight/10",
         "appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:12px_auto]",
         className,
       )}

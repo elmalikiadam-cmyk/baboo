@@ -63,12 +63,12 @@ export function PublishForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-md border border-success/30 bg-success/5 p-10 text-center">
-        <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-success/15 text-success">
+      <div className="rounded-md border border-forest/30 bg-forest/5 p-10 text-center">
+        <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-forest/15 text-forest">
           <CheckIcon className="h-6 w-6" />
         </span>
         <h2 className="display-xl mt-4 text-3xl md:text-4xl">Demande reçue.</h2>
-        <p className="mx-auto mt-3 max-w-md text-sm text-ink-muted">
+        <p className="mx-auto mt-3 max-w-md text-sm text-muted">
           L'équipe Baboo vous contacte sous 24 h ouvrées pour organiser la publication : photos, description, prix.
         </p>
       </div>
@@ -79,7 +79,7 @@ export function PublishForm() {
     <form onSubmit={onSubmit} className="space-y-10" noValidate>
       {/* Bien */}
       <section>
-        <header className="border-b border-ink/10 pb-3">
+        <header className="border-b border-midnight/10 pb-3">
           <p className="eyebrow">01 · Le bien</p>
           <h2 className="display-lg mt-1 text-xl">Quelques infos de base</h2>
         </header>
@@ -127,7 +127,7 @@ export function PublishForm() {
 
       {/* Contact */}
       <section>
-        <header className="border-b border-ink/10 pb-3">
+        <header className="border-b border-midnight/10 pb-3">
           <p className="eyebrow">02 · Vos coordonnées</p>
           <h2 className="display-lg mt-1 text-xl">Pour qu'on vous rappelle</h2>
         </header>
@@ -153,7 +153,7 @@ export function PublishForm() {
               name="notes"
               rows={4}
               placeholder="Dispo pour les photos, points forts du bien, délai souhaité…"
-              className="w-full rounded-md border border-border bg-background p-4 text-sm focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10"
+              className="w-full rounded-md border border-border bg-cream p-4 text-sm focus-visible:border-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight/10"
             />
           </div>
         </div>
@@ -169,7 +169,7 @@ export function PublishForm() {
         <Button type="submit" size="lg" disabled={isPending}>
           {isPending ? "Envoi…" : "Envoyer la demande"}
         </Button>
-        <p className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted">
           ○ Réponse sous 24 h ouvrées
         </p>
       </div>

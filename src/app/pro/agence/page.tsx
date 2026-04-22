@@ -23,8 +23,8 @@ export default async function ProAgencyPage() {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
-        <Link href="/pro/dashboard" className="hover:text-ink">Tableau de bord</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted">
+        <Link href="/pro/dashboard" className="hover:text-midnight">Tableau de bord</Link>
         <span className="mx-2">·</span>
         <span>Profil agence</span>
       </nav>
@@ -33,13 +33,13 @@ export default async function ProAgencyPage() {
         <div>
           <p className="eyebrow">Baboo Pro · {agency.name}</p>
           <h1 className="display-xl mt-2 text-4xl md:text-5xl">Profil agence.</h1>
-          <p className="mt-3 max-w-xl text-ink-muted">
+          <p className="mt-3 max-w-xl text-muted">
             Ces informations s'affichent sur votre page publique <span className="mono">/agence/{agency.slug}</span>.
           </p>
         </div>
         <Link
           href={`/agence/${agency.slug}`}
-          className="mono rounded-full border border-border px-4 py-2 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
+          className="mono rounded-full border border-border px-4 py-2 text-[10px] uppercase tracking-[0.12em] hover:border-midnight"
         >
           Voir la page publique →
         </Link>

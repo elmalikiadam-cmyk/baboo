@@ -19,12 +19,12 @@ export async function SiteHeader() {
   const unread = user?.id ? await countUnreadConversations(user.id) : 0;
 
   return (
-    <header className="sticky top-0 z-40 h-16 border-b border-border bg-background/80 backdrop-blur-md md:h-20">
+    <header className="sticky top-0 z-40 h-16 border-b border-border bg-cream/80 backdrop-blur-md md:h-20">
       <div className="container flex h-full items-center gap-8">
         <Link
           href="/"
           aria-label="Baboo, accueil"
-          className="shrink-0 text-ink transition-opacity hover:opacity-80"
+          className="shrink-0 text-midnight transition-opacity hover:opacity-80"
         >
           <BabooLogo size={22} />
         </Link>
@@ -34,7 +34,7 @@ export async function SiteHeader() {
             <Link
               key={n.href}
               href={n.href}
-              className="text-sm font-medium text-ink-soft transition-colors hover:text-ink"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-midnight"
             >
               {n.label}
             </Link>
@@ -47,13 +47,13 @@ export async function SiteHeader() {
               <Link
                 href="/messages"
                 aria-label="Messagerie"
-                className="relative hidden h-9 w-9 place-items-center rounded-full border border-border bg-surface-warm text-ink transition-colors hover:bg-surface-cool md:grid"
+                className="relative hidden h-9 w-9 place-items-center rounded-full border border-border bg-cream-2 text-midnight transition-colors hover:bg-cream-3 md:grid"
               >
                 <MessageCircleIcon className="h-4 w-4" />
                 {unread > 0 && (
                   <span
                     aria-label={`${unread} message${unread > 1 ? "s" : ""} non lu${unread > 1 ? "s" : ""}`}
-                    className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] font-semibold text-accent-foreground"
+                    className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-terracotta px-1 text-[9px] font-semibold text-terracotta-foreground"
                   >
                     {unread > 9 ? "9+" : unread}
                   </span>
@@ -86,7 +86,7 @@ export async function SiteHeader() {
             <Link
               href="/connexion"
               aria-label="Connexion"
-              className="grid h-9 w-9 place-items-center rounded-full border border-border bg-surface-warm text-xs font-semibold text-ink md:hidden"
+              className="grid h-9 w-9 place-items-center rounded-full border border-border bg-cream-2 text-xs font-semibold text-midnight md:hidden"
             >
               SE
             </Link>

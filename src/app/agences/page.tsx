@@ -29,8 +29,8 @@ export default async function AgenciesIndex() {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
-        <Link href="/" className="hover:text-ink">Accueil</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted">
+        <Link href="/" className="hover:text-midnight">Accueil</Link>
         <span className="mx-2">·</span>
         <span>Agences</span>
       </nav>
@@ -38,7 +38,7 @@ export default async function AgenciesIndex() {
       <div className="border-b border-border pb-6">
         <p className="eyebrow">{agencies.length} agences partenaires</p>
         <h1 className="display-xl mt-2 text-4xl md:text-6xl">Nos agences.</h1>
-        <p className="mt-4 max-w-2xl text-ink-muted">
+        <p className="mt-4 max-w-2xl text-muted">
           Sélection d'agences et brokers présents sur Baboo, vérifiés par notre équipe.
         </p>
       </div>
@@ -50,10 +50,10 @@ export default async function AgenciesIndex() {
             <Link
               key={a.id}
               href={`/agence/${a.slug}`}
-              className="group flex flex-col rounded-md border border-ink/10 bg-surface p-6 transition-transform hover:-translate-y-0.5"
+              className="group flex flex-col rounded-md border border-midnight/10 bg-cream p-6 transition-transform hover:-translate-y-0.5"
             >
               <div className="flex items-start justify-between gap-4">
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-surface-warm">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-cream-2">
                   {a.logo && (
                     <Image src={a.logo} alt={a.name} fill sizes="56px" className="object-cover" />
                   )}
@@ -66,19 +66,19 @@ export default async function AgenciesIndex() {
               </div>
 
               <h2 className="display-lg mt-5 text-xl">{a.name}</h2>
-              <p className="mono mt-1 text-[11px] text-ink-muted">
+              <p className="mono mt-1 text-[11px] text-muted">
                 {(city?.name ?? a.citySlug ?? "").toUpperCase()}
               </p>
 
               {a.tagline && (
-                <p className="mt-3 line-clamp-2 text-sm text-ink-muted">{a.tagline}</p>
+                <p className="mt-3 line-clamp-2 text-sm text-muted">{a.tagline}</p>
               )}
 
-              <div className="mt-6 flex items-center justify-between border-t border-ink/10 pt-4">
+              <div className="mt-6 flex items-center justify-between border-t border-midnight/10 pt-4">
                 <span className="mono text-[10px] uppercase tracking-[0.14em]">
                   {a._count.listings} annonce{a._count.listings > 1 ? "s" : ""}
                 </span>
-                <span className="mono text-[10px] text-ink-muted">Voir →</span>
+                <span className="mono text-[10px] text-muted">Voir →</span>
               </div>
             </Link>
           );

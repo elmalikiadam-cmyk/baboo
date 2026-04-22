@@ -18,9 +18,9 @@ export function ListingMapPreview({ lat, lng, cityName, neighborhoodName }: Prop
 
   return (
     <div>
-      <p className="flex items-center gap-1.5 text-sm text-ink-soft">
+      <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
         <MapPinIcon className="h-4 w-4" aria-hidden />
-        <span className="font-medium text-ink">
+        <span className="font-medium text-midnight">
           {neighborhoodName ? `${neighborhoodName}, ` : ""}
           {cityName}
         </span>
@@ -33,7 +33,7 @@ export function ListingMapPreview({ lat, lng, cityName, neighborhoodName }: Prop
           loading="lazy"
         />
       </div>
-      <p className="mt-2 text-xs text-ink-muted">
+      <p className="mt-2 text-xs text-muted">
         Adresse exacte communiquée à la visite.
       </p>
     </div>

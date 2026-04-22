@@ -40,16 +40,16 @@ export function HowItWorks() {
         {STEPS.map(({ n, Icon, title, body }) => (
           <div
             key={n}
-            className="rounded-2xl border border-border bg-surface p-5"
+            className="rounded-2xl border border-border bg-cream p-5"
           >
             <div className="flex items-center gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-surface-warm">
-                <Icon className="h-4 w-4 text-ink" />
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-cream-2">
+                <Icon className="h-4 w-4 text-midnight" />
               </span>
               <p className="eyebrow-muted">{n}</p>
             </div>
             <h3 className="display-md mt-4 text-[1.125rem]">{title}</h3>
-            <p className="mt-2 text-sm text-ink-soft">{body}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{body}</p>
           </div>
         ))}
       </div>

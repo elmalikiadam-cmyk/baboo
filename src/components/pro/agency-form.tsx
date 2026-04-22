@@ -51,7 +51,7 @@ export function AgencyForm({ initial, verified }: { initial: Initial; verified: 
   return (
     <form onSubmit={onSubmit} className="space-y-8" noValidate>
       <section>
-        <div className="border-b border-ink/10 pb-3">
+        <div className="border-b border-midnight/10 pb-3">
           <p className="eyebrow">/01</p>
           <h2 className="display-lg mt-1 text-xl">Identité</h2>
         </div>
@@ -86,14 +86,14 @@ export function AgencyForm({ initial, verified }: { initial: Initial; verified: 
               rows={5}
               defaultValue={initial.description}
               placeholder="Parcours, zones couvertes, philosophie…"
-              className="w-full rounded-md border border-border bg-background p-4 text-sm focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10"
+              className="w-full rounded-md border border-border bg-cream p-4 text-sm focus-visible:border-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight/10"
             />
           </Field>
         </div>
       </section>
 
       <section>
-        <div className="border-b border-ink/10 pb-3">
+        <div className="border-b border-midnight/10 pb-3">
           <p className="eyebrow">/02</p>
           <h2 className="display-lg mt-1 text-xl">Visuels</h2>
         </div>
@@ -108,7 +108,7 @@ export function AgencyForm({ initial, verified }: { initial: Initial; verified: 
       </section>
 
       <section>
-        <div className="border-b border-ink/10 pb-3">
+        <div className="border-b border-midnight/10 pb-3">
           <p className="eyebrow">/03</p>
           <h2 className="display-lg mt-1 text-xl">Contact public</h2>
         </div>
@@ -125,19 +125,19 @@ export function AgencyForm({ initial, verified }: { initial: Initial; verified: 
         </div>
       </section>
 
-      <section className="rounded-md border border-ink/10 bg-surface p-5">
+      <section className="rounded-md border border-midnight/10 bg-cream p-5">
         <p className="eyebrow">Vérification</p>
         <p className="mt-2 text-sm">
           {verified ? (
             <>
-              <span className="mono mr-2 inline-flex rounded-full bg-success/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-success">
+              <span className="mono mr-2 inline-flex rounded-full bg-forest/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-forest">
                 Vérifiée
               </span>
               Votre agence affiche le badge vérifié sur toutes ses annonces.
             </>
           ) : (
             <>
-              <span className="mono mr-2 inline-flex rounded-full bg-surface-warm px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+              <span className="mono mr-2 inline-flex rounded-full bg-cream-2 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-muted">
                 En attente
               </span>
               Pour obtenir le badge vérifié, envoyez-nous votre RC, ICE et patente via le formulaire
@@ -153,7 +153,7 @@ export function AgencyForm({ initial, verified }: { initial: Initial; verified: 
         </p>
       )}
       {success && (
-        <p className="rounded-full bg-success/10 px-3 py-2 text-xs text-success" role="status">
+        <p className="rounded-full bg-forest/10 px-3 py-2 text-xs text-forest" role="status">
           Profil enregistré.
         </p>
       )}
@@ -182,7 +182,7 @@ function Field({
     <div className="space-y-1.5">
       <Label>{label}</Label>
       {children}
-      {hint && <p className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">{hint}</p>}
+      {hint && <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted">{hint}</p>}
       {error && <p className="text-[11px] text-danger">{error}</p>}
     </div>
   );

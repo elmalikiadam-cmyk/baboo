@@ -25,8 +25,8 @@ export default async function CitiesIndex() {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
-        <Link href="/" className="hover:text-ink">Accueil</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted">
+        <Link href="/" className="hover:text-midnight">Accueil</Link>
         <span className="mx-2">·</span>
         <span>Villes</span>
       </nav>
@@ -34,7 +34,7 @@ export default async function CitiesIndex() {
       <div className="border-b border-border pb-6">
         <p className="eyebrow">{CITIES.length} villes</p>
         <h1 className="display-xl mt-2 text-4xl md:text-6xl">Explorer par ville.</h1>
-        <p className="mt-4 max-w-2xl text-ink-muted">
+        <p className="mt-4 max-w-2xl text-muted">
           De Casablanca à Oujda, des quartiers d'affaires aux stations balnéaires.
         </p>
       </div>
@@ -46,9 +46,9 @@ export default async function CitiesIndex() {
             <li key={c.slug}>
               <Link
                 href={`/ville/${c.slug}`}
-                className="group block overflow-hidden rounded-md border border-ink/10 bg-surface transition-transform hover:-translate-y-0.5"
+                className="group block overflow-hidden rounded-md border border-midnight/10 bg-cream transition-transform hover:-translate-y-0.5"
               >
-                <div className="relative aspect-[16/10] overflow-hidden bg-surface-warm">
+                <div className="relative aspect-[16/10] overflow-hidden bg-cream-2">
                   {c.cover && (
                     <Image
                       src={c.cover}
@@ -59,13 +59,13 @@ export default async function CitiesIndex() {
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-5 text-background">
-                    <p className="mono text-[10px] uppercase tracking-[0.14em] text-background/75">{c.region}</p>
-                    <h2 className="display-xl mt-1 text-3xl text-background">{c.name}</h2>
+                  <div className="absolute inset-x-0 bottom-0 p-5 text-cream">
+                    <p className="mono text-[10px] uppercase tracking-[0.14em] text-cream/75">{c.region}</p>
+                    <h2 className="display-xl mt-1 text-3xl text-cream">{c.name}</h2>
                   </div>
                 </div>
                 <div className="flex items-center justify-between p-5">
-                  <span className="mono text-[11px] uppercase tracking-[0.12em] text-ink-muted">
+                  <span className="mono text-[11px] uppercase tracking-[0.12em] text-muted">
                     {c.neighborhoods.length} quartiers
                   </span>
                   <span className="mono text-[11px] uppercase tracking-[0.12em]">

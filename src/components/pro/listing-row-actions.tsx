@@ -47,23 +47,23 @@ export function ListingRowActions({ id, slug, status }: Props) {
   const isPublished = status === ListingStatus.PUBLISHED;
 
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-ink/10 pt-3">
+    <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-midnight/10 pt-3">
       <Link
         href={`/annonce/${slug}`}
-        className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
+        className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-midnight"
       >
         Voir
       </Link>
       <Link
         href={`/pro/listings/${id}/edit`}
-        className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
+        className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-midnight"
       >
         Modifier
       </Link>
       <button
         onClick={onToggle}
         disabled={isPending}
-        className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink disabled:opacity-50"
+        className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-midnight disabled:opacity-50"
       >
         {isPublished ? "Archiver" : "Publier"}
       </button>
@@ -72,7 +72,7 @@ export function ListingRowActions({ id, slug, status }: Props) {
         disabled={isPending}
         className={`mono rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.12em] transition ${
           confirmDelete
-            ? "border border-danger bg-danger text-background"
+            ? "border border-danger bg-danger text-cream"
             : "border border-danger/40 text-danger hover:bg-danger/10"
         } disabled:opacity-50`}
       >

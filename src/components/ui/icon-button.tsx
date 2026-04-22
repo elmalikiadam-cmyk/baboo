@@ -10,10 +10,10 @@ interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 }
 
 const variants: Record<Variant, string> = {
-  soft: "bg-surface-warm border border-border text-ink hover:bg-surface-cool",
+  soft: "bg-cream-2 border border-border text-midnight hover:bg-cream-3",
   floating:
-    "bg-white/95 text-ink backdrop-blur-sm border-0 hover:bg-white shadow-sm",
-  dark: "bg-ink text-ink-foreground hover:bg-ink/90",
+    "bg-white/95 text-midnight backdrop-blur-sm border-0 hover:bg-white shadow-sm",
+  dark: "bg-midnight text-cream hover:bg-midnight/90",
 };
 
 const sizes: Record<Size, string> = {
@@ -29,7 +29,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       type={type}
       className={cn(
         "inline-flex items-center justify-center rounded-full transition-all duration-200 ease-out",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         "disabled:pointer-events-none disabled:opacity-50",
         variants[variant],
         sizes[size],

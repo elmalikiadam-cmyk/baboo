@@ -72,7 +72,7 @@ export function PasswordForm() {
         </p>
       )}
       {success && (
-        <p className="rounded-full bg-success/10 px-3 py-2 text-xs text-success" role="status">
+        <p className="rounded-full bg-forest/10 px-3 py-2 text-xs text-forest" role="status">
           Mot de passe mis à jour.
         </p>
       )}

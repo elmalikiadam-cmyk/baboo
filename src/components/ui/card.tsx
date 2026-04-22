@@ -8,11 +8,11 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const variants: Record<CardVariant, string> = {
-  light: "bg-surface border border-border text-ink",
-  warm: "bg-surface-warm border border-border-soft text-ink",
-  soft: "bg-surface-warm border border-border-soft text-ink",
-  dark: "bg-ink text-ink-foreground border-0",
-  outlined: "bg-transparent border border-border text-ink",
+  light: "bg-cream border border-border text-midnight",
+  warm: "bg-cream-2 border border-cream-2 text-midnight",
+  soft: "bg-cream-2 border border-cream-2 text-midnight",
+  dark: "bg-midnight text-cream border-0",
+  outlined: "bg-transparent border border-border text-midnight",
 };
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(

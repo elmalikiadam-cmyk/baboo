@@ -42,20 +42,20 @@ export function ProjectBrochureForm({ projectId, projectName }: Props) {
   }
 
   return (
-    <aside className="sticky top-24 h-fit rounded-md border border-border bg-surface p-6">
+    <aside className="sticky top-24 h-fit rounded-md border border-border bg-cream p-6">
       <p className="eyebrow">Demande de brochure</p>
       <h3 className="display-lg mt-2 text-xl">Recevez le dossier complet.</h3>
-      <p className="mt-2 text-sm text-ink-muted">
+      <p className="mt-2 text-sm text-muted">
         Plans, prix détaillés, conditions commerciales. Réponse sous 24 h.
       </p>
 
       {submitted ? (
-        <div className="mt-5 rounded-md border border-success/30 bg-success/5 p-5 text-center">
-          <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-success/15 text-success">
+        <div className="mt-5 rounded-md border border-forest/30 bg-forest/5 p-5 text-center">
+          <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-forest/15 text-forest">
             <CheckIcon className="h-5 w-5" />
           </span>
           <h4 className="display-lg mt-3 text-lg">Demande enregistrée.</h4>
-          <p className="mt-1 text-xs text-ink-muted">
+          <p className="mt-1 text-xs text-muted">
             Le promoteur vous envoie la brochure par email dans la journée.
           </p>
         </div>
@@ -75,7 +75,7 @@ export function ProjectBrochureForm({ projectId, projectName }: Props) {
         </form>
       )}
 
-      <p className="mt-4 mono text-[10px] text-ink-muted">
+      <p className="mt-4 mono text-[10px] text-muted">
         ○ RÉPONSE &lt; 24H · ○ DOSSIER COMPLET · ○ SANS ENGAGEMENT
       </p>
     </aside>
@@ -102,7 +102,7 @@ function BrochureField({
         type={type}
         placeholder={placeholder}
         required={required}
-        className="h-11 w-full rounded-full border border-border bg-background px-4 text-sm focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10"
+        className="h-11 w-full rounded-full border border-border bg-cream px-4 text-sm focus-visible:border-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight/10"
       />
       {error && <p className="mt-1 text-[11px] text-danger">{error}</p>}
     </div>

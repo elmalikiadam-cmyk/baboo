@@ -35,14 +35,14 @@ export function RequestResetForm() {
         </p>
       )}
       {message && (
-        <p className="rounded-full bg-success/10 px-3 py-2 text-xs text-success" role="status">
+        <p className="rounded-full bg-forest/10 px-3 py-2 text-xs text-forest" role="status">
           {message}
         </p>
       )}
       <Button type="submit" size="lg" className="w-full" disabled={isPending}>
         {isPending ? "Envoi…" : "Envoyer le lien"}
       </Button>
-      <p className="text-center text-sm text-ink-muted">
+      <p className="text-center text-sm text-muted">
         <Link href="/connexion" className="underline-offset-4 hover:underline">
           Retour à la connexion
         </Link>

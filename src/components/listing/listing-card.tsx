@@ -39,9 +39,9 @@ export function ListingCard({ listing, variant = "default", priority }: Props) {
       : "price-display text-[1.625rem] md:text-[1.75rem]";
 
   return (
-    <article className="group relative overflow-hidden rounded-2xl border border-border bg-surface transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-warm">
+    <article className="group relative overflow-hidden rounded-2xl border border-border bg-cream transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-warm">
       <Link href={href} className="block" aria-label={listing.title}>
-        <div className={`relative ${aspectClass} overflow-hidden bg-surface-warm`}>
+        <div className={`relative ${aspectClass} overflow-hidden bg-cream-2`}>
           <Image
             src={listing.coverImage}
             alt={listing.title}
@@ -56,7 +56,7 @@ export function ListingCard({ listing, variant = "default", priority }: Props) {
           <div className="absolute left-3 top-3">
             <Badge tone={isPro ? "dark" : "light"} size="sm">
               {isPro && verified && (
-                <CheckIcon className="h-2.5 w-2.5 text-success" aria-hidden />
+                <CheckIcon className="h-2.5 w-2.5 text-forest" aria-hidden />
               )}
               {isPro ? "Pro" : "Particulier"}
             </Badge>
@@ -85,12 +85,12 @@ export function ListingCard({ listing, variant = "default", priority }: Props) {
         </div>
 
         {/* Localisation */}
-        <div className="mt-2 flex items-center gap-1 text-[13px] text-ink-soft">
+        <div className="mt-2 flex items-center gap-1 text-[13px] text-muted-foreground">
           <MapPinIcon className="h-3 w-3" aria-hidden />
-          <span className="font-medium text-ink">{district}</span>
+          <span className="font-medium text-midnight">{district}</span>
           {listing.neighborhood && (
             <>
-              <span className="text-ink-muted">·</span>
+              <span className="text-muted">·</span>
               <span>{listing.city.name}</span>
             </>
           )}
@@ -100,15 +100,15 @@ export function ListingCard({ listing, variant = "default", priority }: Props) {
         <div
           className={
             variant === "compact"
-              ? "mt-2 flex gap-4 text-xs text-ink-soft"
-              : "mt-3 flex gap-4 border-t border-border-soft pt-3 text-xs text-ink-soft"
+              ? "mt-2 flex gap-4 text-xs text-muted-foreground"
+              : "mt-3 flex gap-4 border-t border-cream-2 pt-3 text-xs text-muted-foreground"
           }
         >
           {listing.bedrooms != null && (
             <span className="inline-flex items-center gap-1.5">
               <BedIcon className="h-3 w-3" aria-hidden />
               <span>
-                <strong className="font-semibold text-ink">{listing.bedrooms}</strong> ch.
+                <strong className="font-semibold text-midnight">{listing.bedrooms}</strong> ch.
               </span>
             </span>
           )}
@@ -116,14 +116,14 @@ export function ListingCard({ listing, variant = "default", priority }: Props) {
             <span className="inline-flex items-center gap-1.5">
               <BathIcon className="h-3 w-3" aria-hidden />
               <span>
-                <strong className="font-semibold text-ink">{listing.bathrooms}</strong> sdb
+                <strong className="font-semibold text-midnight">{listing.bathrooms}</strong> sdb
               </span>
             </span>
           )}
           <span className="inline-flex items-center gap-1.5">
             <Maximize2Icon className="h-3 w-3" aria-hidden />
             <span>
-              <strong className="font-semibold text-ink">{listing.surface}</strong> m²
+              <strong className="font-semibold text-midnight">{listing.surface}</strong> m²
             </span>
           </span>
         </div>

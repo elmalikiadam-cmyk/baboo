@@ -18,11 +18,11 @@ export const dynamic = "force-dynamic";
 const PRICE_FR = new Intl.NumberFormat("fr-FR");
 
 const STATUS_STYLE: Record<string, string> = {
-  NEW: "border-ink bg-ink text-background",
-  CONTACTED: "border-border text-ink",
-  QUALIFIED: "border-ink text-ink",
-  VISIT_SCHEDULED: "border-success/40 bg-success/10 text-success",
-  CLOSED: "border-border text-ink-muted",
+  NEW: "border-midnight bg-midnight text-cream",
+  CONTACTED: "border-border text-midnight",
+  QUALIFIED: "border-midnight text-midnight",
+  VISIT_SCHEDULED: "border-forest/40 bg-forest/10 text-forest",
+  CLOSED: "border-border text-muted",
   LOST: "border-danger/30 bg-danger/10 text-danger",
 };
 
@@ -98,7 +98,7 @@ export default async function ProDashboard() {
         <div>
           <p className="eyebrow">Baboo Pro · {agency.name}</p>
           <h1 className="display-xl mt-2 text-4xl md:text-6xl">Tableau de bord.</h1>
-          <p className="mt-3 max-w-xl text-ink-muted">
+          <p className="mt-3 max-w-xl text-muted">
             Vos annonces, vos leads, les 30 derniers jours.
           </p>
         </div>
@@ -129,13 +129,13 @@ export default async function ProDashboard() {
               <p className="eyebrow">Inbox</p>
               <h2 className="display-xl mt-2 text-2xl md:text-3xl">Leads récents.</h2>
             </div>
-            <Link href="/pro/leads" className="mono text-[11px] uppercase tracking-[0.14em] text-ink-muted hover:text-ink">
+            <Link href="/pro/leads" className="mono text-[11px] uppercase tracking-[0.14em] text-muted hover:text-midnight">
               Tous ({totalLeads}) →
             </Link>
           </div>
 
           {leads.length === 0 ? (
-            <div className="rounded-md border border-dashed border-border p-8 text-center text-sm text-ink-muted">
+            <div className="rounded-md border border-dashed border-border p-8 text-center text-sm text-muted">
               Pas encore de leads. Vos prochaines demandes de contact apparaîtront ici.
             </div>
           ) : (
@@ -143,11 +143,11 @@ export default async function ProDashboard() {
               {leads.map((l) => (
                 <li
                   key={l.id}
-                  className="group rounded-md border border-border bg-surface p-5 transition-colors hover:border-ink"
+                  className="group rounded-md border border-border bg-cream p-5 transition-colors hover:border-midnight"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex min-w-0 items-start gap-3">
-                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-background display-lg text-sm">
+                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-midnight text-cream display-lg text-sm">
                         {l.name
                           .split(" ")
                           .map((w) => w[0])
@@ -157,7 +157,7 @@ export default async function ProDashboard() {
                       </span>
                       <div className="min-w-0">
                         <p className="display-lg text-base leading-tight">{l.name}</p>
-                        <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-ink-muted">
+                        <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted">
                           {(l.listing?.title ?? "—").toUpperCase()} · {relativeDate(l.createdAt).toUpperCase()}
                         </p>
                       </div>
@@ -170,27 +170,27 @@ export default async function ProDashboard() {
                       >
                         {STATUS_LABEL[l.status] ?? l.status}
                       </span>
-                      <span className="mono rounded-full border border-border px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-ink-muted">
+                      <span className="mono rounded-full border border-border px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-muted">
                         {l.source.toUpperCase()}
                       </span>
                     </div>
                   </div>
 
-                  <p className="mt-3 line-clamp-2 border-t border-ink/10 pt-3 text-sm text-ink">
+                  <p className="mt-3 line-clamp-2 border-t border-midnight/10 pt-3 text-sm text-midnight">
                     « {l.message} »
                   </p>
 
                   <div className="mt-3 flex gap-2">
                     <a
                       href={`mailto:${l.email}`}
-                      className="mono inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
+                      className="mono inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-midnight"
                     >
                       Répondre
                     </a>
                     {l.phone && (
                       <a
                         href={`tel:${l.phone.replace(/\s+/g, "")}`}
-                        className="mono inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
+                        className="mono inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-midnight"
                       >
                         Appeler
                       </a>
@@ -211,7 +211,7 @@ export default async function ProDashboard() {
             </div>
             <Link
               href={`/agence/${agency.slug}`}
-              className="mono text-[11px] uppercase tracking-[0.14em] text-ink-muted hover:text-ink"
+              className="mono text-[11px] uppercase tracking-[0.14em] text-muted hover:text-midnight"
             >
               Page publique →
             </Link>
@@ -219,11 +219,11 @@ export default async function ProDashboard() {
 
           <ul className="space-y-3">
             {listings.length === 0 ? (
-              <li className="rounded-md border border-dashed border-border p-6 text-center text-sm text-ink-muted">
+              <li className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted">
                 Aucune annonce publiée.{" "}
                 <Link
                   href="/pro/publier"
-                  className="font-medium text-ink underline-offset-4 hover:underline"
+                  className="font-medium text-midnight underline-offset-4 hover:underline"
                 >
                   Déposer la première
                 </Link>
@@ -233,17 +233,17 @@ export default async function ProDashboard() {
               listings.map((l) => (
                 <li
                   key={l.id}
-                  className="flex items-center gap-3 rounded-md border border-border bg-surface p-3"
+                  className="flex items-center gap-3 rounded-md border border-border bg-cream p-3"
                 >
-                  <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-surface-warm">
+                  <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-cream-2">
                     <Image src={l.coverImage} alt={l.title} fill sizes="80px" className="object-cover" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="display-lg truncate text-sm leading-tight">{l.title}</p>
-                    <p className="mono mt-0.5 text-[10px] uppercase tracking-[0.1em] text-ink-muted">
+                    <p className="mono mt-0.5 text-[10px] uppercase tracking-[0.1em] text-muted">
                       {PROPERTY_TYPE_LABEL[l.propertyType].toUpperCase()} · {l.city.name.toUpperCase()} · {PRICE_FR.format(l.price)} MAD
                     </p>
-                    <div className="mono mt-1 flex gap-3 text-[10px] text-ink-muted">
+                    <div className="mono mt-1 flex gap-3 text-[10px] text-muted">
                       <span className="inline-flex items-center gap-1">
                         <HeartIcon className="h-3 w-3" /> {l._count.favorites}
                       </span>
@@ -271,9 +271,9 @@ export default async function ProDashboard() {
 function DashboardDemo({ signedIn, signedInName }: { signedIn: boolean; signedInName?: string }) {
   return (
     <div className="container py-10 md:py-16">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-md border border-ink bg-ink px-5 py-4 text-background">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-md border border-midnight bg-midnight px-5 py-4 text-cream">
         <div>
-          <p className="mono text-[10px] uppercase tracking-[0.14em] text-background/60">
+          <p className="mono text-[10px] uppercase tracking-[0.14em] text-cream/60">
             {signedIn ? "Aperçu — aucun compte agence rattaché" : "Aperçu — non connecté"}
           </p>
           <p className="mt-1 text-sm">
@@ -285,7 +285,7 @@ function DashboardDemo({ signedIn, signedInName }: { signedIn: boolean; signedIn
         <div className="flex gap-2">
           <Link
             href="/inscription?role=agency"
-            className="mono rounded-full bg-background px-4 py-2 text-[10px] uppercase tracking-[0.14em] text-ink"
+            className="mono rounded-full bg-cream px-4 py-2 text-[10px] uppercase tracking-[0.14em] text-midnight"
           >
             {signedIn ? "Contacter Baboo →" : "Créer un compte Pro →"}
           </Link>
@@ -295,7 +295,7 @@ function DashboardDemo({ signedIn, signedInName }: { signedIn: boolean; signedIn
       <div className="flex flex-col gap-4 border-b border-border pb-8">
         <p className="eyebrow">Baboo Pro</p>
         <h1 className="display-xl text-4xl md:text-6xl">Tableau de bord.</h1>
-        <p className="max-w-xl text-ink-muted">
+        <p className="max-w-xl text-muted">
           Une fois connectée avec un compte Pro lié à votre agence, cette page affiche vos vrais leads, annonces et statistiques.
         </p>
       </div>
@@ -327,12 +327,12 @@ function StatCard({
     <div
       className={`rounded-md border p-5 ${
         tone === "dark"
-          ? "border-ink bg-ink text-background"
-          : "border-border bg-surface"
+          ? "border-midnight bg-midnight text-cream"
+          : "border-border bg-cream"
       }`}
     >
-      <p className={`eyebrow ${tone === "dark" ? "text-background/60" : ""}`}>{label}</p>
-      <p className={`display-lg mt-2 text-3xl ${tone === "dark" ? "text-background" : ""}`}>
+      <p className={`eyebrow ${tone === "dark" ? "text-cream/60" : ""}`}>{label}</p>
+      <p className={`display-lg mt-2 text-3xl ${tone === "dark" ? "text-cream" : ""}`}>
         {value}
       </p>
     </div>

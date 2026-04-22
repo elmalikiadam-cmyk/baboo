@@ -76,10 +76,10 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
   return (
     <aside
       id="contact-form"
-      className="sticky top-24 rounded-3xl border border-border bg-surface p-5 md:p-6"
+      className="sticky top-24 rounded-3xl border border-border bg-cream p-5 md:p-6"
     >
       <div className="flex items-center gap-3">
-        <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-accent text-ink-foreground font-display text-[17px] font-medium">
+        <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-terracotta text-cream font-display text-[17px] font-medium">
           {agency?.logo ? (
             <Image
               src={agency.logo}
@@ -97,12 +97,12 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
             <p className="display-md truncate text-[15px] leading-tight">{displayName}</p>
             {agency?.verified && (
               <ShieldCheckIcon
-                className="h-3.5 w-3.5 shrink-0 text-success"
+                className="h-3.5 w-3.5 shrink-0 text-forest"
                 aria-label="Agence vérifiée"
               />
             )}
           </div>
-          <p className="mt-0.5 text-[11px] text-ink-muted">
+          <p className="mt-0.5 text-[11px] text-muted">
             {agency
               ? agency.verified
                 ? "Agence vérifiée"
@@ -113,12 +113,12 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
       </div>
 
       {submitted ? (
-        <div className="mt-5 rounded-2xl border border-success/30 bg-success-soft p-5 text-center">
-          <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-success text-ink-foreground">
+        <div className="mt-5 rounded-2xl border border-forest/30 bg-forest-soft p-5 text-center">
+          <span className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-forest text-cream">
             <CheckIcon className="h-4 w-4" />
           </span>
           <p className="display-md mt-3 text-[17px]">Message envoyé.</p>
-          <p className="mt-1 text-sm text-ink-soft">
+          <p className="mt-1 text-sm text-muted-foreground">
             {conversationId
               ? "Une conversation a été ouverte. Suivez la réponse dans votre messagerie."
               : `${displayName} vous répondra rapidement.`}
@@ -126,7 +126,7 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
           {conversationId && (
             <Link
               href={`/messages/${conversationId}`}
-              className="mt-4 inline-flex h-10 items-center rounded-full bg-ink px-4 text-sm font-medium text-ink-foreground hover:bg-ink/90"
+              className="mt-4 inline-flex h-10 items-center rounded-full bg-midnight px-4 text-sm font-medium text-cream hover:bg-midnight/90"
             >
               Ouvrir la conversation
             </Link>
@@ -180,7 +180,7 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
             <a
               href={phone ? `tel:${phone.replace(/\s+/g, "")}` : undefined}
               aria-disabled={!phone}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-surface-warm text-sm font-medium text-ink hover:bg-surface-cool aria-disabled:pointer-events-none aria-disabled:opacity-50"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-cream-2 text-sm font-medium text-midnight hover:bg-cream-3 aria-disabled:pointer-events-none aria-disabled:opacity-50"
             >
               <PhoneIcon className="h-4 w-4" aria-hidden /> Appeler
             </a>
@@ -195,13 +195,13 @@ export function ContactCard({ listingId, listingTitle, agency, phone }: Props) {
               target="_blank"
               rel="noreferrer"
               aria-disabled={!phone}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-surface-warm text-sm font-medium text-ink hover:bg-surface-cool aria-disabled:pointer-events-none aria-disabled:opacity-50"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-cream-2 text-sm font-medium text-midnight hover:bg-cream-3 aria-disabled:pointer-events-none aria-disabled:opacity-50"
             >
               <WhatsAppIcon className="h-4 w-4" aria-hidden /> WhatsApp
             </a>
           </div>
 
-          <p className="pt-2 text-[11px] leading-relaxed text-ink-muted">
+          <p className="pt-2 text-[11px] leading-relaxed text-muted">
             En envoyant ce message, vous acceptez que vos coordonnées soient transmises au
             professionnel en charge de l'annonce. Vos données sont traitées conformément à la loi
             09-08.

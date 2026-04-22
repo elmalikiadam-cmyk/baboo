@@ -24,7 +24,7 @@ export default function ProLanding() {
           L'immobilier,<br />
           sans friction.
         </h1>
-        <p className="mt-6 max-w-2xl text-lg text-ink-muted md:text-xl">
+        <p className="mt-6 max-w-2xl text-lg text-muted md:text-xl">
           Baboo Pro est l'espace des agences, brokers et promoteurs. Publication soignée, leads qualifiés, tableau de bord clair — le tout sans jargon.
         </p>
         <div className="mt-9 flex flex-wrap gap-3">
@@ -62,11 +62,11 @@ export default function ProLanding() {
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {BENEFITS.map((b) => (
             <Card key={b.title} variant="light" className="p-7">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-ink text-background">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-midnight text-cream">
                 <CheckIcon className="h-5 w-5" />
               </span>
               <h3 className="display-lg mt-5 text-xl">{b.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-muted">{b.body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{b.body}</p>
             </Card>
           ))}
         </div>
@@ -76,24 +76,24 @@ export default function ProLanding() {
         <Card variant="dark" className="relative overflow-hidden p-8 md:p-14">
           <div className="grid gap-10 md:grid-cols-[1.3fr_1fr] md:items-center">
             <div>
-              <p className="eyebrow text-ink-foreground/60">Aperçu du dashboard</p>
-              <h2 className="display-xl mt-3 text-3xl text-ink-foreground md:text-5xl">
+              <p className="eyebrow text-cream/60">Aperçu du dashboard</p>
+              <h2 className="display-xl mt-3 text-3xl text-cream md:text-5xl">
                 Tout ce qu'il vous faut, en un écran.
               </h2>
-              <p className="mt-4 max-w-xl text-ink-foreground/75">
+              <p className="mt-4 max-w-xl text-cream/75">
                 Leads entrants, portefeuille d'annonces, performance sur 30 jours. Pas de bruit, pas de widgets inutiles.
               </p>
               <Link
                 href="/pro/dashboard"
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-medium text-ink"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-cream px-5 py-2.5 text-sm font-medium text-midnight"
               >
                 Ouvrir le dashboard démo <ChevronRightIcon className="h-4 w-4" />
               </Link>
             </div>
 
             {/* Mini wireframe preview */}
-            <div className="rounded-md border border-ink-foreground/15 bg-ink-2 p-5">
-              <p className="mono text-[9px] uppercase tracking-[0.14em] text-ink-foreground/50">
+            <div className="rounded-md border border-cream/15 bg-midnight-2 p-5">
+              <p className="mono text-[9px] uppercase tracking-[0.14em] text-cream/50">
                 Dashboard · Atlas Realty
               </p>
               <div className="mt-4 grid grid-cols-3 gap-2">
@@ -102,16 +102,16 @@ export default function ProLanding() {
                   { l: "Vues", v: "12.4K" },
                   { l: "Leads", v: "18" },
                 ].map((s) => (
-                  <div key={s.l} className="rounded-md border border-ink-foreground/10 p-3">
-                    <p className="mono text-[8px] uppercase tracking-[0.12em] text-ink-foreground/50">{s.l}</p>
-                    <p className="display-lg mt-1 text-lg text-ink-foreground">{s.v}</p>
+                  <div key={s.l} className="rounded-md border border-cream/10 p-3">
+                    <p className="mono text-[8px] uppercase tracking-[0.12em] text-cream/50">{s.l}</p>
+                    <p className="display-lg mt-1 text-lg text-cream">{s.v}</p>
                   </div>
                 ))}
               </div>
-              <ul className="mt-4 space-y-1.5 text-ink-foreground/85">
+              <ul className="mt-4 space-y-1.5 text-cream/85">
                 {["Youssef E. · Villa Anfa", "Sarah C. · Apt. Gauthier", "Karim B. · Villa Souissi"].map((r) => (
-                  <li key={r} className="flex items-center gap-2 rounded-md bg-ink-foreground/5 p-2 text-xs">
-                    <span className="h-1.5 w-1.5 rounded-full bg-ink-foreground" />
+                  <li key={r} className="flex items-center gap-2 rounded-md bg-cream/5 p-2 text-xs">
+                    <span className="h-1.5 w-1.5 rounded-full bg-cream" />
                     {r}
                   </li>
                 ))}

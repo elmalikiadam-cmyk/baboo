@@ -20,12 +20,12 @@ export default async function DeveloperDashboard() {
           <h1 className="display-xl mt-3 text-2xl md:text-3xl">
             Ce compte n'est pas rattaché à un promoteur.
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-sm text-ink-muted">
+          <p className="mx-auto mt-3 max-w-md text-sm text-muted">
             Créez un compte promoteur pour accéder à ce tableau de bord.
           </p>
           <Link
             href="/inscription?role=developer"
-            className="mt-6 inline-flex rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-background"
+            className="mt-6 inline-flex rounded-full bg-midnight px-5 py-2.5 text-sm font-medium text-cream"
           >
             Créer un compte promoteur
           </Link>
@@ -65,20 +65,20 @@ export default async function DeveloperDashboard() {
         <div>
           <p className="eyebrow">Baboo Promoteur · {developer.name}</p>
           <h1 className="display-xl mt-2 text-4xl md:text-6xl">Tableau de bord.</h1>
-          <p className="mt-3 max-w-xl text-ink-muted">
+          <p className="mt-3 max-w-xl text-muted">
             Vos programmes neufs, les demandes de brochure et visites.
           </p>
         </div>
         <div className="flex gap-2">
           <Link
             href="/developer/projets/nouveau"
-            className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-background"
+            className="inline-flex items-center gap-2 rounded-full bg-midnight px-5 py-2.5 text-sm font-medium text-cream"
           >
             <PlusIcon className="h-4 w-4" /> Nouveau projet
           </Link>
           <Link
             href={`/projets`}
-            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:border-ink"
+            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:border-midnight"
           >
             Voir la vitrine publique
           </Link>
@@ -99,18 +99,18 @@ export default async function DeveloperDashboard() {
           </div>
           <Link
             href="/developer/projets"
-            className="mono text-[11px] uppercase tracking-[0.14em] text-ink-muted hover:text-ink"
+            className="mono text-[11px] uppercase tracking-[0.14em] text-muted hover:text-midnight"
           >
             Tous →
           </Link>
         </div>
 
         {projects.length === 0 ? (
-          <div className="rounded-md border border-dashed border-border p-8 text-center text-sm text-ink-muted">
+          <div className="rounded-md border border-dashed border-border p-8 text-center text-sm text-muted">
             Aucun projet pour l'instant.{" "}
             <Link
               href="/developer/projets/nouveau"
-              className="font-medium text-ink underline-offset-4 hover:underline"
+              className="font-medium text-midnight underline-offset-4 hover:underline"
             >
               Créer le premier
             </Link>
@@ -121,15 +121,15 @@ export default async function DeveloperDashboard() {
             {projects.map((p) => (
               <li
                 key={p.id}
-                className="overflow-hidden rounded-md border border-border bg-surface"
+                className="overflow-hidden rounded-md border border-border bg-cream"
               >
                 <Link href={`/developer/projets/${p.id}`}>
-                  <div className="relative aspect-[16/9] bg-surface-warm">
+                  <div className="relative aspect-[16/9] bg-cream-2">
                     <Image src={p.cover} alt={p.name} fill sizes="400px" className="object-cover" />
                   </div>
                   <div className="p-4">
                     <p className="display-lg text-base">{p.name}</p>
-                    <p className="mono mt-1 text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+                    <p className="mono mt-1 text-[10px] uppercase tracking-[0.12em] text-muted">
                       {p.status.replace("_", " ")} · {p._count.units} lot{p._count.units > 1 ? "s" : ""} · {p._count.leads} lead{p._count.leads > 1 ? "s" : ""}
                     </p>
                   </div>
@@ -148,12 +148,12 @@ function Stat({ label, value, tone = "light" }: { label: string; value: string; 
     <div
       className={`rounded-md border p-5 ${
         tone === "dark"
-          ? "border-ink bg-ink text-background"
-          : "border-border bg-surface"
+          ? "border-midnight bg-midnight text-cream"
+          : "border-border bg-cream"
       }`}
     >
-      <p className={`eyebrow ${tone === "dark" ? "text-background/60" : ""}`}>{label}</p>
-      <p className={`display-lg mt-2 text-3xl ${tone === "dark" ? "text-background" : ""}`}>{value}</p>
+      <p className={`eyebrow ${tone === "dark" ? "text-cream/60" : ""}`}>{label}</p>
+      <p className={`display-lg mt-2 text-3xl ${tone === "dark" ? "text-cream" : ""}`}>{value}</p>
     </div>
   );
 }

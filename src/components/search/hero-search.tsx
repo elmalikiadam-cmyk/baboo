@@ -37,34 +37,34 @@ export function HeroSearch({ firstName }: Props) {
         {firstName ? (
           <>
             Bonjour {firstName}.<br />
-            <span className="italic text-ink-soft">Où cherchez-vous ?</span>
+            <span className="italic text-muted-foreground">Où cherchez-vous ?</span>
           </>
         ) : (
           <>
-            Trouvez <span className="italic text-ink-soft">votre chez-vous.</span>
+            Trouvez <span className="italic text-muted-foreground">votre chez-vous.</span>
           </>
         )}
       </h1>
 
       <form onSubmit={submit} className="mt-6" role="search">
         <div
-          className="flex h-[52px] items-center gap-2 rounded-full border-[1.5px] border-ink bg-background pl-5 pr-1.5"
+          className="flex h-[52px] items-center gap-2 rounded-full border-[1.5px] border-midnight bg-cream pl-5 pr-1.5"
           aria-label="Recherche d'annonces"
         >
-          <SearchIcon className="h-4 w-4 shrink-0 text-ink" aria-hidden />
+          <SearchIcon className="h-4 w-4 shrink-0 text-midnight" aria-hidden />
           <input
             type="search"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="Ville, quartier, type de bien…"
-            className="flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-muted"
+            className="flex-1 bg-transparent text-sm text-midnight outline-none placeholder:text-muted"
             aria-label="Rechercher"
           />
           <button
             type="submit"
             aria-label="Rechercher"
             disabled={isPending}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-ink text-ink-foreground transition-opacity hover:bg-ink/90 disabled:opacity-50"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-midnight text-cream transition-opacity hover:bg-midnight/90 disabled:opacity-50"
           >
             <SlidersIcon className="h-4 w-4" aria-hidden />
           </button>

@@ -26,11 +26,11 @@ export function FavoriteButton({ slug, size = "sm", variant = "floating" }: Prop
   const styleClass =
     variant === "floating"
       ? active
-        ? "bg-ink text-ink-foreground"
-        : "bg-white/95 text-ink backdrop-blur-sm hover:bg-white"
+        ? "bg-midnight text-cream"
+        : "bg-white/95 text-midnight backdrop-blur-sm hover:bg-white"
       : active
-        ? "border border-ink bg-ink text-ink-foreground"
-        : "border border-border bg-surface text-ink hover:border-ink";
+        ? "border border-midnight bg-midnight text-cream"
+        : "border border-border bg-cream text-midnight hover:border-midnight";
 
   return (
     <button
@@ -44,7 +44,7 @@ export function FavoriteButton({ slug, size = "sm", variant = "floating" }: Prop
       }}
       className={cn(
         "grid place-items-center rounded-full transition-colors duration-200 ease-out",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         sizeClass,
         styleClass,
       )}

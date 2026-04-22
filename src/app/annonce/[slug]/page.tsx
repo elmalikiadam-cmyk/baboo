@@ -134,20 +134,20 @@ export default async function ListingPage({ params }: Props) {
               />
 
               {/* Content card qui remonte de -20px sur mobile */}
-              <div className="relative -mt-5 rounded-t-[28px] bg-background px-5 pt-6 pb-4 md:mt-6 md:rounded-none md:bg-transparent md:px-0 md:pt-0">
+              <div className="relative -mt-5 rounded-t-[28px] bg-cream px-5 pt-6 pb-4 md:mt-6 md:rounded-none md:bg-transparent md:px-0 md:pt-0">
                 {/* Location + date */}
-                <div className="flex flex-wrap items-center gap-1 text-[13px] text-ink-soft">
+                <div className="flex flex-wrap items-center gap-1 text-[13px] text-muted-foreground">
                   <MapPinIcon className="h-3 w-3" aria-hidden />
-                  <span className="font-medium text-ink">
+                  <span className="font-medium text-midnight">
                     {listing.neighborhood?.name ?? listing.city.name}
                   </span>
                   {listing.neighborhood && (
                     <>
-                      <span className="text-ink-muted">·</span>
+                      <span className="text-muted">·</span>
                       <span>{listing.city.name}</span>
                     </>
                   )}
-                  <span className="ml-auto text-ink-muted">
+                  <span className="ml-auto text-muted">
                     {relativeDate(listing.publishedAt ?? listing.createdAt)}
                   </span>
                 </div>
@@ -171,7 +171,7 @@ export default async function ListingPage({ params }: Props) {
                 <h1 className="display-lg mt-3">{listing.title}</h1>
 
                 {/* Bloc prix */}
-                <div className="mt-5 flex items-end justify-between rounded-2xl border border-border bg-surface-warm p-4 md:p-5">
+                <div className="mt-5 flex items-end justify-between rounded-2xl border border-border bg-cream-2 p-4 md:p-5">
                   <div>
                     <p className="eyebrow-muted">Prix</p>
                     <p className="price-display mt-1 text-[2rem] md:text-[2.25rem]">
@@ -179,7 +179,7 @@ export default async function ListingPage({ params }: Props) {
                     </p>
                   </div>
                   {listing.surface > 0 && listing.propertyType !== "LAND" && (
-                    <div className="text-right text-[11px] text-ink-muted">
+                    <div className="text-right text-[11px] text-muted">
                       <div className="font-medium">
                         {formatPricePerSqm(listing.price, listing.surface).replace(
                           " MAD/m²",
@@ -209,7 +209,7 @@ export default async function ListingPage({ params }: Props) {
                 {/* Description */}
                 <section className="mt-8">
                   <h2 className="display-md text-[1.125rem]">Description</h2>
-                  <div className="prose-baboo mt-3 space-y-3 text-sm leading-relaxed text-ink-soft">
+                  <div className="prose-baboo mt-3 space-y-3 text-sm leading-relaxed text-muted-foreground">
                     {listing.description.split("\n\n").map((p, i) => (
                       <p key={i}>{p}</p>
                     ))}
@@ -238,19 +238,19 @@ export default async function ListingPage({ params }: Props) {
                 </section>
 
                 {/* Publisher card */}
-                <section className="mt-8 rounded-2xl border border-border bg-surface p-4">
+                <section className="mt-8 rounded-2xl border border-border bg-cream p-4">
                   <div className="flex items-center gap-3">
-                    <div className="grid h-12 w-12 place-items-center rounded-full bg-accent font-display text-[17px] font-medium text-ink-foreground">
+                    <div className="grid h-12 w-12 place-items-center rounded-full bg-terracotta font-display text-[17px] font-medium text-cream">
                       {publisherInitials}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
                         <p className="display-md text-[15px]">{publisherName}</p>
                         {listing.agency?.verified && (
-                          <ShieldCheckIcon className="h-3.5 w-3.5 text-success" aria-hidden />
+                          <ShieldCheckIcon className="h-3.5 w-3.5 text-forest" aria-hidden />
                         )}
                       </div>
-                      <p className="mt-0.5 text-[11px] text-ink-muted">
+                      <p className="mt-0.5 text-[11px] text-muted">
                         {listing.agency
                           ? listing.agency.verified
                             ? "Agence vérifiée"
@@ -261,7 +261,7 @@ export default async function ListingPage({ params }: Props) {
                     {listing.agency?.slug && (
                       <Link
                         href={`/agence/${listing.agency.slug}`}
-                        className="inline-flex h-9 items-center rounded-full border border-ink px-4 text-xs font-semibold text-ink hover:bg-ink hover:text-ink-foreground"
+                        className="inline-flex h-9 items-center rounded-full border border-midnight px-4 text-xs font-semibold text-midnight hover:bg-midnight hover:text-cream"
                       >
                         Profil
                       </Link>
@@ -270,11 +270,11 @@ export default async function ListingPage({ params }: Props) {
                 </section>
 
                 {/* Réf + signaler */}
-                <section className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5 text-xs text-ink-muted">
+                <section className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5 text-xs text-muted">
                   <span>Réf · {listing.id.slice(-6).toUpperCase()}</span>
                   <button
                     type="button"
-                    className="underline underline-offset-4 hover:text-ink"
+                    className="underline underline-offset-4 hover:text-midnight"
                   >
                     Signaler cette annonce
                   </button>
@@ -292,7 +292,7 @@ export default async function ListingPage({ params }: Props) {
                         citySlug: listing.citySlug,
                         propertyTypes: [listing.propertyType],
                       })}
-                      className="hidden text-xs font-medium text-accent underline underline-offset-[3px] hover:text-accent/80 md:inline"
+                      className="hidden text-xs font-medium text-terracotta underline underline-offset-[3px] hover:text-terracotta/80 md:inline"
                     >
                       Voir plus
                     </Link>

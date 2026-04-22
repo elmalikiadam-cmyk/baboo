@@ -10,7 +10,7 @@ export default function ContactPage() {
       <div className="border-b border-border pb-6">
         <p className="eyebrow">Contact</p>
         <h1 className="display-xl mt-2 text-5xl md:text-[clamp(3rem,7vw,5.5rem)]">Parlons.</h1>
-        <p className="mt-4 max-w-xl text-ink-muted">
+        <p className="mt-4 max-w-xl text-muted">
           Une question sur une annonce, un souci avec votre compte, une idée pour Baboo ? Écrivez-nous, on répond dans la journée.
         </p>
       </div>
@@ -19,12 +19,12 @@ export default function ContactPage() {
         <ContactForm />
 
         <aside className="space-y-4">
-          <div className="rounded-md border border-border bg-surface p-6">
+          <div className="rounded-md border border-border bg-cream p-6">
             <p className="eyebrow">Téléphone</p>
             <a href="tel:+212500000000" className="display-xl mt-2 block text-2xl hover:underline">
               +212 5 22 00 00 00
             </a>
-            <p className="mono mt-2 text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+            <p className="mono mt-2 text-[10px] uppercase tracking-[0.12em] text-muted">
               Lun-ven · 9h-18h
             </p>
           </div>
@@ -33,10 +33,10 @@ export default function ContactPage() {
             href="https://wa.me/212600000000"
             target="_blank"
             rel="noreferrer"
-            className="block rounded-md border border-border bg-surface p-6 transition-colors hover:border-ink"
+            className="block rounded-md border border-border bg-cream p-6 transition-colors hover:border-midnight"
           >
             <div className="flex items-center gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-success/10 text-success">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-forest/10 text-forest">
                 <WhatsAppIcon className="h-5 w-5" />
               </span>
               <div>
@@ -46,7 +46,7 @@ export default function ContactPage() {
             </div>
           </a>
 
-          <div className="rounded-md border border-border bg-surface p-6">
+          <div className="rounded-md border border-border bg-cream p-6">
             <div className="flex items-start gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-full border border-border">
                 <MapPinIcon className="h-5 w-5" />
@@ -61,15 +61,15 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="rounded-md bg-ink p-6 text-ink-foreground">
-            <p className="eyebrow text-ink-foreground/60">Agences & promoteurs</p>
+          <div className="rounded-md bg-midnight p-6 text-cream">
+            <p className="eyebrow text-cream/60">Agences & promoteurs</p>
             <h3 className="display-lg mt-2 text-xl">Partenariats Pro.</h3>
-            <p className="mt-2 text-sm text-ink-foreground/75">
+            <p className="mt-2 text-sm text-cream/75">
               Pour rejoindre Baboo Pro, écrivez directement à :
             </p>
             <a
               href="mailto:pro@baboo.ma"
-              className="mt-3 inline-flex items-center gap-2 rounded-full bg-ink-foreground px-4 py-2 mono text-[11px] uppercase tracking-[0.12em] text-ink"
+              className="mt-3 inline-flex items-center gap-2 rounded-full bg-cream px-4 py-2 mono text-[11px] uppercase tracking-[0.12em] text-midnight"
             >
               pro@baboo.ma
             </a>

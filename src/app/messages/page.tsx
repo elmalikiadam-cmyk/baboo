@@ -20,7 +20,7 @@ export default async function MessagesInbox() {
       <div className="border-b border-border pb-8">
         <p className="eyebrow">Messagerie</p>
         <h1 className="display-xl mt-2 text-4xl md:text-5xl">Vos conversations.</h1>
-        <p className="mt-3 max-w-xl text-ink-muted">
+        <p className="mt-3 max-w-xl text-muted">
           Discutez directement avec les agences, propriétaires ou acheteurs. Vos échanges sont
           conservés dans votre compte.
         </p>
@@ -29,25 +29,25 @@ export default async function MessagesInbox() {
       {conversations.length === 0 ? (
         <div className="mt-12 rounded-md border border-dashed border-border p-10 text-center">
           <p className="display-lg text-xl">Aucune conversation.</p>
-          <p className="mt-2 text-sm text-ink-muted">
+          <p className="mt-2 text-sm text-muted">
             Contactez une agence depuis une fiche annonce pour démarrer un échange.
           </p>
           <Link
             href="/recherche"
-            className="mt-6 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-background transition hover:bg-ink/90"
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-midnight px-5 py-2.5 text-sm font-medium text-cream transition hover:bg-midnight/90"
           >
             Parcourir les annonces
           </Link>
         </div>
       ) : (
-        <ul className="mt-8 divide-y divide-border-soft overflow-hidden rounded-md border border-border bg-surface">
+        <ul className="mt-8 divide-y divide-border-soft overflow-hidden rounded-md border border-border bg-cream">
           {conversations.map((c) => (
             <li key={c.id}>
               <Link
                 href={`/messages/${c.id}`}
-                className="flex items-center gap-4 p-4 transition hover:bg-surface-warm"
+                className="flex items-center gap-4 p-4 transition hover:bg-cream-2"
               >
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-surface-warm">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-cream-2">
                   {c.listing?.coverImage ? (
                     <Image
                       src={c.listing.coverImage}
@@ -57,32 +57,32 @@ export default async function MessagesInbox() {
                       className="object-cover"
                     />
                   ) : (
-                    <div className="grid h-full w-full place-items-center text-ink-muted">
+                    <div className="grid h-full w-full place-items-center text-muted">
                       <span className="mono text-[10px]">—</span>
                     </div>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="truncate font-medium text-ink">
+                    <p className="truncate font-medium text-midnight">
                       {c.other?.name ?? c.other?.email ?? "Correspondant"}
                     </p>
                     {c.unread && (
                       <span
                         aria-label="Non lu"
-                        className="h-2 w-2 shrink-0 rounded-full bg-accent"
+                        className="h-2 w-2 shrink-0 rounded-full bg-terracotta"
                       />
                     )}
                   </div>
-                  <p className="mono mt-0.5 truncate text-[10px] uppercase tracking-[0.1em] text-ink-muted">
+                  <p className="mono mt-0.5 truncate text-[10px] uppercase tracking-[0.1em] text-muted">
                     {c.listing?.title ?? c.subject ?? "Conversation"}
                   </p>
-                  <p className="mt-1 line-clamp-1 text-sm text-ink-muted">
+                  <p className="mt-1 line-clamp-1 text-sm text-muted">
                     {c.lastMessage?.body ?? "Aucun message encore."}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="mono text-[10px] uppercase tracking-[0.1em] text-ink-muted">
+                  <p className="mono text-[10px] uppercase tracking-[0.1em] text-muted">
                     {relativeDate(c.lastMessageAt)}
                   </p>
                 </div>

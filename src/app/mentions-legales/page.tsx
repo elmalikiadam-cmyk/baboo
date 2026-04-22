@@ -12,7 +12,7 @@ export default function MentionsLegalesPage() {
         <p className="eyebrow">Informations</p>
         <h1 className="display-xl mt-2 text-4xl md:text-5xl">Mentions légales.</h1>
 
-        <div className="prose-baboo mt-10 space-y-8 text-ink">
+        <div className="prose-baboo mt-10 space-y-8 text-midnight">
           <section>
             <h2 className="display-lg text-xl">Éditeur</h2>
             <p className="mt-3 text-sm leading-relaxed">

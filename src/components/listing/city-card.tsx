@@ -20,7 +20,7 @@ export function CityCard({ city, count }: Props) {
   return (
     <Link
       href={`/recherche?city=${city.slug}`}
-      className="group relative block h-[170px] w-[140px] shrink-0 overflow-hidden rounded-2xl bg-surface-cool"
+      className="group relative block h-[170px] w-[140px] shrink-0 overflow-hidden rounded-2xl bg-cream-3"
       aria-label={`${city.name}, ${count} annonces`}
     >
       {city.cover && (
@@ -37,8 +37,8 @@ export function CityCard({ city, count }: Props) {
         aria-hidden
       />
       <div className="pointer-events-none absolute inset-0 dot-pattern" aria-hidden />
-      <div className="absolute inset-x-3 bottom-3 text-ink-foreground">
-        <p className="display-md text-[1.25rem] leading-none text-ink-foreground">
+      <div className="absolute inset-x-3 bottom-3 text-cream">
+        <p className="display-md text-[1.25rem] leading-none text-cream">
           {city.name}
         </p>
         <p className="mt-1 text-[11px] opacity-85">{count} annonces</p>

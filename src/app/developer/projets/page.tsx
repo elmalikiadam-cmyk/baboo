@@ -31,8 +31,8 @@ export default async function DeveloperProjects() {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
-        <Link href="/developer/dashboard" className="hover:text-ink">Tableau de bord</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted">
+        <Link href="/developer/dashboard" className="hover:text-midnight">Tableau de bord</Link>
         <span className="mx-2">·</span>
         <span>Projets</span>
       </nav>
@@ -44,39 +44,39 @@ export default async function DeveloperProjects() {
         </div>
         <Link
           href="/developer/projets/nouveau"
-          className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-background"
+          className="inline-flex items-center gap-2 rounded-full bg-midnight px-5 py-2.5 text-sm font-medium text-cream"
         >
           <PlusIcon className="h-4 w-4" /> Nouveau projet
         </Link>
       </div>
 
       {projects.length === 0 ? (
-        <div className="mt-12 rounded-md border border-dashed border-border p-10 text-center text-sm text-ink-muted">
-          Aucun projet. <Link href="/developer/projets/nouveau" className="font-medium text-ink underline-offset-4 hover:underline">Créer le premier</Link>.
+        <div className="mt-12 rounded-md border border-dashed border-border p-10 text-center text-sm text-muted">
+          Aucun projet. <Link href="/developer/projets/nouveau" className="font-medium text-midnight underline-offset-4 hover:underline">Créer le premier</Link>.
         </div>
       ) : (
         <ul className="mt-8 space-y-3">
           {projects.map((p) => (
-            <li key={p.id} className="flex items-center gap-4 rounded-md border border-border bg-surface p-4">
-              <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-md bg-surface-warm">
+            <li key={p.id} className="flex items-center gap-4 rounded-md border border-border bg-cream p-4">
+              <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-md bg-cream-2">
                 <Image src={p.cover} alt={p.name} fill sizes="96px" className="object-cover" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="display-lg truncate text-base">{p.name}</p>
-                <p className="mono mt-0.5 text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+                <p className="mono mt-0.5 text-[10px] uppercase tracking-[0.12em] text-muted">
                   {STATUS_LABEL[p.status]} · {p._count.units} lot{p._count.units > 1 ? "s" : ""} · {p._count.leads} lead{p._count.leads > 1 ? "s" : ""}
                 </p>
               </div>
               <div className="flex shrink-0 gap-2">
                 <Link
                   href={`/projets/${p.slug}`}
-                  className="mono rounded-full border border-border px-3 py-1.5 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
+                  className="mono rounded-full border border-border px-3 py-1.5 text-[10px] uppercase tracking-[0.12em] hover:border-midnight"
                 >
                   Voir
                 </Link>
                 <Link
                   href={`/developer/projets/${p.id}`}
-                  className="mono rounded-full bg-ink px-3 py-1.5 text-[10px] uppercase tracking-[0.12em] text-background hover:bg-ink/90"
+                  className="mono rounded-full bg-midnight px-3 py-1.5 text-[10px] uppercase tracking-[0.12em] text-cream hover:bg-midnight/90"
                 >
                   Gérer
                 </Link>

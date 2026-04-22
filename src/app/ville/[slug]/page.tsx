@@ -64,25 +64,25 @@ export default async function CityLandingPage({ params }: { params: Promise<{ sl
 
   return (
     <div>
-      <nav aria-label="Fil d'Ariane" className="container mt-6 mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
-        <Link href="/" className="hover:text-ink">Accueil</Link>
+      <nav aria-label="Fil d'Ariane" className="container mt-6 mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted">
+        <Link href="/" className="hover:text-midnight">Accueil</Link>
         <span className="mx-2">·</span>
-        <Link href="/villes" className="hover:text-ink">Villes</Link>
+        <Link href="/villes" className="hover:text-midnight">Villes</Link>
         <span className="mx-2">·</span>
         <span>{city.name}</span>
       </nav>
 
       {/* Hero cover */}
       <section className="container">
-        <div className="relative aspect-[21/9] overflow-hidden rounded-md bg-surface-warm">
+        <div className="relative aspect-[21/9] overflow-hidden rounded-md bg-cream-2">
           {city.cover && (
             <Image src={city.cover} alt={city.name} fill priority sizes="100vw" className="object-cover" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-6 text-background md:p-10">
-            <p className="mono text-[10px] uppercase tracking-[0.14em] text-background/75">{city.region}</p>
-            <h1 className="display-xl mt-2 text-5xl text-background md:text-7xl">Immobilier à {city.name}.</h1>
-            <p className="mt-3 max-w-2xl text-background/85">{city.tagline}</p>
+          <div className="absolute inset-x-0 bottom-0 p-6 text-cream md:p-10">
+            <p className="mono text-[10px] uppercase tracking-[0.14em] text-cream/75">{city.region}</p>
+            <h1 className="display-xl mt-2 text-5xl text-cream md:text-7xl">Immobilier à {city.name}.</h1>
+            <p className="mt-3 max-w-2xl text-cream/85">{city.tagline}</p>
           </div>
         </div>
       </section>
@@ -136,10 +136,10 @@ export default async function CityLandingPage({ params }: { params: Promise<{ sl
               <li key={t}>
                 <Link
                   href={buildSearchHref({ transaction: "SALE", citySlug: city.slug, propertyTypes: [t] })}
-                  className="flex items-center justify-between rounded-md border border-border bg-surface p-5 hover:border-ink"
+                  className="flex items-center justify-between rounded-md border border-border bg-cream p-5 hover:border-midnight"
                 >
                   <span className="display-lg text-lg">{PROPERTY_TYPE_LABEL_PLURAL[t]}</span>
-                  <span className="mono text-[11px] text-ink-muted">
+                  <span className="mono text-[11px] text-muted">
                     {n} {n === 1 ? "annonce" : "annonces"}
                   </span>
                 </Link>
@@ -159,7 +159,7 @@ export default async function CityLandingPage({ params }: { params: Promise<{ sl
             </div>
             <Link
               href={buildSearchHref({ transaction: "SALE", citySlug: city.slug })}
-              className="mono text-[11px] uppercase tracking-[0.14em] text-ink-muted hover:text-ink"
+              className="mono text-[11px] uppercase tracking-[0.14em] text-muted hover:text-midnight"
             >
               Voir toutes les annonces →
             </Link>

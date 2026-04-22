@@ -36,7 +36,7 @@ export function ListingGallery({
   const total = Math.max(photos.length, 1);
 
   return (
-    <div className="relative h-[420px] w-full overflow-hidden bg-surface-warm md:h-auto md:aspect-[16/10] md:rounded-2xl">
+    <div className="relative h-[420px] w-full overflow-hidden bg-cream-2 md:h-auto md:aspect-[16/10] md:rounded-2xl">
       <Image
         src={primary.url}
         alt={primary.alt ?? title}
@@ -72,7 +72,7 @@ export function ListingGallery({
       </div>
 
       {/* Compteur photos */}
-      <div className="absolute bottom-4 right-4 z-10 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-semibold text-ink-foreground backdrop-blur">
+      <div className="absolute bottom-4 right-4 z-10 rounded-full bg-midnight/70 px-3 py-1.5 text-xs font-semibold text-cream backdrop-blur">
         1 / {total}
       </div>
     </div>

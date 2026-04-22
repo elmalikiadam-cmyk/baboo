@@ -58,7 +58,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     <div className="container pb-10">
       <div className="mb-5 mt-5 md:mt-10">
         <h1 className="display-lg">{heading}</h1>
-        <p className="mt-2 text-sm text-ink-soft">
+        <p className="mt-2 text-sm text-muted-foreground">
           {total} annonce{total > 1 ? "s" : ""} correspond{total > 1 ? "ent" : ""} à vos critères.
         </p>
       </div>
@@ -102,9 +102,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
 function EmptyState({ transaction }: { transaction: "SALE" | "RENT" }) {
   return (
-    <div className="rounded-2xl border border-dashed border-border bg-surface p-10 text-center">
+    <div className="rounded-2xl border border-dashed border-border bg-cream p-10 text-center">
       <h2 className="display-md">Aucune annonce ne correspond.</h2>
-      <p className="mx-auto mt-3 max-w-md text-sm text-ink-soft">
+      <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
         Essayez d'élargir votre budget ou de retirer quelques filtres.
       </p>
       <div className="mt-6">

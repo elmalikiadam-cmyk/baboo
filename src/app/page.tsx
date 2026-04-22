@@ -88,7 +88,7 @@ export default async function HomePage() {
           <h2 className="display-md">Explorer par ville</h2>
           <Link
             href="/recherche"
-            className="text-xs font-medium text-accent underline underline-offset-[3px] hover:text-accent/80"
+            className="text-xs font-medium text-terracotta underline underline-offset-[3px] hover:text-terracotta/80"
           >
             Voir tout
           </Link>
@@ -108,11 +108,11 @@ export default async function HomePage() {
         </div>
 
         {!hasListings ? (
-          <div className="rounded-2xl border border-dashed border-border bg-surface p-10 text-center">
+          <div className="rounded-2xl border border-dashed border-border bg-cream p-10 text-center">
             <p className="display-md">Les annonces arrivent.</p>
-            <p className="mt-2 text-sm text-ink-soft">
+            <p className="mt-2 text-sm text-muted-foreground">
               Base vide ou hors-ligne. Lancez le seed :{" "}
-              <code className="rounded-sm bg-surface-warm px-1.5 py-0.5 mono text-xs">
+              <code className="rounded-sm bg-cream-2 px-1.5 py-0.5 mono text-xs">
                 pnpm db:push && pnpm db:seed
               </code>
             </p>

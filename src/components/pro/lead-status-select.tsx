@@ -14,11 +14,11 @@ const OPTIONS: Array<{ value: LeadStatus; label: string }> = [
 ];
 
 const STYLE: Record<LeadStatus, string> = {
-  NEW: "border-ink bg-ink text-background",
-  CONTACTED: "border-border text-ink",
-  QUALIFIED: "border-ink text-ink",
-  VISIT_SCHEDULED: "border-success/40 bg-success/10 text-success",
-  CLOSED: "border-border bg-surface-warm text-ink-muted",
+  NEW: "border-midnight bg-midnight text-cream",
+  CONTACTED: "border-border text-midnight",
+  QUALIFIED: "border-midnight text-midnight",
+  VISIT_SCHEDULED: "border-forest/40 bg-forest/10 text-forest",
+  CLOSED: "border-border bg-cream-2 text-muted",
   LOST: "border-danger/40 bg-danger/10 text-danger",
 };
 

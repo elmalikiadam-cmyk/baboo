@@ -36,7 +36,7 @@ export default async function LeadsInbox({ searchParams }: Props) {
           <h1 className="display-xl mt-3 text-2xl md:text-3xl">Cette page est réservée aux agences Pro.</h1>
           <Link
             href="/pro"
-            className="mt-5 inline-flex rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-background"
+            className="mt-5 inline-flex rounded-full bg-midnight px-5 py-2.5 text-sm font-medium text-cream"
           >
             Découvrir Baboo Pro
           </Link>
@@ -112,8 +112,8 @@ export default async function LeadsInbox({ searchParams }: Props) {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
-        <Link href="/pro/dashboard" className="hover:text-ink">Tableau de bord</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted">
+        <Link href="/pro/dashboard" className="hover:text-midnight">Tableau de bord</Link>
         <span className="mx-2">·</span>
         <span>Leads</span>
       </nav>
@@ -137,8 +137,8 @@ export default async function LeadsInbox({ searchParams }: Props) {
               href={href}
               className={`mono rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.14em] transition ${
                 isActive
-                  ? "border-ink bg-ink text-background"
-                  : "border-border text-ink hover:border-ink"
+                  ? "border-midnight bg-midnight text-cream"
+                  : "border-border text-midnight hover:border-midnight"
               }`}
             >
               {t.label} · {n}
@@ -148,14 +148,14 @@ export default async function LeadsInbox({ searchParams }: Props) {
       </div>
 
       {leads.length === 0 ? (
-        <div className="mt-12 rounded-md border border-dashed border-border bg-surface-warm/40 p-10 text-center">
+        <div className="mt-12 rounded-md border border-dashed border-border bg-cream-2/40 p-10 text-center">
           <p className="eyebrow">Aucun lead</p>
           <h2 className="display-xl mt-3 text-2xl">
             {activeStatus === "ALL"
               ? "Pas encore de leads."
               : "Rien dans cette catégorie."}
           </h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-ink-muted">
+          <p className="mx-auto mt-3 max-w-md text-sm text-muted">
             {activeStatus === "ALL"
               ? "Les messages de contact sur vos annonces apparaîtront ici."
               : "Essayez un autre filtre ou revenez sur Tous."}
@@ -164,10 +164,10 @@ export default async function LeadsInbox({ searchParams }: Props) {
       ) : (
         <ul className="mt-8 space-y-3">
           {leads.map((l) => (
-            <li key={l.id} className="rounded-md border border-border bg-surface p-5">
+            <li key={l.id} className="rounded-md border border-border bg-cream p-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex min-w-0 items-start gap-3">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ink text-background display-lg text-sm">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-midnight text-cream display-lg text-sm">
                     {l.name
                       .split(" ")
                       .map((w) => w[0])
@@ -177,15 +177,15 @@ export default async function LeadsInbox({ searchParams }: Props) {
                   </span>
                   <div className="min-w-0">
                     <p className="display-lg text-base leading-tight">{l.name}</p>
-                    <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-ink-muted">
+                    <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted">
                       {(l.listing?.title ?? "Contact général").toUpperCase()} · {relativeDate(l.createdAt).toUpperCase()}
                     </p>
-                    <div className="mt-2 flex flex-wrap gap-3 text-xs text-ink-muted">
-                      <a href={`mailto:${l.email}`} className="hover:text-ink">
+                    <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted">
+                      <a href={`mailto:${l.email}`} className="hover:text-midnight">
                         {l.email}
                       </a>
                       {l.phone && (
-                        <a href={`tel:${l.phone.replace(/\s+/g, "")}`} className="hover:text-ink">
+                        <a href={`tel:${l.phone.replace(/\s+/g, "")}`} className="hover:text-midnight">
                           {l.phone}
                         </a>
                       )}
@@ -195,7 +195,7 @@ export default async function LeadsInbox({ searchParams }: Props) {
                 <LeadStatusSelect leadId={l.id} status={l.status} />
               </div>
 
-              <p className="mt-4 border-t border-ink/10 pt-4 text-sm text-ink">
+              <p className="mt-4 border-t border-midnight/10 pt-4 text-sm text-midnight">
                 « {l.message} »
               </p>
 
@@ -203,7 +203,7 @@ export default async function LeadsInbox({ searchParams }: Props) {
                 {l.userId && l.listingId && convMap.get(`${l.userId}:${l.listingId}`) && (
                   <Link
                     href={`/messages/${convMap.get(`${l.userId}:${l.listingId}`)}`}
-                    className="mono rounded-full border border-ink bg-ink px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-background hover:bg-ink/90"
+                    className="mono rounded-full border border-midnight bg-midnight px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-cream hover:bg-midnight/90"
                   >
                     Ouvrir la conversation
                   </Link>
@@ -211,14 +211,14 @@ export default async function LeadsInbox({ searchParams }: Props) {
                 {l.listing?.slug && (
                   <Link
                     href={`/annonce/${l.listing.slug}`}
-                    className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
+                    className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-midnight"
                   >
                     Voir l'annonce
                   </Link>
                 )}
                 <a
                   href={`mailto:${l.email}`}
-                  className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
+                  className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-midnight"
                 >
                   Répondre par email
                 </a>
@@ -227,7 +227,7 @@ export default async function LeadsInbox({ searchParams }: Props) {
                     href={`https://wa.me/${l.phone.replace(/\D/g, "")}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="mono rounded-full border border-success/40 bg-success/10 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-success hover:bg-success/15"
+                    className="mono rounded-full border border-forest/40 bg-forest/10 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-forest hover:bg-forest/15"
                   >
                     WhatsApp
                   </a>

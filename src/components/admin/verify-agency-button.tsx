@@ -21,7 +21,7 @@ export function VerifyAgencyButton({ agencyId }: { agencyId: string }) {
         type="button"
         onClick={onClick}
         disabled={isPending}
-        className="mono rounded-full bg-ink px-3 py-1.5 text-[10px] uppercase tracking-[0.12em] text-background transition hover:bg-ink/90 disabled:opacity-50"
+        className="mono rounded-full bg-midnight px-3 py-1.5 text-[10px] uppercase tracking-[0.12em] text-cream transition hover:bg-midnight/90 disabled:opacity-50"
       >
         {isPending ? "…" : "Vérifier"}
       </button>

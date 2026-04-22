@@ -12,7 +12,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
 
   return (
     <div className="container flex min-h-[70vh] items-center justify-center py-16">
-      <div className="w-full max-w-md rounded-md border border-border bg-surface p-8">
+      <div className="w-full max-w-md rounded-md border border-border bg-cream p-8">
         <div className="mb-6 text-center">
           <p className="eyebrow">Mot de passe</p>
           <h1 className="display-xl mt-2 text-3xl">Choisissez un nouveau mot de passe.</h1>

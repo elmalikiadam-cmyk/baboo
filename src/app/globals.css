@@ -3,63 +3,71 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════════════
- * Baboo — direction "Maison ouverte"
- * Palette terre & crème, photo-first, marocain sans folklore.
- * Source de vérité : baboo_v2/README.md + baboo_v2/CLAUDE.md.
+ * Baboo V3 — direction « Éditorial chaleureux »
+ * Palette crème + bleu nuit + terracotta + vert sapin.
+ * Source de vérité : docs/ui-guidelines.md (V3).
  * ═══════════════════════════════════════════════════════════════════════ */
 
 @layer base {
   :root {
-    /* Surfaces — crème chaude */
-    --background: 37 43% 96%;          /* #FAF6F0 — crème fond principal */
-    --surface: 37 43% 96%;
-    --surface-warm: 38 40% 91%;        /* #F4EDE1 */
-    --surface-cool: 37 35% 89%;        /* #EFE9DC */
+    /* ─── Couleurs de marque V3 ─── */
+    --cream: 42 52% 91%;              /* #f3ecdd fond de page */
+    --cream-2: 42 45% 87%;            /* #ebe3d1 surface warm, dividers */
+    --cream-3: 40 38% 82%;            /* #ddd2bc variante désaturée */
 
-    /* Encres — presque noir légèrement chaud */
-    --foreground: 30 11% 10%;          /* #1A1815 */
-    --ink: 30 11% 10%;
-    --ink-soft: 28 7% 27%;             /* #4A4641 */
-    --ink-muted: 30 7% 51%;            /* #8A837A */
-    --ink-foreground: 37 43% 96%;
+    --midnight: 223 42% 18%;          /* #1a2540 texte + primary */
+    --midnight-2: 225 34% 25%;        /* #2a3655 hover primary */
+    --midnight-3: 225 28% 35%;        /* variante clarifiée */
 
-    /* Bordures — sable chaud */
-    --border: 38 30% 85%;              /* #E8DFC9 */
-    --border-soft: 38 35% 88%;
-    --border-strong: 30 11% 10%;
+    --terracotta: 13 62% 47%;         /* #c04e2e accent signature */
+    --terracotta-2: 13 67% 39%;       /* #a33f22 hover */
 
-    /* Primary = ink (pas de bleu) */
-    --primary: 30 11% 10%;
-    --primary-foreground: 37 43% 96%;
+    --forest: 151 24% 23%;            /* #2d4a3e bloc Pros, exclusif */
+    --forest-2: 151 31% 18%;          /* #1f3a2f hover */
 
-    /* Accent — terracotta discret. Jamais sur les CTAs principaux. */
-    --accent: 11 63% 44%;              /* #B8442A */
-    --accent-soft: 17 60% 89%;         /* #F3DCD1 */
-    --accent-foreground: 37 43% 96%;
+    /* ─── Aliases système (Tailwind) ─── */
+    --background: var(--cream);
+    --foreground: var(--midnight);
+    --surface: 0 0% 100%;             /* blanc pour cards d'annonces */
+    --surface-warm: var(--cream-2);
 
-    /* Semantic */
-    --success: 76 26% 33%;             /* #5B6B3F olive */
-    --success-soft: 71 25% 87%;        /* #E4E7D5 */
+    --muted: 222 15% 42%;             /* #5a6478 texte secondaire */
+    --muted-foreground: 222 17% 35%;  /* #4a5368 ratio 6.1:1 sur cream */
+
+    --border: 223 42% 18%;            /* midnight, alpha appliqué via ` * ` */
+
+    --primary: var(--midnight);
+    --primary-foreground: var(--cream);
+
+    --accent: var(--terracotta);
+    --accent-foreground: var(--cream);
+
+    --success: var(--forest);
     --danger: 2 72% 41%;
 
-    /* Compat V1 — aliases pour ne pas casser les 71 fichiers qui utilisent
-     * les anciens noms de tokens. À déprécier progressivement. */
-    --paper-2: 38 40% 91%;             /* alias --surface-warm */
-    --paper-3: 37 35% 89%;             /* alias --surface-cool */
-    --surface-muted: 38 40% 91%;       /* alias --surface-warm */
-    --muted: 28 7% 27%;                /* alias --ink-soft */
-    --muted-foreground: 28 7% 27%;     /* alias --ink-soft */
-    --ink-2: 28 7% 27%;                /* alias --ink-soft */
-    --ink-3: 30 7% 51%;                /* alias --ink-muted */
+    /* ─── COMPAT V2 — ne pas réécrire 70 fichiers ─── */
+    --ink: var(--midnight);
+    --ink-soft: var(--muted-foreground);
+    --ink-muted: var(--muted);
+    --ink-foreground: var(--cream);
+    --ink-2: var(--midnight-2);
+    --ink-3: var(--midnight-3);
+    --surface-cool: var(--cream-3);
+    --border-soft: var(--cream-2);
+    --border-strong: var(--midnight);
+    --accent-soft: 13 62% 90%;        /* terracotta très dilué */
+    --success-soft: 151 24% 90%;      /* forest très dilué */
+    --paper-2: var(--cream-2);        /* alias legacy */
+    --paper-3: var(--cream-3);
 
-    /* Fonts — variables définies par next/font dans layout.tsx */
-    --font-display-stack: var(--font-fraunces), Georgia, serif;
-    --font-sans-stack: var(--font-inter-tight), system-ui, -apple-system, sans-serif;
-    --font-mono-stack: var(--font-mono), ui-monospace, "SF Mono", "Menlo", monospace;
+    /* ─── Fonts ─── */
+    --font-display-stack: var(--font-fraunces), "Fraunces", "Times New Roman", serif;
+    --font-sans-stack: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono-stack: var(--font-mono), "JetBrains Mono", ui-monospace, "SF Mono", monospace;
   }
 
   * {
-    border-color: hsl(var(--border));
+    border-color: hsl(var(--midnight) / 0.12);
   }
 
   html {
@@ -68,11 +76,11 @@
   }
 
   body {
-    background: hsl(var(--background));
-    color: hsl(var(--ink-soft));
+    background: hsl(var(--cream));
+    color: hsl(var(--midnight));
     font-family: var(--font-sans-stack);
     font-size: 15px;
-    line-height: 1.5;
+    line-height: 1.6;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -80,79 +88,87 @@
 
   h1, h2, h3, h4 {
     font-family: var(--font-display-stack);
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    line-height: 1.08;
-    color: hsl(var(--ink));
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: hsl(var(--midnight));
   }
 
   ::selection {
-    background-color: hsl(var(--ink));
-    color: hsl(var(--background));
+    background-color: hsl(var(--terracotta));
+    color: hsl(var(--cream));
   }
 
   :focus-visible {
-    outline: 2px solid hsl(var(--ink));
-    outline-offset: 2px;
+    outline: 2px solid hsl(var(--terracotta));
+    outline-offset: 3px;
   }
 }
 
 @layer components {
-  /* ─────────────────────────────────────────────────────────────────
-   * Typographie — valeurs exactes spec V2.
-   * ───────────────────────────────────────────────────────────────── */
+  /* ─── Typographie display (Fraunces serif) ─── */
+  .display-hero {
+    font-family: var(--font-display-stack);
+    font-weight: 700;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    font-optical-sizing: auto;
+    color: hsl(var(--midnight));
+  }
+
   .display-xl {
     font-family: var(--font-display-stack);
-    font-weight: 500;
-    font-size: clamp(2rem, 5vw, 2.75rem);
-    letter-spacing: -0.025em;
-    line-height: 1.02;
-    color: hsl(var(--ink));
+    font-weight: 600;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.0;
+    letter-spacing: -0.015em;
+    color: hsl(var(--midnight));
   }
 
   .display-lg {
     font-family: var(--font-display-stack);
-    font-weight: 500;
-    font-size: clamp(1.5rem, 3.5vw, 2rem);
-    letter-spacing: -0.02em;
-    line-height: 1.08;
-    color: hsl(var(--ink));
+    font-weight: 600;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: hsl(var(--midnight));
   }
 
   .display-md {
     font-family: var(--font-display-stack);
-    font-weight: 500;
-    font-size: 1.375rem;
-    letter-spacing: -0.015em;
-    line-height: 1.1;
-    color: hsl(var(--ink));
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+    color: hsl(var(--midnight));
   }
 
   .price-display {
     font-family: var(--font-display-stack);
-    font-weight: 400;
-    font-size: clamp(1.5rem, 3vw, 2.125rem);
-    letter-spacing: -0.025em;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 3vw, 2rem);
     line-height: 1;
-    color: hsl(var(--ink));
+    letter-spacing: -0.01em;
+    color: hsl(var(--midnight));
   }
 
   .eyebrow {
     font-family: var(--font-mono-stack);
-    font-size: 0.625rem;
+    font-size: 11px;
     font-weight: 500;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: hsl(var(--accent));
+    color: hsl(var(--muted-foreground));
   }
 
   .eyebrow-muted {
     font-family: var(--font-mono-stack);
-    font-size: 0.625rem;
+    font-size: 11px;
     font-weight: 500;
-    text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: hsl(var(--ink-muted));
+    text-transform: uppercase;
+    color: hsl(var(--muted));
   }
 
   .mono {
@@ -160,9 +176,67 @@
     letter-spacing: 0.06em;
   }
 
-  /* ─────────────────────────────────────────────────────────────────
-   * Pattern zellige discret sur photos.
-   * ───────────────────────────────────────────────────────────────── */
+  .mono-sm {
+    font-family: var(--font-mono-stack);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ─── Barre de section éditoriale (3px terracotta) ─── */
+  .section-bar {
+    display: inline-block;
+    width: 3px;
+    background-color: hsl(var(--terracotta));
+    border-radius: 2px;
+    align-self: stretch;
+  }
+
+  /* ─── Badges éditoriaux ─── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    font-family: var(--font-sans-stack);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 6px;
+  }
+  .badge-coup-de-coeur { background-color: hsl(var(--terracotta)); color: hsl(var(--cream)); }
+  .badge-nouveau { background-color: hsl(var(--midnight)); color: hsl(var(--cream)); }
+  .badge-exclusif { background-color: hsl(var(--forest)); color: hsl(var(--cream)); }
+  .badge-a-la-une { background-color: hsl(var(--midnight)); color: hsl(var(--cream)); }
+
+  /* ─── Legacy compat — pills existantes ─── */
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors;
+  }
+  .pill-dark {
+    @apply pill bg-midnight text-cream hover:bg-midnight-2;
+  }
+  .pill-soft {
+    @apply pill bg-surface-warm text-midnight border border-midnight/20 hover:bg-cream-3;
+  }
+
+  /* ─── Placeholder strié legacy ─── */
+  .bb-photo-placeholder {
+    background:
+      repeating-linear-gradient(
+        135deg,
+        hsl(var(--cream-2)) 0 10px,
+        hsl(var(--cream-3)) 10px 20px
+      );
+    position: relative;
+    overflow: hidden;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .hairline {
+    border-color: hsl(var(--midnight) / 0.12);
+  }
+
+  /* ─── Pattern points (conservé pour compat V2) ─── */
   .dot-pattern {
     background-image: radial-gradient(
       circle at 1px 1px,
@@ -170,35 +244,6 @@
       transparent 0
     );
     background-size: 16px 16px;
-  }
-
-  /* ─────────────────────────────────────────────────────────────────
-   * Utilitaires legacy (compat V1) — à déprécier.
-   * ───────────────────────────────────────────────────────────────── */
-  .pill {
-    @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors;
-  }
-  .pill-dark {
-    @apply pill bg-ink text-ink-foreground hover:bg-ink/90;
-  }
-  .pill-soft {
-    @apply pill bg-surface-warm text-ink border border-border hover:bg-surface-cool;
-  }
-
-  .bb-photo-placeholder {
-    background:
-      repeating-linear-gradient(
-        135deg,
-        hsl(var(--surface-warm)) 0 10px,
-        hsl(var(--surface-cool)) 10px 20px
-      );
-    position: relative;
-    overflow: hidden;
-    color: hsl(var(--ink-soft));
-  }
-
-  .hairline {
-    border-color: hsl(var(--border));
   }
 }
 

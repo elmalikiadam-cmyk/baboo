@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MobileBottomBar } from "@/components/layout/mobile-bottom-bar";
@@ -9,18 +9,19 @@ import { getFavoriteSlugs } from "@/actions/favorites";
 import { countUnreadConversations } from "@/lib/messaging";
 import "./globals.css";
 
+// V3 « Éditorial chaleureux » — Fraunces serif + Inter + JetBrains Mono.
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-fraunces",
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700", "900"],
   style: ["normal", "italic"],
   display: "swap",
 });
 
-const interTight = Inter_Tight({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-inter-tight",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -49,7 +50,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FAF6F0",
+  themeColor: "#f3ecdd",
   width: "device-width",
   initialScale: 1,
 };
@@ -65,12 +66,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang="fr"
-      className={`${fraunces.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
+      className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen flex flex-col pb-[84px] md:pb-0">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-ink-foreground focus:outline-none"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-midnight focus:px-4 focus:py-2 focus:text-sm focus:text-cream focus:outline-none"
         >
           Aller au contenu principal
         </a>

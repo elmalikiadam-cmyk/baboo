@@ -15,7 +15,7 @@ interface Props {
  */
 export function MobileStickyCta({ phone, href = "#contact-form" }: Props) {
   return (
-    <div className="fixed inset-x-0 bottom-[84px] z-40 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-xl md:hidden">
+    <div className="fixed inset-x-0 bottom-[84px] z-40 border-t border-border bg-cream/95 px-4 py-3 backdrop-blur-xl md:hidden">
       <div className="flex items-center gap-2">
         {phone ? (
           <a

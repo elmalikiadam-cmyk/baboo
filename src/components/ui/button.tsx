@@ -15,17 +15,17 @@ const base =
   "inline-flex items-center justify-center gap-2 font-medium whitespace-nowrap " +
   "transition-all duration-200 ease-out " +
   "disabled:pointer-events-none disabled:opacity-50 " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight " +
   "focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-ink text-ink-foreground hover:bg-ink/90",
+  primary: "bg-midnight text-cream hover:bg-midnight/90",
   outline:
-    "border border-ink bg-transparent text-ink hover:bg-ink hover:text-ink-foreground",
-  ghost: "text-ink hover:bg-surface-warm",
-  soft: "bg-surface-warm text-ink border border-border hover:bg-surface-cool",
-  accent: "bg-accent text-accent-foreground hover:bg-accent/90",
-  link: "text-accent underline underline-offset-4 hover:text-accent/80",
+    "border border-midnight bg-transparent text-midnight hover:bg-midnight hover:text-cream",
+  ghost: "text-midnight hover:bg-cream-2",
+  soft: "bg-cream-2 text-midnight border border-border hover:bg-cream-3",
+  accent: "bg-terracotta text-terracotta-foreground hover:bg-terracotta/90",
+  link: "text-terracotta underline underline-offset-4 hover:text-terracotta/80",
 };
 
 const sizes: Record<Size, string> = {

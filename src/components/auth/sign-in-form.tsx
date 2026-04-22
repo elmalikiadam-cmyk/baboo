@@ -41,7 +41,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
           <Label htmlFor="password">Mot de passe</Label>
           <Link
             href="/mot-de-passe/oublie"
-            className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted hover:text-ink"
+            className="mono text-[10px] uppercase tracking-[0.12em] text-muted hover:text-midnight"
           >
             Oublié ?
           </Link>
@@ -59,9 +59,9 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         {isPending ? "Connexion…" : "Se connecter"}
       </Button>
 
-      <p className="text-center text-sm text-ink-muted">
+      <p className="text-center text-sm text-muted">
         Pas encore de compte ?{" "}
-        <Link href="/inscription" className="font-medium text-ink underline-offset-4 hover:underline">
+        <Link href="/inscription" className="font-medium text-midnight underline-offset-4 hover:underline">
           Créer un compte
         </Link>
       </p>

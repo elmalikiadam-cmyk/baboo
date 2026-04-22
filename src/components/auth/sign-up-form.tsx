@@ -68,7 +68,7 @@ export function SignUpForm({ defaultRole = "USER" }: { defaultRole?: Role }) {
           minLength={8}
           autoComplete="new-password"
         />
-        <p className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted">
           8 caractères minimum
         </p>
         {fieldErrors.password && <p className="text-[11px] text-danger">{fieldErrors.password}</p>}
@@ -85,9 +85,9 @@ export function SignUpForm({ defaultRole = "USER" }: { defaultRole?: Role }) {
         {isPending ? "Création…" : "Créer mon compte"}
       </Button>
 
-      <p className="text-center text-sm text-ink-muted">
+      <p className="text-center text-sm text-muted">
         Déjà un compte ?{" "}
-        <Link href="/connexion" className="font-medium text-ink underline-offset-4 hover:underline">
+        <Link href="/connexion" className="font-medium text-midnight underline-offset-4 hover:underline">
           Se connecter
         </Link>
       </p>

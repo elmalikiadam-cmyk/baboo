@@ -76,14 +76,14 @@ export function SearchFiltersPanel({ initial, className }: Props) {
     cn(
       "inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors",
       active
-        ? "border-ink bg-ink text-ink-foreground"
-        : "border-border text-ink-soft hover:border-ink",
+        ? "border-midnight bg-midnight text-cream"
+        : "border-border text-muted-foreground hover:border-midnight",
     );
 
   return (
     <aside
       className={cn(
-        "rounded-2xl border border-border bg-surface p-5",
+        "rounded-2xl border border-border bg-cream p-5",
         className,
       )}
       aria-busy={isPending}
@@ -275,11 +275,11 @@ export function SearchFiltersPanel({ initial, className }: Props) {
           <button
             type="button"
             onClick={reset}
-            className="text-xs font-medium text-ink-muted underline-offset-4 hover:text-ink hover:underline"
+            className="text-xs font-medium text-muted underline-offset-4 hover:text-midnight hover:underline"
           >
             Réinitialiser
           </button>
-          {isPending && <span className="text-xs text-ink-muted">Mise à jour…</span>}
+          {isPending && <span className="text-xs text-muted">Mise à jour…</span>}
         </div>
       </div>
     </aside>

@@ -34,7 +34,7 @@ export function MessageComposer({ conversationId }: { conversationId: string }) 
   }
 
   return (
-    <form onSubmit={submit} className="border-t border-ink/10 p-3">
+    <form onSubmit={submit} className="border-t border-midnight/10 p-3">
       {error && (
         <p className="mb-2 rounded-full bg-danger/10 px-3 py-1.5 text-xs text-danger" role="alert">
           {error}
@@ -48,12 +48,12 @@ export function MessageComposer({ conversationId }: { conversationId: string }) 
           rows={2}
           maxLength={4000}
           placeholder="Écrivez votre message… (⌘/Ctrl+Entrée pour envoyer)"
-          className="flex-1 resize-none rounded-md border border-border bg-background px-3 py-2 text-sm text-ink placeholder:text-ink-muted/70 focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10"
+          className="flex-1 resize-none rounded-md border border-border bg-cream px-3 py-2 text-sm text-midnight placeholder:text-muted/70 focus-visible:border-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight/10"
         />
         <button
           type="submit"
           disabled={isPending || !value.trim()}
-          className="inline-flex h-10 shrink-0 items-center rounded-full bg-ink px-4 text-sm font-medium text-background transition hover:bg-ink/90 disabled:pointer-events-none disabled:opacity-50"
+          className="inline-flex h-10 shrink-0 items-center rounded-full bg-midnight px-4 text-sm font-medium text-cream transition hover:bg-midnight/90 disabled:pointer-events-none disabled:opacity-50"
         >
           {isPending ? "Envoi…" : "Envoyer"}
         </button>

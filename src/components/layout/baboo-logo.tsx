@@ -1,63 +1,115 @@
-import { cn } from "@/lib/cn";
+import React from "react";
 
-interface Props {
+interface BabooLogoProps {
+  /** Hauteur totale du logo en pixels. Défaut 28. */
+  height?: number;
+  /** Taille optionnelle — alias de height, pour compat V2. */
   size?: number;
-  className?: string;
-  /** Masque le wordmark — utile dans les tailles très serrées. */
+  /** Variant de couleur — utilise les tokens CSS.
+   *  default : wordmark midnight sur fond clair.
+   *  inverse : wordmark cream sur fond sombre.
+   *  custom  : override via `color` et `dotColor`.
+   *  light   : alias de inverse (compat V2). */
+  variant?: "default" | "inverse" | "custom" | "light" | "dark";
+  /** Si variant="custom", override explicite de la couleur du wordmark. */
+  color?: string;
+  /** Si variant="custom", override du point terracotta. */
+  dotColor?: string;
+  /** Masquer le point final (rare). */
+  withDot?: boolean;
+  /** Masquer le wordmark — logo iconique seul (compat). */
   iconOnly?: boolean;
-  /** Variante legacy conservée pour compat V1. En V2 le logo utilise
-   *  `currentColor`, donc on laisse le prop sans effet visible. */
-  variant?: "dark" | "light";
+  className?: string;
 }
 
 /**
- * Logo Baboo V2 "Maison ouverte" — ourson stylisé (3 cercles) + wordmark
- * "baboo" en Fraunces italique 500. Couleur : currentColor, s'adapte au
- * contexte (header clair, footer sombre, etc.).
+ * Logo Baboo V3 « Éditorial chaleureux » — wordmark `baboo.` en Fraunces
+ * 700, minuscule, point final en terracotta (signature de marque).
+ * Le panda V2 est supprimé.
  */
-export function BabooLogo({ size = 24, className, iconOnly = false }: Props) {
-  const iconWidth = size * 1.1;
+export function BabooLogo({
+  height,
+  size,
+  variant = "default",
+  color,
+  dotColor,
+  withDot = true,
+  iconOnly = false,
+  className = "",
+}: BabooLogoProps) {
+  const pixelHeight = height ?? size ?? 28;
+  const isInverse = variant === "inverse" || variant === "light";
+
+  const wordColor =
+    variant === "custom"
+      ? color ?? "currentColor"
+      : isInverse
+        ? "hsl(var(--cream))"
+        : "hsl(var(--midnight))";
+
+  const dotFill =
+    variant === "custom" ? dotColor ?? "hsl(var(--terracotta))" : "hsl(var(--terracotta))";
+
+  if (iconOnly) {
+    return <BabooMark size={pixelHeight} className={className} />;
+  }
+
   return (
     <span
-      className={cn("inline-flex items-center gap-2", className)}
+      className={`inline-flex items-baseline ${className}`}
+      style={{
+        fontFamily: "var(--font-fraunces), 'Fraunces', 'Times New Roman', serif",
+        fontWeight: 700,
+        fontSize: `${pixelHeight}px`,
+        lineHeight: 1,
+        letterSpacing: "-0.015em",
+        color: wordColor,
+      }}
       aria-label="Baboo"
     >
-      <svg
-        width={iconWidth}
-        height={size}
-        viewBox="0 0 24 22"
-        fill="none"
-        aria-hidden
-      >
-        {/* Oreilles */}
-        <circle cx="6" cy="6" r="3.2" fill="currentColor" />
-        <circle cx="18" cy="6" r="3.2" fill="currentColor" />
-        {/* Tête */}
-        <circle cx="12" cy="13" r="7.5" fill="currentColor" />
-        {/* Museau */}
-        <circle cx="12" cy="15" r="3" fill="hsl(var(--background))" />
-        {/* Yeux */}
-        <circle cx="9.5" cy="12" r="0.8" fill="hsl(var(--background))" />
-        <circle cx="14.5" cy="12" r="0.8" fill="hsl(var(--background))" />
-        {/* Nez */}
-        <circle cx="12" cy="14" r="0.5" fill="currentColor" />
-      </svg>
-      {!iconOnly && (
-        <span
-          className="font-display italic"
-          style={{
-            fontSize: size * 0.95,
-            fontWeight: 500,
-            letterSpacing: "-0.02em",
-            lineHeight: 1,
-          }}
-        >
-          baboo
+      baboo
+      {withDot && (
+        <span aria-hidden="true" style={{ color: dotFill, marginLeft: "0.02em" }}>
+          .
         </span>
       )}
     </span>
   );
 }
 
-/** Alias pour compat avec des imports historiques éventuels. */
-export const BabooMark = BabooLogo;
+/**
+ * Version marque — carré midnight rounded-md, "b" cream, point terracotta.
+ * Usage : avatars, favicon, app icon.
+ */
+export function BabooMark({
+  size = 32,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      className={className}
+      role="img"
+      aria-label="Baboo"
+    >
+      <rect x="0" y="0" width="32" height="32" rx="8" fill="hsl(var(--midnight))" />
+      <text
+        x="16"
+        y="23"
+        textAnchor="middle"
+        fontFamily="var(--font-fraunces), 'Fraunces', serif"
+        fontWeight="700"
+        fontSize="18"
+        fill="hsl(var(--cream))"
+      >
+        b
+      </text>
+      <circle cx="24.5" cy="23" r="2" fill="hsl(var(--terracotta))" />
+    </svg>
+  );
+}

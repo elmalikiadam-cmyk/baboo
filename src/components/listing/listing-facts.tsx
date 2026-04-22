@@ -84,11 +84,11 @@ export function ListingFacts(props: Props) {
             i < even.length - 2 ? "border-b border-border" : "",
           )}
         >
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-warm">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-cream-2">
             {Icon ? (
-              <Icon className="h-4 w-4 text-ink" />
+              <Icon className="h-4 w-4 text-midnight" />
             ) : (
-              <span className="mono text-[10px] font-semibold text-ink">·</span>
+              <span className="mono text-[10px] font-semibold text-midnight">·</span>
             )}
           </div>
           <div className="min-w-0">

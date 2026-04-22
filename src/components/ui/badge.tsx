@@ -6,11 +6,11 @@ type Size = "sm" | "md";
 type Shape = "round" | "sticker";
 
 const tones: Record<Tone, string> = {
-  neutral: "bg-surface-warm text-ink border border-border",
-  dark: "bg-ink text-ink-foreground",
-  light: "bg-white/95 text-ink backdrop-blur-sm",
-  accent: "bg-accent-soft text-accent",
-  success: "bg-success-soft text-success",
+  neutral: "bg-cream-2 text-midnight border border-border",
+  dark: "bg-midnight text-cream",
+  light: "bg-white/95 text-midnight backdrop-blur-sm",
+  accent: "bg-terracotta-soft text-terracotta",
+  success: "bg-forest-soft text-forest",
 };
 
 const sizes: Record<Size, string> = {

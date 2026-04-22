@@ -29,7 +29,7 @@ export function MessageList({ messages }: { messages: Msg[] }) {
   if (messages.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
-        <p className="text-sm text-ink-muted">
+        <p className="text-sm text-muted">
           Aucun message encore. Écrivez le premier.
         </p>
       </div>
@@ -49,7 +49,7 @@ export function MessageList({ messages }: { messages: Msg[] }) {
             <li key={m.id}>
               {showDay && (
                 <div className="my-4 text-center">
-                  <span className="mono rounded-full bg-surface-warm px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+                  <span className="mono rounded-full bg-cream-2 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-muted">
                     {day}
                   </span>
                 </div>
@@ -58,14 +58,14 @@ export function MessageList({ messages }: { messages: Msg[] }) {
                 <div
                   className={`max-w-[80%] rounded-md px-3.5 py-2.5 text-sm leading-relaxed ${
                     m.isMine
-                      ? "bg-ink text-background"
-                      : "bg-background text-ink border border-ink/10"
+                      ? "bg-midnight text-cream"
+                      : "bg-cream text-midnight border border-midnight/10"
                   }`}
                 >
                   <p className="whitespace-pre-wrap break-words">{m.body}</p>
                   <p
                     className={`mono mt-1 text-[9px] uppercase tracking-[0.1em] ${
-                      m.isMine ? "text-background/60" : "text-ink-muted"
+                      m.isMine ? "text-cream/60" : "text-muted"
                     }`}
                   >
                     {TIME_FR.format(d)}

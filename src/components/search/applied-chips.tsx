@@ -81,12 +81,12 @@ export function AppliedChips({ filters }: { filters: SearchFilters }) {
         <Link
           key={c.label}
           href={c.href}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface-warm py-1.5 pl-3 pr-2 text-xs font-medium text-ink transition-colors hover:border-ink"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-cream-2 py-1.5 pl-3 pr-2 text-xs font-medium text-midnight transition-colors hover:border-midnight"
           role="listitem"
           aria-label={`Retirer le filtre ${c.label}`}
         >
           {c.label}
-          <CloseIcon className="h-2.5 w-2.5 text-ink-soft" aria-hidden />
+          <CloseIcon className="h-2.5 w-2.5 text-muted-foreground" aria-hidden />
         </Link>
       ))}
     </div>

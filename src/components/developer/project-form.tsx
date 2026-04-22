@@ -88,7 +88,7 @@ export function ProjectForm({
           required
           defaultValue={initial.description}
           placeholder="Programme, services, emplacement, livraison estimée…"
-          className="w-full rounded-md border border-border bg-background p-4 text-sm focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10"
+          className="w-full rounded-md border border-border bg-cream p-4 text-sm focus-visible:border-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight/10"
         />
       </Field>
 

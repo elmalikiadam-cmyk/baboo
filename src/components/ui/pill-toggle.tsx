@@ -30,7 +30,7 @@ export function PillToggle<V extends string>({
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className={cn("flex rounded-full bg-surface-warm p-1 gap-1", className)}
+      className={cn("flex rounded-full bg-cream-2 p-1 gap-1", className)}
     >
       {options.map((o) => {
         const active = o.value === value;
@@ -43,10 +43,10 @@ export function PillToggle<V extends string>({
             onClick={() => onChange(o.value)}
             className={cn(
               "flex-1 h-10 rounded-full text-sm font-medium transition-colors duration-200 ease-out",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/40",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight/40",
               active
-                ? "bg-ink text-ink-foreground"
-                : "text-ink-soft hover:text-ink",
+                ? "bg-midnight text-cream"
+                : "text-muted-foreground hover:text-midnight",
             )}
           >
             {o.label}

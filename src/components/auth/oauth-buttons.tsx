@@ -19,7 +19,7 @@ export function OAuthButtons({ google, facebook }: { google: boolean; facebook: 
           type="button"
           onClick={() => onClick("google")}
           disabled={isPending}
-          className="flex w-full items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium transition hover:bg-surface-warm disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-full border border-border bg-cream px-4 py-2.5 text-sm font-medium transition hover:bg-cream-2 disabled:opacity-50"
         >
           <GoogleMark />
           Continuer avec Google

@@ -36,10 +36,10 @@ export default async function EditListingPage({ params }: Props) {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
-        <Link href="/pro/dashboard" className="hover:text-ink">Tableau de bord</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted">
+        <Link href="/pro/dashboard" className="hover:text-midnight">Tableau de bord</Link>
         <span className="mx-2">·</span>
-        <Link href="/pro/listings" className="hover:text-ink">Mes annonces</Link>
+        <Link href="/pro/listings" className="hover:text-midnight">Mes annonces</Link>
         <span className="mx-2">·</span>
         <span>Modifier</span>
       </nav>

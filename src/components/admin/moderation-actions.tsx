@@ -27,7 +27,7 @@ export function ModerationActions({ listingId }: { listingId: string }) {
           onClick={() => run("approve")}
           disabled={isPending}
           aria-label="Approuver"
-          className="grid h-9 w-9 place-items-center rounded-full bg-ink text-background transition hover:bg-ink/90 disabled:opacity-50"
+          className="grid h-9 w-9 place-items-center rounded-full bg-midnight text-cream transition hover:bg-midnight/90 disabled:opacity-50"
         >
           <CheckIcon className="h-4 w-4" />
         </button>

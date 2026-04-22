@@ -29,17 +29,17 @@ export function SearchToolbar({ filters, total }: Props) {
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-      <p className="text-sm text-ink-soft">
-        <strong className="font-semibold text-ink">
+      <p className="text-sm text-muted-foreground">
+        <strong className="font-semibold text-midnight">
           {new Intl.NumberFormat("fr-FR").format(total)}
         </strong>{" "}
         {total > 1 ? "annonces trouvées" : "annonce trouvée"}
-        {isPending && <span className="ml-2 text-xs text-ink-muted">· Mise à jour…</span>}
+        {isPending && <span className="ml-2 text-xs text-muted">· Mise à jour…</span>}
       </p>
 
       {/* Mobile : tri inline avec underline accent sur la valeur active */}
       <div className="flex items-center gap-2 md:hidden">
-        <span className="text-xs text-ink-soft">Trier :</span>
+        <span className="text-xs text-muted-foreground">Trier :</span>
         {SORT_OPTIONS.map((o) => (
           <button
             key={o.value}
@@ -49,8 +49,8 @@ export function SearchToolbar({ filters, total }: Props) {
             className={cn(
               "text-xs font-medium transition-colors",
               filters.sort === o.value
-                ? "border-b-[1.5px] border-accent pb-0.5 text-ink"
-                : "text-ink-muted hover:text-ink",
+                ? "border-b-[1.5px] border-terracotta pb-0.5 text-midnight"
+                : "text-muted hover:text-midnight",
             )}
           >
             {o.label}
@@ -60,7 +60,7 @@ export function SearchToolbar({ filters, total }: Props) {
 
       {/* Desktop : select */}
       <div className="hidden items-center gap-2 md:flex">
-        <label htmlFor="sort" className="text-xs text-ink-soft">
+        <label htmlFor="sort" className="text-xs text-muted-foreground">
           Trier par
         </label>
         <Select

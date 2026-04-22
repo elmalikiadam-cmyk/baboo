@@ -48,7 +48,7 @@ export function ProfileForm({ initial }: { initial: Initial }) {
       <div className="space-y-1.5">
         <Label htmlFor="p-email">Email</Label>
         <Input id="p-email" type="email" value={initial.email} disabled readOnly />
-        <p className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted">
           L'email ne peut pas être modifié.
         </p>
       </div>
@@ -87,7 +87,7 @@ export function ProfileForm({ initial }: { initial: Initial }) {
         </p>
       )}
       {success && (
-        <p className="rounded-full bg-success/10 px-3 py-2 text-xs text-success" role="status">
+        <p className="rounded-full bg-forest/10 px-3 py-2 text-xs text-forest" role="status">
           Modifications enregistrées.
         </p>
       )}

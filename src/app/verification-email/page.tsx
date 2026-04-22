@@ -15,17 +15,17 @@ export default async function EmailVerificationPage({ searchParams }: Props) {
 
   return (
     <div className="container flex min-h-[70vh] items-center justify-center py-16">
-      <div className="w-full max-w-md rounded-md border border-border bg-surface p-8 text-center">
+      <div className="w-full max-w-md rounded-md border border-border bg-cream p-8 text-center">
         <p className="eyebrow">Vérification email</p>
         {res.ok ? (
           <>
             <h1 className="display-xl mt-3 text-3xl">Email confirmé.</h1>
-            <p className="mt-3 text-sm text-ink-muted">
+            <p className="mt-3 text-sm text-muted">
               Merci. Votre adresse est maintenant vérifiée.
             </p>
             <Link
               href="/compte"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-background"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-midnight px-5 py-2.5 text-sm font-medium text-cream"
             >
               Aller à mon compte
             </Link>
@@ -33,7 +33,7 @@ export default async function EmailVerificationPage({ searchParams }: Props) {
         ) : (
           <>
             <h1 className="display-xl mt-3 text-3xl">Lien invalide.</h1>
-            <p className="mt-3 text-sm text-ink-muted">{res.error}</p>
+            <p className="mt-3 text-sm text-muted">{res.error}</p>
             <Link
               href="/compte"
               className="mt-6 inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium"

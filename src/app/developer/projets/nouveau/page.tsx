@@ -14,10 +14,10 @@ export default async function NewProjectPage() {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
-        <Link href="/developer/dashboard" className="hover:text-ink">Tableau de bord</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted">
+        <Link href="/developer/dashboard" className="hover:text-midnight">Tableau de bord</Link>
         <span className="mx-2">·</span>
-        <Link href="/developer/projets" className="hover:text-ink">Projets</Link>
+        <Link href="/developer/projets" className="hover:text-midnight">Projets</Link>
         <span className="mx-2">·</span>
         <span>Nouveau</span>
       </nav>
@@ -25,7 +25,7 @@ export default async function NewProjectPage() {
       <div className="border-b border-border pb-6">
         <p className="eyebrow">Création</p>
         <h1 className="display-xl mt-2 text-4xl md:text-5xl">Nouveau projet.</h1>
-        <p className="mt-3 max-w-xl text-ink-muted">
+        <p className="mt-3 max-w-xl text-muted">
           Renseignez les informations du programme. Vous pourrez ajouter les lots (appartements,
           duplex, etc.) juste après.
         </p>
