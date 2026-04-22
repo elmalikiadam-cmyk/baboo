@@ -40,8 +40,8 @@ export function HeroSearchBlock() {
       onSubmit={onSearch}
       className="overflow-hidden rounded-2xl border border-midnight/10 bg-white shadow-sm"
     >
-      {/* Tabs */}
-      <div className="flex gap-1 border-b border-midnight/10 p-2">
+      {/* Tabs — gap-2 pour éviter que les 3 labels se touchent visuellement */}
+      <div className="flex gap-2 border-b border-midnight/10 p-2">
         {(["ACHETER", "LOUER", "VENDRE"] as Mode[]).map((m) => {
           const active = mode === m;
           return (
@@ -49,7 +49,7 @@ export function HeroSearchBlock() {
               key={m}
               type="button"
               onClick={() => setMode(m)}
-              className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold tracking-wide transition-colors ${
+              className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold tracking-wide transition-colors ${
                 active
                   ? "bg-midnight text-cream"
                   : "text-midnight hover:bg-cream-2"
@@ -98,7 +98,7 @@ export function HeroSearchBlock() {
             value={budget}
             onChange={(e) => setBudget(e.target.value.replace(/\D/g, ""))}
             inputMode="numeric"
-            placeholder="MAD"
+            placeholder="Indifférent"
             className="w-full bg-transparent text-base font-semibold text-midnight outline-none placeholder:text-muted-foreground"
           />
         </Field>
@@ -127,7 +127,7 @@ function Field({
 }) {
   return (
     <div className="px-5 py-3">
-      <label className="eyebrow mb-1 block">{label}</label>
+      <label className="eyebrow mb-1.5 block">{label}</label>
       {children}
     </div>
   );
