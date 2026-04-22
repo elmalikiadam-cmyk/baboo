@@ -54,10 +54,10 @@ export function ProjectUnitsManager({
       {units.length > 0 ? (
         <ul className="space-y-2">
           {units.map((u) => (
-            <li key={u.id} className="flex items-center gap-3 rounded-md border border-foreground/10 bg-surface p-3">
+            <li key={u.id} className="flex items-center gap-3 rounded-md border border-ink/10 bg-surface p-3">
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">{u.label}</p>
-                <p className="mono mt-0.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                <p className="mono mt-0.5 text-[10px] uppercase tracking-[0.12em] text-ink-muted">
                   {PROPERTY_TYPE_LABEL[u.propertyType]}
                   {u.bedrooms != null ? ` · ${u.bedrooms} ch.` : ""} · {u.surface} m² · {PRICE.format(u.price)} MAD
                 </p>
@@ -66,7 +66,7 @@ export function ProjectUnitsManager({
                 type="button"
                 onClick={() => onDelete(u.id)}
                 disabled={isPending}
-                className="mono shrink-0 rounded-full border border-foreground/20 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] hover:border-danger hover:text-danger"
+                className="mono shrink-0 rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] hover:border-danger hover:text-danger"
               >
                 Retirer
               </button>
@@ -74,12 +74,12 @@ export function ProjectUnitsManager({
           ))}
         </ul>
       ) : (
-        <p className="rounded-md border border-dashed border-foreground/25 p-5 text-center text-sm text-muted-foreground">
+        <p className="rounded-md border border-dashed border-border p-5 text-center text-sm text-ink-muted">
           Aucun lot. Ajoutez-en ci-dessous.
         </p>
       )}
 
-      <form onSubmit={onSubmit} className="rounded-md border border-foreground/15 bg-surface p-4">
+      <form onSubmit={onSubmit} className="rounded-md border border-border bg-surface p-4">
         <p className="eyebrow mb-3">Ajouter un lot</p>
         <div className="grid gap-3 md:grid-cols-2">
           <Field label="Libellé">
@@ -108,7 +108,7 @@ export function ProjectUnitsManager({
         <button
           type="submit"
           disabled={isPending}
-          className="mono mt-3 rounded-full bg-foreground px-4 py-1.5 text-[10px] uppercase tracking-[0.12em] text-background disabled:opacity-50"
+          className="mono mt-3 rounded-full bg-ink px-4 py-1.5 text-[10px] uppercase tracking-[0.12em] text-background disabled:opacity-50"
         >
           {isPending ? "Ajout…" : "Ajouter le lot"}
         </button>

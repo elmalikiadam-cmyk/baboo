@@ -27,7 +27,7 @@ const BLOCKS = [
 export function ForYou() {
   return (
     <section className="container py-16 md:py-24">
-      <div className="mb-10 flex flex-wrap items-end justify-between gap-6 border-b border-foreground/15 pb-4">
+      <div className="mb-10 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-4">
         <div>
           <p className="eyebrow">Pour qui</p>
           <h2 className="display-xl mt-2 text-3xl md:text-5xl">Particulier ou professionnel.</h2>
@@ -55,7 +55,7 @@ export function ForYou() {
               </p>
               <Link
                 href={href}
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-paper-2"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-surface-warm"
               >
                 {cta} <ChevronRightIcon className="h-4 w-4" />
               </Link>

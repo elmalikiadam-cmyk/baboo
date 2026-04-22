@@ -26,11 +26,11 @@ export default function GlobalError({
       <h1 className="display-xl mt-3 text-4xl md:text-5xl">
         Quelque chose s'est mal passé.
       </h1>
-      <p className="mt-3 max-w-md text-muted-foreground">
+      <p className="mt-3 max-w-md text-ink-muted">
         Nous avons été notifiés. Vous pouvez réessayer, ou revenir à l'accueil.
       </p>
       {error.digest && (
-        <p className="mono mt-4 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+        <p className="mono mt-4 text-[10px] uppercase tracking-[0.12em] text-ink-muted">
           Réf · {error.digest}
         </p>
       )}

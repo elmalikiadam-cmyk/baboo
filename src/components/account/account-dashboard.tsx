@@ -24,7 +24,7 @@ export function AccountDashboard({ isSignedIn, isAgency }: Props) {
       </dl>
 
       <section className="mt-14">
-        <div className="mb-6 flex items-end justify-between border-b border-foreground/15 pb-4">
+        <div className="mb-6 flex items-end justify-between border-b border-border pb-4">
           <div>
             <p className="eyebrow">Raccourcis</p>
             <h2 className="display-xl mt-2 text-2xl md:text-3xl">Accès rapide.</h2>
@@ -82,22 +82,22 @@ export function AccountDashboard({ isSignedIn, isAgency }: Props) {
       </section>
 
       {!isSignedIn && (
-        <section className="mt-14 rounded-md border border-dashed border-foreground/20 bg-paper-2/40 p-8">
+        <section className="mt-14 rounded-md border border-dashed border-border bg-surface-warm/40 p-8">
           <p className="eyebrow">Compte Baboo</p>
           <h2 className="display-xl mt-2 text-2xl md:text-3xl">Synchronisation entre vos appareils.</h2>
-          <p className="mt-3 max-w-xl text-muted-foreground">
+          <p className="mt-3 max-w-xl text-ink-muted">
             Créez un compte pour retrouver vos favoris et alertes sur tous vos navigateurs, et garder l'historique de vos échanges avec les agences.
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Link
               href="/inscription"
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
+              className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-background"
             >
               Créer un compte
             </Link>
             <Link
               href="/connexion"
-              className="inline-flex items-center gap-2 rounded-full border border-foreground px-5 py-2.5 text-sm font-medium text-foreground hover:bg-foreground hover:text-background"
+              className="inline-flex items-center gap-2 rounded-full border border-ink px-5 py-2.5 text-sm font-medium text-ink hover:bg-ink hover:text-background"
             >
               Se connecter
             </Link>
@@ -110,7 +110,7 @@ export function AccountDashboard({ isSignedIn, isAgency }: Props) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-foreground/15 bg-surface p-5">
+    <div className="rounded-md border border-border bg-surface p-5">
       <p className="eyebrow">{label}</p>
       <p className="display-lg mt-2 text-3xl">{value}</p>
     </div>
@@ -131,14 +131,14 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-4 rounded-md border border-foreground/15 bg-surface p-5 transition-colors hover:border-foreground/40"
+      className="group flex items-center gap-4 rounded-md border border-border bg-surface p-5 transition-colors hover:border-ink"
     >
-      <span className="grid h-10 w-10 place-items-center rounded-full bg-foreground text-background">{icon}</span>
+      <span className="grid h-10 w-10 place-items-center rounded-full bg-ink text-background">{icon}</span>
       <div className="min-w-0 flex-1">
         <p className="display-lg text-base">{label}</p>
-        <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{subtitle}</p>
+        <p className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">{subtitle}</p>
       </div>
-      <span className="mono text-[10px] text-muted-foreground group-hover:text-foreground">→</span>
+      <span className="mono text-[10px] text-ink-muted group-hover:text-ink">→</span>
     </Link>
   );
 }

@@ -12,7 +12,7 @@ export default function CGUPage() {
         <p className="eyebrow">CGU</p>
         <h1 className="display-xl mt-2 text-4xl md:text-5xl">Conditions d'utilisation.</h1>
 
-        <div className="mt-10 space-y-8 text-foreground/85">
+        <div className="mt-10 space-y-8 text-ink">
           <section>
             <h2 className="display-lg text-xl">1. Objet</h2>
             <p className="mt-3 text-sm leading-relaxed">

@@ -25,16 +25,16 @@ export default async function CitiesIndex() {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Accueil</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <Link href="/" className="hover:text-ink">Accueil</Link>
         <span className="mx-2">·</span>
         <span>Villes</span>
       </nav>
 
-      <div className="border-b border-foreground/15 pb-6">
+      <div className="border-b border-border pb-6">
         <p className="eyebrow">{CITIES.length} villes</p>
         <h1 className="display-xl mt-2 text-4xl md:text-6xl">Explorer par ville.</h1>
-        <p className="mt-4 max-w-2xl text-muted-foreground">
+        <p className="mt-4 max-w-2xl text-ink-muted">
           De Casablanca à Oujda, des quartiers d'affaires aux stations balnéaires.
         </p>
       </div>
@@ -46,9 +46,9 @@ export default async function CitiesIndex() {
             <li key={c.slug}>
               <Link
                 href={`/ville/${c.slug}`}
-                className="group block overflow-hidden rounded-md border border-foreground/10 bg-surface transition-transform hover:-translate-y-0.5"
+                className="group block overflow-hidden rounded-md border border-ink/10 bg-surface transition-transform hover:-translate-y-0.5"
               >
-                <div className="relative aspect-[16/10] overflow-hidden bg-foreground/5">
+                <div className="relative aspect-[16/10] overflow-hidden bg-surface-warm">
                   {c.cover && (
                     <Image
                       src={c.cover}
@@ -65,7 +65,7 @@ export default async function CitiesIndex() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between p-5">
-                  <span className="mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                  <span className="mono text-[11px] uppercase tracking-[0.12em] text-ink-muted">
                     {c.neighborhoods.length} quartiers
                   </span>
                   <span className="mono text-[11px] uppercase tracking-[0.12em]">

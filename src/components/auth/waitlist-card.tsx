@@ -43,7 +43,7 @@ export function WaitlistCard({ kind }: Props) {
           <CheckIcon className="h-6 w-6" />
         </span>
         <h2 className="display-xl mt-4 text-2xl">Inscrit à la liste.</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-ink-muted">
           On vous prévient dès que les comptes sont disponibles.
         </p>
       </div>

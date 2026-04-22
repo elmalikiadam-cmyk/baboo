@@ -35,7 +35,7 @@ export function SaveSearchButton({ filters, heading }: Props) {
   return (
     <button
       onClick={onClick}
-      className="mono rounded-full border border-foreground/20 px-3 py-1.5 text-[10px] uppercase tracking-[0.14em] text-foreground transition hover:border-foreground"
+      className="mono rounded-full border border-border px-3 py-1.5 text-[10px] uppercase tracking-[0.14em] text-ink transition hover:border-ink"
     >
       {saved ? "✓ Alerte créée" : "Enregistrer cette recherche"}
     </button>

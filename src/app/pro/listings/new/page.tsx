@@ -16,18 +16,18 @@ export default async function NewListingPage() {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        <Link href="/pro/dashboard" className="hover:text-foreground">Tableau de bord</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <Link href="/pro/dashboard" className="hover:text-ink">Tableau de bord</Link>
         <span className="mx-2">·</span>
-        <Link href="/pro/listings" className="hover:text-foreground">Mes annonces</Link>
+        <Link href="/pro/listings" className="hover:text-ink">Mes annonces</Link>
         <span className="mx-2">·</span>
         <span>Nouvelle annonce</span>
       </nav>
 
-      <div className="border-b border-foreground/15 pb-6">
+      <div className="border-b border-border pb-6">
         <p className="eyebrow">Nouvelle annonce</p>
         <h1 className="display-xl mt-2 text-4xl md:text-6xl">Publier un bien.</h1>
-        <p className="mt-3 max-w-xl text-muted-foreground">
+        <p className="mt-3 max-w-xl text-ink-muted">
           L'annonce apparaît immédiatement sur Baboo après publication. Vous pouvez la modifier ou l'archiver à tout moment.
         </p>
       </div>

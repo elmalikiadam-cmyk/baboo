@@ -34,16 +34,16 @@ export default async function ConversationPage({ params }: PageProps) {
       <div className="mb-6">
         <Link
           href="/messages"
-          className="mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground"
+          className="mono text-[11px] uppercase tracking-[0.12em] text-ink-muted hover:text-ink"
         >
           ← Toutes les conversations
         </Link>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <section className="flex min-h-[60vh] flex-col rounded-md border border-foreground/15 bg-surface">
-          <header className="flex items-center gap-3 border-b border-foreground/10 p-4">
-            <div className="grid h-10 w-10 place-items-center rounded-full bg-foreground/10 text-xs font-semibold">
+        <section className="flex min-h-[60vh] flex-col rounded-md border border-border bg-surface">
+          <header className="flex items-center gap-3 border-b border-ink/10 p-4">
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-surface-warm text-xs font-semibold">
               {(other?.name ?? other?.email ?? "?")
                 .split(" ")
                 .slice(0, 2)
@@ -52,11 +52,11 @@ export default async function ConversationPage({ params }: PageProps) {
                 .toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="truncate font-medium text-foreground">
+              <p className="truncate font-medium text-ink">
                 {other?.name ?? other?.email ?? "Correspondant"}
               </p>
               {conv.subject && (
-                <p className="mono truncate text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                <p className="mono truncate text-[10px] uppercase tracking-[0.1em] text-ink-muted">
                   {conv.subject}
                 </p>
               )}
@@ -75,12 +75,12 @@ export default async function ConversationPage({ params }: PageProps) {
           <MessageComposer conversationId={conv.id} />
         </section>
 
-        <aside className="rounded-md border border-foreground/15 bg-surface p-4">
+        <aside className="rounded-md border border-border bg-surface p-4">
           {listing ? (
             <>
               <p className="eyebrow">Annonce liée</p>
               <Link href={`/annonce/${listing.slug}`} className="mt-3 block">
-                <div className="relative h-36 w-full overflow-hidden rounded-md bg-foreground/5">
+                <div className="relative h-36 w-full overflow-hidden rounded-md bg-surface-warm">
                   <Image
                     src={listing.coverImage}
                     alt={listing.title}
@@ -90,7 +90,7 @@ export default async function ConversationPage({ params }: PageProps) {
                   />
                 </div>
                 <p className="display-lg mt-3 line-clamp-2 text-base">{listing.title}</p>
-                <p className="mono mt-1 text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                <p className="mono mt-1 text-[11px] uppercase tracking-[0.12em] text-ink-muted">
                   {listing.transaction === "RENT"
                     ? formatPricePerMonth(listing.price)
                     : formatPrice(listing.price)}
@@ -100,7 +100,7 @@ export default async function ConversationPage({ params }: PageProps) {
           ) : (
             <>
               <p className="eyebrow">Conversation</p>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-ink-muted">
                 Échange direct entre vous et {other?.name ?? "votre correspondant"}.
               </p>
             </>

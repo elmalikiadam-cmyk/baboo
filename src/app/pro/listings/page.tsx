@@ -22,11 +22,11 @@ const STATUS_LABEL: Record<ListingStatus, string> = {
 };
 
 const STATUS_STYLE: Record<ListingStatus, string> = {
-  DRAFT: "border-foreground/20 text-muted-foreground",
-  PENDING: "border-foreground/30 text-foreground",
+  DRAFT: "border-border text-ink-muted",
+  PENDING: "border-border text-ink",
   PUBLISHED: "border-success/40 bg-success/10 text-success",
   REJECTED: "border-danger/30 bg-danger/10 text-danger",
-  ARCHIVED: "border-foreground/15 bg-foreground/5 text-muted-foreground",
+  ARCHIVED: "border-border bg-surface-warm text-ink-muted",
 };
 
 type Props = {
@@ -58,13 +58,13 @@ export default async function ListingsPage({ searchParams }: Props) {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        <Link href="/pro/dashboard" className="hover:text-foreground">Tableau de bord</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <Link href="/pro/dashboard" className="hover:text-ink">Tableau de bord</Link>
         <span className="mx-2">·</span>
         <span>Mes annonces</span>
       </nav>
 
-      <div className="flex flex-col gap-4 border-b border-foreground/15 pb-6 md:flex-row md:items-end md:justify-between">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="eyebrow">{listings.length} annonce{listings.length > 1 ? "s" : ""}</p>
           <h1 className="display-xl mt-2 text-4xl md:text-6xl">Mes annonces.</h1>
@@ -90,15 +90,15 @@ export default async function ListingsPage({ searchParams }: Props) {
       )}
 
       {listings.length === 0 ? (
-        <div className="mt-12 rounded-md border border-dashed border-foreground/25 bg-paper-2/40 p-10 text-center">
+        <div className="mt-12 rounded-md border border-dashed border-border bg-surface-warm/40 p-10 text-center">
           <p className="eyebrow">Aucune annonce</p>
           <h2 className="display-xl mt-3 text-2xl md:text-3xl">Commencez votre portefeuille.</h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-md text-sm text-ink-muted">
             Créez votre première annonce : description, prix, photos, commodités.
           </p>
           <Link
             href="/pro/listings/new"
-            className="mt-6 inline-flex rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
+            className="mt-6 inline-flex rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-background"
           >
             Créer une annonce
           </Link>
@@ -106,9 +106,9 @@ export default async function ListingsPage({ searchParams }: Props) {
       ) : (
         <ul className="mt-8 space-y-3">
           {listings.map((l) => (
-            <li key={l.id} className="rounded-md border border-foreground/15 bg-surface p-4">
+            <li key={l.id} className="rounded-md border border-border bg-surface p-4">
               <div className="flex items-start gap-4">
-                <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-md bg-foreground/5">
+                <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-md bg-surface-warm">
                   <Image
                     src={l.coverImage}
                     alt={l.title}
@@ -124,13 +124,13 @@ export default async function ListingsPage({ searchParams }: Props) {
                       {STATUS_LABEL[l.status]}
                     </span>
                   </div>
-                  <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-ink-muted">
                     {PROPERTY_TYPE_LABEL[l.propertyType].toUpperCase()}{" · "}
                     {l.city.name.toUpperCase()}{" · "}
                     {PRICE_FR.format(l.price)} MAD
                     {l.transaction === "RENT" && " /mois"}
                   </p>
-                  <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-ink-muted">
                     {l._count.favorites} favori{l._count.favorites > 1 ? "s" : ""}
                     {" · "}
                     {l._count.leads} lead{l._count.leads > 1 ? "s" : ""}

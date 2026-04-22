@@ -21,7 +21,7 @@ export function FeaturedHeroCard({ listing }: Props) {
   return (
     <Link href={href} className="group block">
       {/* Hero photo full-bleed style */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-paper-2 md:aspect-[21/10]">
+      <div className="relative aspect-[16/10] overflow-hidden bg-surface-warm md:aspect-[21/10]">
         <Image
           src={listing.coverImage}
           alt={listing.title}
@@ -30,24 +30,24 @@ export function FeaturedHeroCard({ listing }: Props) {
           priority
           className="object-cover transition-transform duration-500 ease-out-soft group-hover:scale-[1.02]"
         />
-        <span className="mono absolute left-3 top-3 inline-flex items-center gap-2 border border-foreground bg-background px-2 py-1 text-[9px] font-medium uppercase tracking-[0.14em] text-foreground">
+        <span className="mono absolute left-3 top-3 inline-flex items-center gap-2 border border-ink bg-background px-2 py-1 text-[9px] font-medium uppercase tracking-[0.14em] text-ink">
           ◉ À LA UNE
         </span>
       </div>
 
       {/* Meta sous la photo — style éditorial handoff */}
       <div className="mt-4">
-        <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+        <p className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
           {isRent ? "LOCATION" : "VENTE"} · {isPro ? "PRO" : "PARTICULIER"} · {listing.city.name.toUpperCase()}
           {listing.neighborhood?.name ? ` · ${listing.neighborhood.name.toUpperCase()}` : ""}
         </p>
         <p className="display-xl mt-1 text-[clamp(2.5rem,6vw,4rem)]">
           {PRICE_FR.format(listing.price)}
-          <span className="mono ml-3 align-middle text-sm font-medium text-muted-foreground">
+          <span className="mono ml-3 align-middle text-sm font-medium text-ink-muted">
             {isRent ? "MAD/MOIS" : "MAD"}
           </span>
         </p>
-        <p className="mono mt-2 text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
+        <p className="mono mt-2 text-[11px] uppercase tracking-[0.1em] text-ink-muted">
           {listing.title.toUpperCase()} · {formatSurface(listing.surface).toUpperCase()}
           {listing.bedrooms != null ? ` · ${listing.bedrooms} CH` : ""}
           {listing.bathrooms != null ? ` · ${listing.bathrooms} SDB` : ""}

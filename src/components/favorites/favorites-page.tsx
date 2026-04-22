@@ -36,19 +36,19 @@ export function FavoritesPage() {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Accueil</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <Link href="/" className="hover:text-ink">Accueil</Link>
         <span className="mx-2">·</span>
         <span>Favoris</span>
       </nav>
 
-      <div className="flex flex-col gap-4 border-b border-foreground/15 pb-8 md:flex-row md:items-end md:justify-between">
+      <div className="flex flex-col gap-4 border-b border-border pb-8 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="eyebrow">
             {!hydrated ? "…" : favorites.length} bien{favorites.length > 1 ? "s" : ""} sauvegardé{favorites.length > 1 ? "s" : ""}
           </p>
           <h1 className="display-xl mt-2 text-4xl md:text-6xl">Mes favoris.</h1>
-          <p className="mt-3 max-w-xl text-muted-foreground">
+          <p className="mt-3 max-w-xl text-ink-muted">
             Vos favoris suivent votre compte — synchronisés sur tous vos appareils dès que vous
             êtes connecté.
           </p>
@@ -61,19 +61,19 @@ export function FavoritesPage() {
       {!hydrated || items === null ? (
         <div className="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="aspect-[4/3] animate-pulse rounded-md bg-foreground/5" />
+            <div key={i} className="aspect-[4/3] animate-pulse rounded-md bg-surface-warm" />
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="mt-16 rounded-md border border-dashed border-foreground/25 bg-paper-2/40 p-10 text-center">
+        <div className="mt-16 rounded-md border border-dashed border-border bg-surface-warm/40 p-10 text-center">
           <p className="eyebrow">Aucun favori</p>
           <h2 className="display-xl mt-2 text-2xl">Commencez votre sélection.</h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-md text-sm text-ink-muted">
             Parcourez les annonces et cliquez sur le cœur pour les enregistrer ici.
           </p>
           <Link
             href="/recherche"
-            className="mt-6 inline-flex rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
+            className="mt-6 inline-flex rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-background"
           >
             Voir les annonces
           </Link>

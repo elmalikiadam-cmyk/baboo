@@ -20,12 +20,12 @@ export function CityStrip({ counts = [] }: Props) {
 
   return (
     <section className="container py-16 md:py-20">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-6 border-b border-foreground/15 pb-4">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-4">
         <div>
           <p className="eyebrow">Explorer</p>
           <h2 className="display-xl mt-2 text-3xl md:text-5xl">Par ville.</h2>
         </div>
-        <Link href="/villes" className="mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground">
+        <Link href="/villes" className="mono text-[11px] uppercase tracking-[0.14em] text-ink-muted hover:text-ink">
           Toutes les villes →
         </Link>
       </div>
@@ -37,7 +37,7 @@ export function CityStrip({ counts = [] }: Props) {
             <li key={c.slug}>
               <Link
                 href={buildSearchHref({ transaction: "SALE", citySlug: c.slug })}
-                className="group relative block aspect-[16/9] overflow-hidden rounded-md bg-foreground/5"
+                className="group relative block aspect-[16/9] overflow-hidden rounded-md bg-surface-warm"
               >
                 {c.cover && (
                   <Image

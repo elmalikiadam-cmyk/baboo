@@ -64,17 +64,17 @@ export default async function CityLandingPage({ params }: { params: Promise<{ sl
 
   return (
     <div>
-      <nav aria-label="Fil d'Ariane" className="container mt-6 mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Accueil</Link>
+      <nav aria-label="Fil d'Ariane" className="container mt-6 mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <Link href="/" className="hover:text-ink">Accueil</Link>
         <span className="mx-2">·</span>
-        <Link href="/villes" className="hover:text-foreground">Villes</Link>
+        <Link href="/villes" className="hover:text-ink">Villes</Link>
         <span className="mx-2">·</span>
         <span>{city.name}</span>
       </nav>
 
       {/* Hero cover */}
       <section className="container">
-        <div className="relative aspect-[21/9] overflow-hidden rounded-md bg-foreground/5">
+        <div className="relative aspect-[21/9] overflow-hidden rounded-md bg-surface-warm">
           {city.cover && (
             <Image src={city.cover} alt={city.name} fill priority sizes="100vw" className="object-cover" />
           )}
@@ -89,7 +89,7 @@ export default async function CityLandingPage({ params }: { params: Promise<{ sl
 
       {/* Stats row */}
       <section className="container mt-10">
-        <dl className="grid grid-cols-2 gap-y-6 border-y border-foreground/15 py-6 sm:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-y-6 border-y border-border py-6 sm:grid-cols-4">
           <div>
             <dt className="eyebrow">Annonces</dt>
             <dd className="display-lg mt-1 text-3xl">{new Intl.NumberFormat("fr-FR").format(total)}</dd>
@@ -136,10 +136,10 @@ export default async function CityLandingPage({ params }: { params: Promise<{ sl
               <li key={t}>
                 <Link
                   href={buildSearchHref({ transaction: "SALE", citySlug: city.slug, propertyTypes: [t] })}
-                  className="flex items-center justify-between rounded-md border border-foreground/15 bg-surface p-5 hover:border-foreground/40"
+                  className="flex items-center justify-between rounded-md border border-border bg-surface p-5 hover:border-ink"
                 >
                   <span className="display-lg text-lg">{PROPERTY_TYPE_LABEL_PLURAL[t]}</span>
-                  <span className="mono text-[11px] text-muted-foreground">
+                  <span className="mono text-[11px] text-ink-muted">
                     {n} {n === 1 ? "annonce" : "annonces"}
                   </span>
                 </Link>
@@ -152,14 +152,14 @@ export default async function CityLandingPage({ params }: { params: Promise<{ sl
       {/* Latest in city */}
       {latest.length > 0 && (
         <section className="container my-14">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-6 border-b border-foreground/15 pb-4">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-4">
             <div>
               <p className="eyebrow">Derniers ajouts</p>
               <h2 className="display-xl mt-2 text-3xl md:text-4xl">Sur {city.name}.</h2>
             </div>
             <Link
               href={buildSearchHref({ transaction: "SALE", citySlug: city.slug })}
-              className="mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+              className="mono text-[11px] uppercase tracking-[0.14em] text-ink-muted hover:text-ink"
             >
               Voir toutes les annonces →
             </Link>

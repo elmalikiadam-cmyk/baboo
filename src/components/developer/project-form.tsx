@@ -88,7 +88,7 @@ export function ProjectForm({
           required
           defaultValue={initial.description}
           placeholder="Programme, services, emplacement, livraison estimée…"
-          className="w-full rounded-md border border-foreground/15 bg-background p-4 text-sm focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+          className="w-full rounded-md border border-border bg-background p-4 text-sm focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10"
         />
       </Field>
 
@@ -146,7 +146,7 @@ export function ProjectForm({
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 border-t border-foreground/15 pt-6">
+      <div className="flex flex-wrap items-center gap-3 border-t border-border pt-6">
         <Button type="submit" size="lg" disabled={isPending}>
           {isPending ? "Enregistrement…" : editId ? "Enregistrer" : "Créer le projet"}
         </Button>

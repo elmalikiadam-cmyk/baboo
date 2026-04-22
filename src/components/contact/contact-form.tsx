@@ -54,7 +54,7 @@ export function ContactForm() {
           <CheckIcon className="h-6 w-6" />
         </span>
         <h3 className="display-xl mt-4 text-2xl md:text-3xl">Message reçu.</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-ink-muted">
           On vous répond dans la journée, du lundi au vendredi.
         </p>
       </div>
@@ -93,7 +93,7 @@ export function ContactForm() {
           id="message"
           name="message"
           rows={7}
-          className="w-full rounded-md border border-foreground/15 bg-background p-4 text-sm focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+          className="w-full rounded-md border border-border bg-background p-4 text-sm focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10"
           placeholder="Racontez-nous ce qu'on peut faire pour vous."
           required
         />
@@ -110,7 +110,7 @@ export function ContactForm() {
         {isPending ? "Envoi…" : "Envoyer"}
       </Button>
 
-      <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+      <p className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
         ○ Réponse garantie sous 24h ouvrées
       </p>
     </form>

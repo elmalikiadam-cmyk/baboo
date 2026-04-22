@@ -7,10 +7,10 @@ export const metadata: Metadata = { title: "Contact" };
 export default function ContactPage() {
   return (
     <div className="container py-14 md:py-20">
-      <div className="border-b border-foreground/15 pb-6">
+      <div className="border-b border-border pb-6">
         <p className="eyebrow">Contact</p>
         <h1 className="display-xl mt-2 text-5xl md:text-[clamp(3rem,7vw,5.5rem)]">Parlons.</h1>
-        <p className="mt-4 max-w-xl text-muted-foreground">
+        <p className="mt-4 max-w-xl text-ink-muted">
           Une question sur une annonce, un souci avec votre compte, une idée pour Baboo ? Écrivez-nous, on répond dans la journée.
         </p>
       </div>
@@ -19,12 +19,12 @@ export default function ContactPage() {
         <ContactForm />
 
         <aside className="space-y-4">
-          <div className="rounded-md border border-foreground/15 bg-surface p-6">
+          <div className="rounded-md border border-border bg-surface p-6">
             <p className="eyebrow">Téléphone</p>
             <a href="tel:+212500000000" className="display-xl mt-2 block text-2xl hover:underline">
               +212 5 22 00 00 00
             </a>
-            <p className="mono mt-2 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+            <p className="mono mt-2 text-[10px] uppercase tracking-[0.12em] text-ink-muted">
               Lun-ven · 9h-18h
             </p>
           </div>
@@ -33,7 +33,7 @@ export default function ContactPage() {
             href="https://wa.me/212600000000"
             target="_blank"
             rel="noreferrer"
-            className="block rounded-md border border-foreground/15 bg-surface p-6 transition-colors hover:border-foreground/40"
+            className="block rounded-md border border-border bg-surface p-6 transition-colors hover:border-ink"
           >
             <div className="flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-full bg-success/10 text-success">
@@ -46,9 +46,9 @@ export default function ContactPage() {
             </div>
           </a>
 
-          <div className="rounded-md border border-foreground/15 bg-surface p-6">
+          <div className="rounded-md border border-border bg-surface p-6">
             <div className="flex items-start gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-full border border-foreground/20">
+              <span className="grid h-10 w-10 place-items-center rounded-full border border-border">
                 <MapPinIcon className="h-5 w-5" />
               </span>
               <div>

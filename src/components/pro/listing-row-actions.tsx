@@ -47,23 +47,23 @@ export function ListingRowActions({ id, slug, status }: Props) {
   const isPublished = status === ListingStatus.PUBLISHED;
 
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-foreground/10 pt-3">
+    <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-ink/10 pt-3">
       <Link
         href={`/annonce/${slug}`}
-        className="mono rounded-full border border-foreground/20 px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-foreground"
+        className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
       >
         Voir
       </Link>
       <Link
         href={`/pro/listings/${id}/edit`}
-        className="mono rounded-full border border-foreground/20 px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-foreground"
+        className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
       >
         Modifier
       </Link>
       <button
         onClick={onToggle}
         disabled={isPending}
-        className="mono rounded-full border border-foreground/20 px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-foreground disabled:opacity-50"
+        className="mono rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink disabled:opacity-50"
       >
         {isPublished ? "Archiver" : "Publier"}
       </button>

@@ -24,7 +24,7 @@ export default function ProLanding() {
           L'immobilier,<br />
           sans friction.
         </h1>
-        <p className="mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
+        <p className="mt-6 max-w-2xl text-lg text-ink-muted md:text-xl">
           Baboo Pro est l'espace des agences, brokers et promoteurs. Publication soignée, leads qualifiés, tableau de bord clair — le tout sans jargon.
         </p>
         <div className="mt-9 flex flex-wrap gap-3">
@@ -34,7 +34,7 @@ export default function ProLanding() {
       </section>
 
       <section className="container py-12 md:py-16">
-        <dl className="grid grid-cols-2 gap-y-8 border-y border-foreground/15 py-8 md:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-y-8 border-y border-border py-8 md:grid-cols-4">
           <div>
             <dt className="eyebrow">Agences partenaires</dt>
             <dd className="display-xl mt-2 text-4xl">180+</dd>
@@ -55,18 +55,18 @@ export default function ProLanding() {
       </section>
 
       <section className="container py-14 md:py-20">
-        <div className="mb-10 border-b border-foreground/15 pb-4">
+        <div className="mb-10 border-b border-border pb-4">
           <p className="eyebrow">Ce que ça change</p>
           <h2 className="display-xl mt-2 text-3xl md:text-5xl">Six raisons d'y passer.</h2>
         </div>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {BENEFITS.map((b) => (
             <Card key={b.title} variant="light" className="p-7">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-foreground text-background">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-ink text-background">
                 <CheckIcon className="h-5 w-5" />
               </span>
               <h3 className="display-lg mt-5 text-xl">{b.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b.body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-ink-muted">{b.body}</p>
             </Card>
           ))}
         </div>
@@ -85,7 +85,7 @@ export default function ProLanding() {
               </p>
               <Link
                 href="/pro/dashboard"
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-medium text-foreground"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-medium text-ink"
               >
                 Ouvrir le dashboard démo <ChevronRightIcon className="h-4 w-4" />
               </Link>

@@ -67,7 +67,7 @@ export function ImageUploader({ value, onChange, multiple, disabled }: Props) {
       <label
         onDragOver={(e) => e.preventDefault()}
         onDrop={onDrop}
-        className={`group relative flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-foreground/25 bg-background px-4 py-3 text-sm transition hover:border-foreground ${disabled || disabledByBackend ? "opacity-60 cursor-not-allowed" : ""}`}
+        className={`group relative flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-border bg-background px-4 py-3 text-sm transition hover:border-ink ${disabled || disabledByBackend ? "opacity-60 cursor-not-allowed" : ""}`}
       >
         <input
           ref={inputRef}
@@ -78,25 +78,25 @@ export function ImageUploader({ value, onChange, multiple, disabled }: Props) {
           disabled={disabled || disabledByBackend || uploading}
           multiple={multiple}
         />
-        <span className="mono rounded-full bg-foreground/5 px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-muted-foreground group-hover:bg-foreground/10">
+        <span className="mono rounded-full bg-surface-warm px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-ink-muted group-hover:bg-surface-warm">
           {uploading ? "Envoi…" : "Choisir une image"}
         </span>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-ink-muted">
           Glissez-déposez ou cliquez · JPEG / PNG / WebP · max 8 Mo
         </span>
       </label>
       {error && <p className="text-[11px] text-danger">{error}</p>}
       {value && (
-        <div className="flex items-center gap-3 rounded-md border border-foreground/10 bg-surface p-2">
+        <div className="flex items-center gap-3 rounded-md border border-ink/10 bg-surface p-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={value} alt="" className="h-14 w-14 shrink-0 rounded-md object-cover" />
-          <p className="mono truncate text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+          <p className="mono truncate text-[10px] uppercase tracking-[0.12em] text-ink-muted">
             {value.replace(/^https?:\/\//, "")}
           </p>
           <button
             type="button"
             onClick={() => onChange("")}
-            className="mono ml-auto shrink-0 rounded-full border border-foreground/20 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] hover:border-danger hover:text-danger"
+            className="mono ml-auto shrink-0 rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] hover:border-danger hover:text-danger"
           >
             Retirer
           </button>

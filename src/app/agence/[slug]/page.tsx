@@ -70,19 +70,19 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Accueil</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <Link href="/" className="hover:text-ink">Accueil</Link>
         <span className="mx-2">·</span>
-        <Link href="/agences" className="hover:text-foreground">Agences</Link>
+        <Link href="/agences" className="hover:text-ink">Agences</Link>
         <span className="mx-2">·</span>
         <span>{agency.name}</span>
       </nav>
 
       {/* Header */}
-      <header className="grid gap-10 border-b border-foreground/15 pb-10 md:grid-cols-[1.4fr_1fr] md:pb-14">
+      <header className="grid gap-10 border-b border-border pb-10 md:grid-cols-[1.4fr_1fr] md:pb-14">
         <div>
           <div className="flex items-start gap-5">
-            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-foreground/5 md:h-24 md:w-24">
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-surface-warm md:h-24 md:w-24">
               {agency.logo && (
                 <Image src={agency.logo} alt={agency.name} fill sizes="96px" className="object-cover" />
               )}
@@ -90,20 +90,20 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 {agency.verified && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-foreground/20 px-2.5 py-0.5 mono text-[9px] uppercase tracking-[0.12em]">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-0.5 mono text-[9px] uppercase tracking-[0.12em]">
                     <CheckIcon className="h-3 w-3" /> Vérifiée
                   </span>
                 )}
-                <span className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                <span className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
                   Agence · Baboo Pro
                 </span>
               </div>
               <h1 className="display-xl mt-3 text-4xl md:text-6xl">{agency.name}</h1>
               {agency.tagline && (
-                <p className="mt-2 text-muted-foreground">{agency.tagline}</p>
+                <p className="mt-2 text-ink-muted">{agency.tagline}</p>
               )}
               {city && (
-                <p className="mt-3 flex items-center gap-1.5 text-sm text-muted-foreground">
+                <p className="mt-3 flex items-center gap-1.5 text-sm text-ink-muted">
                   <MapPinIcon className="h-4 w-4" /> Basée à {city.name}
                 </p>
               )}
@@ -111,10 +111,10 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
           </div>
 
           {agency.description && (
-            <p className="mt-8 max-w-2xl leading-relaxed text-foreground/90">{agency.description}</p>
+            <p className="mt-8 max-w-2xl leading-relaxed text-ink">{agency.description}</p>
           )}
 
-          <dl className="mt-8 grid grid-cols-3 gap-y-5 border-y border-foreground/15 py-5">
+          <dl className="mt-8 grid grid-cols-3 gap-y-5 border-y border-border py-5">
             <div>
               <dt className="eyebrow">Annonces actives</dt>
               <dd className="display-lg mt-1 text-2xl">{agency.listings.length}</dd>
@@ -130,18 +130,18 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
           </dl>
         </div>
 
-        <aside className="rounded-md border border-foreground/15 bg-surface p-6 md:sticky md:top-24 md:self-start">
+        <aside className="rounded-md border border-border bg-surface p-6 md:sticky md:top-24 md:self-start">
           <p className="eyebrow">Contact</p>
           <h3 className="display-lg mt-2 text-xl">Parlez à l'équipe.</h3>
 
           <div className="mt-5 space-y-3 text-sm">
             {agency.phone && (
-              <a href={`tel:${agency.phone.replace(/\s+/g, "")}`} className="flex items-center gap-3 rounded-full border border-foreground/15 p-3 hover:bg-foreground/5">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-foreground text-background">
+              <a href={`tel:${agency.phone.replace(/\s+/g, "")}`} className="flex items-center gap-3 rounded-full border border-border p-3 hover:bg-surface-warm">
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-ink text-background">
                   <PhoneIcon className="h-4 w-4" />
                 </span>
                 <span>
-                  <span className="block mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Téléphone</span>
+                  <span className="block mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">Téléphone</span>
                   <span className="block font-medium">{agency.phone}</span>
                 </span>
               </a>
@@ -151,22 +151,22 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
                 href={`https://wa.me/${agency.phone.replace(/\D/g, "")}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-3 rounded-full border border-foreground/15 p-3 hover:bg-foreground/5"
+                className="flex items-center gap-3 rounded-full border border-border p-3 hover:bg-surface-warm"
               >
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-success/10 text-success">
                   <WhatsAppIcon className="h-4 w-4" />
                 </span>
                 <span>
-                  <span className="block mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">WhatsApp</span>
+                  <span className="block mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">WhatsApp</span>
                   <span className="block font-medium">Envoyer un message</span>
                 </span>
               </a>
             )}
             {agency.email && (
-              <a href={`mailto:${agency.email}`} className="flex items-center gap-3 rounded-full border border-foreground/15 p-3 hover:bg-foreground/5">
-                <span className="grid h-9 w-9 place-items-center rounded-full border border-foreground/20">@</span>
+              <a href={`mailto:${agency.email}`} className="flex items-center gap-3 rounded-full border border-border p-3 hover:bg-surface-warm">
+                <span className="grid h-9 w-9 place-items-center rounded-full border border-border">@</span>
                 <span className="min-w-0">
-                  <span className="block mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Email</span>
+                  <span className="block mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">Email</span>
                   <span className="block truncate font-medium">{agency.email}</span>
                 </span>
               </a>
@@ -179,7 +179,7 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
 
       {/* Listings */}
       <section className="mt-12">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-6 border-b border-foreground/15 pb-4">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-4">
           <div>
             <p className="eyebrow">Portefeuille</p>
             <h2 className="display-xl mt-2 text-3xl md:text-4xl">Les annonces de {agency.name}.</h2>
@@ -187,7 +187,7 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
         </div>
 
         {agency.listings.length === 0 ? (
-          <div className="rounded-md border border-dashed border-foreground/25 p-10 text-center">
+          <div className="rounded-md border border-dashed border-border p-10 text-center">
             <p className="eyebrow">Aucune annonce</p>
             <h3 className="display-lg mt-3 text-xl">Aucune annonce publiée pour l'instant.</h3>
           </div>

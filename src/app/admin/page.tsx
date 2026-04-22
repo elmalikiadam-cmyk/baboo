@@ -83,15 +83,15 @@ export default async function AdminDashboard() {
 
   return (
     <div className="container py-10 md:py-16">
-      <div className="flex flex-col gap-4 border-b border-foreground/15 pb-8 md:flex-row md:items-end md:justify-between">
+      <div className="flex flex-col gap-4 border-b border-border pb-8 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="eyebrow">Admin · Modération</p>
           <h1 className="display-xl mt-2 text-4xl md:text-6xl">Salle de contrôle.</h1>
-          <p className="mt-3 max-w-xl text-muted-foreground">
+          <p className="mt-3 max-w-xl text-ink-muted">
             État en direct du catalogue, file de modération et signalements des utilisateurs.
           </p>
         </div>
-        <div className="mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+        <div className="mono text-[11px] uppercase tracking-[0.12em] text-ink-muted">
           ◉ CONNECTÉ · {(session.user.email ?? "admin").toUpperCase()}
         </div>
       </div>
@@ -106,7 +106,7 @@ export default async function AdminDashboard() {
 
       <div className="mt-14 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
         <section>
-          <div className="mb-6 flex items-end justify-between border-b border-foreground/15 pb-4">
+          <div className="mb-6 flex items-end justify-between border-b border-border pb-4">
             <div>
               <p className="eyebrow">Modération · {pending.length} en attente</p>
               <h2 className="display-xl mt-2 text-2xl md:text-3xl">File d'approbation.</h2>
@@ -115,19 +115,19 @@ export default async function AdminDashboard() {
 
           <ul className="space-y-3">
             {pending.length === 0 ? (
-              <li className="rounded-md border border-dashed border-foreground/25 p-8 text-center text-sm text-muted-foreground">
+              <li className="rounded-md border border-dashed border-border p-8 text-center text-sm text-ink-muted">
                 Rien à modérer. Bonne journée.
               </li>
             ) : (
               pending.map((l) => (
-                <li key={l.id} className="rounded-md border border-foreground/15 bg-surface p-4">
+                <li key={l.id} className="rounded-md border border-border bg-surface p-4">
                   <div className="flex items-center gap-4">
-                    <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-foreground/5">
+                    <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-surface-warm">
                       <Image src={l.coverImage} alt={l.title} fill sizes="80px" className="object-cover" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="display-lg truncate text-base">{l.title}</p>
-                      <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                      <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-ink-muted">
                         {(l.agency?.name ?? "PARTICULIER").toUpperCase()} · {l.city.name.toUpperCase()}
                       </p>
                     </div>
@@ -139,31 +139,31 @@ export default async function AdminDashboard() {
           </ul>
 
           <div className="mt-8">
-            <div className="mb-4 flex items-end justify-between border-b border-foreground/15 pb-4">
+            <div className="mb-4 flex items-end justify-between border-b border-border pb-4">
               <div>
                 <p className="eyebrow">Leads récents — toutes agences</p>
                 <h3 className="display-lg mt-2 text-xl">Activité commerciale en temps réel.</h3>
               </div>
             </div>
             {recentLeads.length === 0 ? (
-              <p className="rounded-md border border-dashed border-foreground/25 p-6 text-center text-sm text-muted-foreground">
+              <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-ink-muted">
                 Aucun lead reçu pour l'instant.
               </p>
             ) : (
               <ul className="space-y-3">
                 {recentLeads.map((l) => (
-                  <li key={l.id} className="rounded-md border border-foreground/15 bg-surface p-4">
+                  <li key={l.id} className="rounded-md border border-border bg-surface p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="display-lg text-base">{l.name}</p>
-                        <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                        <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-ink-muted">
                           {(l.listing?.title ?? "Contact général").toUpperCase()}
                           {l.listing?.agency?.name && ` · ${l.listing.agency.name.toUpperCase()}`}
                           {" · "}{relativeDate(l.createdAt).toUpperCase()}
                         </p>
-                        <p className="mt-2 line-clamp-1 text-xs text-muted-foreground">« {l.message} »</p>
+                        <p className="mt-2 line-clamp-1 text-xs text-ink-muted">« {l.message} »</p>
                       </div>
-                      <span className="mono shrink-0 rounded-full border border-foreground/20 px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+                      <span className="mono shrink-0 rounded-full border border-border px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-ink-muted">
                         {l.source.toUpperCase()}
                       </span>
                     </div>
@@ -175,24 +175,24 @@ export default async function AdminDashboard() {
         </section>
 
         <aside>
-          <div className="mb-4 flex items-end justify-between border-b border-foreground/15 pb-4">
+          <div className="mb-4 flex items-end justify-between border-b border-border pb-4">
             <div>
               <p className="eyebrow">Agences à vérifier</p>
               <h3 className="display-lg mt-2 text-xl">{unverifiedAgencies.length} en attente.</h3>
             </div>
           </div>
           {unverifiedAgencies.length === 0 ? (
-            <p className="rounded-md border border-dashed border-foreground/25 p-6 text-center text-sm text-muted-foreground">
+            <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-ink-muted">
               Toutes les agences sont vérifiées.
             </p>
           ) : (
             <ul className="space-y-3">
               {unverifiedAgencies.map((a) => (
-                <li key={a.id} className="rounded-md border border-foreground/15 bg-surface p-4">
+                <li key={a.id} className="rounded-md border border-border bg-surface p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="display-lg text-base">{a.name}</p>
-                      <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                      <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-ink-muted">
                         /{a.slug} {a.citySlug ? ` · ${a.citySlug}` : ""}
                       </p>
                     </div>
@@ -212,7 +212,7 @@ function Stat({ label, value, tone = "light" }: { label: string; value: string; 
   return (
     <div
       className={`rounded-md border p-4 ${
-        tone === "dark" ? "border-foreground bg-foreground text-background" : "border-foreground/15 bg-surface"
+        tone === "dark" ? "border-ink bg-ink text-background" : "border-border bg-surface"
       }`}
     >
       <p className={`eyebrow ${tone === "dark" ? "text-background/60" : ""}`}>{label}</p>

@@ -69,16 +69,16 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
 
   return (
     <div>
-      <nav aria-label="Fil d'Ariane" className="container mt-6 mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Accueil</Link>
+      <nav aria-label="Fil d'Ariane" className="container mt-6 mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <Link href="/" className="hover:text-ink">Accueil</Link>
         <span className="mx-2">·</span>
-        <Link href="/projets" className="hover:text-foreground">Projets</Link>
+        <Link href="/projets" className="hover:text-ink">Projets</Link>
         <span className="mx-2">·</span>
         <span>{p.name}</span>
       </nav>
 
       <section className="container">
-        <div className="relative aspect-[16/9] overflow-hidden rounded-md border border-foreground/10 bg-foreground/5 md:aspect-[21/9]">
+        <div className="relative aspect-[16/9] overflow-hidden rounded-md border border-ink/10 bg-surface-warm md:aspect-[21/9]">
           <Image src={p.cover} alt={p.name} fill priority sizes="100vw" className="object-cover" />
           <span className="absolute left-4 top-4 mono rounded-sm bg-background/95 px-2.5 py-1 text-[10px] font-medium tracking-[0.14em]">
             ◉ {STATUS_LABEL[p.status]?.toUpperCase() ?? p.status}
@@ -90,12 +90,12 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
         <div>
           <p className="eyebrow">{p.developer.name.toUpperCase()}</p>
           <h1 className="display-xl mt-2 text-4xl md:text-6xl">{p.name}</h1>
-          <p className="mt-3 flex items-center gap-2 text-muted-foreground">
+          <p className="mt-3 flex items-center gap-2 text-ink-muted">
             <MapPinIcon className="h-4 w-4" />
             {p.addressLine ?? city?.name}
           </p>
 
-          <dl className="mt-8 grid grid-cols-2 gap-y-5 border-y border-foreground/15 py-6 sm:grid-cols-4">
+          <dl className="mt-8 grid grid-cols-2 gap-y-5 border-y border-border py-6 sm:grid-cols-4">
             <div>
               <dt className="eyebrow">Livraison</dt>
               <dd className="display-lg mt-1 text-xl">{p.deliveryYear ?? "—"}</dd>
@@ -118,7 +118,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
 
           <div className="py-8">
             <h2 className="display-xl text-2xl md:text-3xl">Le programme.</h2>
-            <p className="mt-4 whitespace-pre-line leading-relaxed text-foreground/90">{p.description}</p>
+            <p className="mt-4 whitespace-pre-line leading-relaxed text-ink">{p.description}</p>
           </div>
 
           <div className="py-8">
@@ -126,7 +126,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
             <ul className="mt-5 grid gap-3 sm:grid-cols-2">
               {highlights.map((h) => (
                 <li key={h} className="flex items-center gap-2 text-sm">
-                  <span className="grid h-6 w-6 place-items-center rounded-full bg-foreground/5">
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-surface-warm">
                     <CheckIcon className="h-3.5 w-3.5" />
                   </span>
                   {h}
@@ -137,9 +137,9 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
 
           <div className="py-8">
             <h2 className="display-xl text-2xl md:text-3xl">Typologies disponibles.</h2>
-            <div className="mt-6 overflow-hidden rounded-md border border-foreground/15">
+            <div className="mt-6 overflow-hidden rounded-md border border-border">
               <table className="w-full text-left text-sm">
-                <thead className="bg-paper-2/60">
+                <thead className="bg-surface-warm/60">
                   <tr>
                     <th className="eyebrow p-4">Référence</th>
                     <th className="eyebrow p-4">Type</th>
@@ -150,16 +150,16 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
                 </thead>
                 <tbody>
                   {p.units.map((u, i) => (
-                    <tr key={u.id} className={i > 0 ? "border-t border-foreground/10" : ""}>
+                    <tr key={u.id} className={i > 0 ? "border-t border-ink/10" : ""}>
                       <td className="p-4 font-medium">{u.label}</td>
-                      <td className="p-4 text-muted-foreground">
+                      <td className="p-4 text-ink-muted">
                         {PROPERTY_TYPE_LABEL[u.propertyType]}
                         {u.bedrooms != null && ` · ${u.bedrooms} ch.`}
                       </td>
                       <td className="p-4">{u.surface} m²</td>
                       <td className="p-4 display-lg text-lg">{PRICE_FR.format(u.price)} MAD</td>
                       <td className="p-4 text-right">
-                        <button className="mono text-[10px] uppercase tracking-[0.14em] text-foreground hover:underline">
+                        <button className="mono text-[10px] uppercase tracking-[0.14em] text-ink hover:underline">
                           Détails →
                         </button>
                       </td>

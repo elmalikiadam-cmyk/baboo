@@ -38,25 +38,25 @@ export default async function ProjectsIndex() {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Accueil</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <Link href="/" className="hover:text-ink">Accueil</Link>
         <span className="mx-2">·</span>
         <span>Projets neufs</span>
       </nav>
 
-      <div className="border-b border-foreground/15 pb-6">
+      <div className="border-b border-border pb-6">
         <p className="eyebrow">{projects.length} programmes</p>
         <h1 className="display-xl mt-2 text-4xl md:text-6xl">Projets neufs.</h1>
-        <p className="mt-4 max-w-2xl text-muted-foreground">
+        <p className="mt-4 max-w-2xl text-ink-muted">
           Appartements, villas, et résidences en cours de commercialisation. Livraisons programmées entre 2025 et 2028.
         </p>
       </div>
 
       {projects.length === 0 ? (
-        <div className="mt-16 rounded-md border border-dashed border-foreground/25 p-10 text-center">
+        <div className="mt-16 rounded-md border border-dashed border-border p-10 text-center">
           <p className="eyebrow">À venir</p>
           <h2 className="display-xl mt-3 text-2xl">Les programmes arrivent.</h2>
-          <p className="mt-3 text-sm text-muted-foreground">Seedez la base pour voir les projets de démonstration.</p>
+          <p className="mt-3 text-sm text-ink-muted">Seedez la base pour voir les projets de démonstration.</p>
         </div>
       ) : (
         <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -67,9 +67,9 @@ export default async function ProjectsIndex() {
               <Link
                 key={p.id}
                 href={`/projets/${p.slug}`}
-                className="group flex flex-col overflow-hidden rounded-md border border-foreground/10 bg-surface transition-transform hover:-translate-y-0.5"
+                className="group flex flex-col overflow-hidden rounded-md border border-ink/10 bg-surface transition-transform hover:-translate-y-0.5"
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-foreground/5">
+                <div className="relative aspect-[4/3] overflow-hidden bg-surface-warm">
                   <Image
                     src={p.cover}
                     alt={p.name}
@@ -88,18 +88,18 @@ export default async function ProjectsIndex() {
                     {p.deliveryYear && ` · LIVRAISON ${p.deliveryYear}`}
                   </p>
                   <h2 className="display-lg mt-2 text-2xl">{p.name}</h2>
-                  <p className="mono mt-1 text-[11px] text-muted-foreground">
+                  <p className="mono mt-1 text-[11px] text-ink-muted">
                     {p.developer.name.toUpperCase()}
                   </p>
-                  <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
+                  <p className="mt-3 line-clamp-2 text-sm text-ink-muted">
                     {p.description}
                   </p>
-                  <div className="mt-auto flex items-center justify-between border-t border-foreground/10 pt-4">
-                    <span className="mono text-[10px] text-muted-foreground">{p.units.length} types de biens</span>
+                  <div className="mt-auto flex items-center justify-between border-t border-ink/10 pt-4">
+                    <span className="mono text-[10px] text-ink-muted">{p.units.length} types de biens</span>
                     {minPrice && (
                       <span className="display-lg text-lg">
                         à partir de {PRICE_FR.format(minPrice)}{" "}
-                        <span className="mono text-[10px] text-muted-foreground">MAD</span>
+                        <span className="mono text-[10px] text-ink-muted">MAD</span>
                       </span>
                     )}
                   </div>

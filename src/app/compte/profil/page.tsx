@@ -23,16 +23,16 @@ export default async function ProfilePage() {
 
   return (
     <div className="container py-10 md:py-16">
-      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        <Link href="/compte" className="hover:text-foreground">Mon compte</Link>
+      <nav aria-label="Fil d'Ariane" className="mb-4 mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+        <Link href="/compte" className="hover:text-ink">Mon compte</Link>
         <span className="mx-2">·</span>
         <span>Profil</span>
       </nav>
 
-      <div className="border-b border-foreground/15 pb-6">
+      <div className="border-b border-border pb-6">
         <p className="eyebrow">Profil</p>
         <h1 className="display-xl mt-2 text-4xl md:text-5xl">Mes informations.</h1>
-        <p className="mt-3 max-w-xl text-muted-foreground">
+        <p className="mt-3 max-w-xl text-ink-muted">
           Votre nom et votre photo apparaissent dans vos conversations avec les agences.
         </p>
         <div className="mt-5">

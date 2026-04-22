@@ -183,7 +183,7 @@ export function ListingForm({ initial = {}, editId }: Props) {
             return (
               <label
                 key={a.key}
-                className="inline-flex cursor-pointer select-none items-center gap-2 rounded-full border border-foreground/20 px-3 py-1.5 text-xs transition hover:border-foreground has-[:checked]:border-foreground has-[:checked]:bg-foreground has-[:checked]:text-background"
+                className="inline-flex cursor-pointer select-none items-center gap-2 rounded-full border border-border px-3 py-1.5 text-xs transition hover:border-ink has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-background"
               >
                 <input
                   type="checkbox"
@@ -211,7 +211,7 @@ export function ListingForm({ initial = {}, editId }: Props) {
               required
               defaultValue={initial.description ?? ""}
               placeholder="Caractéristiques, atouts, environnement, conditions de visite…"
-              className="w-full rounded-md border border-foreground/15 bg-background p-4 text-sm focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+              className="w-full rounded-md border border-border bg-background p-4 text-sm focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10"
             />
           </Field>
         </div>
@@ -247,17 +247,17 @@ export function ListingForm({ initial = {}, editId }: Props) {
               {extraImages.map((url, i) => (
                 <div
                   key={`${url}-${i}`}
-                  className="flex items-center gap-3 rounded-md border border-foreground/10 bg-surface p-2"
+                  className="flex items-center gap-3 rounded-md border border-ink/10 bg-surface p-2"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={url} alt="" className="h-12 w-12 shrink-0 rounded-md object-cover" />
-                  <p className="mono truncate text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                  <p className="mono truncate text-[10px] uppercase tracking-[0.12em] text-ink-muted">
                     {url.replace(/^https?:\/\//, "")}
                   </p>
                   <button
                     type="button"
                     onClick={() => setExtraImages((p) => p.filter((_, j) => j !== i))}
-                    className="mono ml-auto shrink-0 rounded-full border border-foreground/20 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] hover:border-danger hover:text-danger"
+                    className="mono ml-auto shrink-0 rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] hover:border-danger hover:text-danger"
                   >
                     Retirer
                   </button>
@@ -293,7 +293,7 @@ export function ListingForm({ initial = {}, editId }: Props) {
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 border-t border-foreground/15 pt-6">
+      <div className="flex flex-wrap items-center gap-3 border-t border-border pt-6">
         <Button type="submit" size="lg" disabled={isPending}>
           {isPending ? "Enregistrement…" : editId ? "Enregistrer les modifications" : "Publier l'annonce"}
         </Button>
@@ -316,7 +316,7 @@ function Section({
 }) {
   return (
     <section>
-      <header className="border-b border-foreground/10 pb-3">
+      <header className="border-b border-ink/10 pb-3">
         <p className="eyebrow">/{n}</p>
         <h2 className="display-lg mt-1 text-xl">{title}</h2>
       </header>
@@ -340,7 +340,7 @@ function Field({
     <div className="space-y-1.5">
       <Label>{label}</Label>
       {children}
-      {hint && <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{hint}</p>}
+      {hint && <p className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">{hint}</p>}
       {error && <p className="text-[11px] text-danger">{error}</p>}
     </div>
   );
@@ -384,7 +384,7 @@ function ExtraUrlInput({
         type="button"
         onClick={tryAdd}
         disabled={disabled || !value.trim()}
-        className="mono shrink-0 rounded-md border border-foreground/20 px-3 text-[10px] uppercase tracking-[0.12em] hover:border-foreground disabled:opacity-40"
+        className="mono shrink-0 rounded-md border border-border px-3 text-[10px] uppercase tracking-[0.12em] hover:border-ink disabled:opacity-40"
       >
         Ajouter
       </button>

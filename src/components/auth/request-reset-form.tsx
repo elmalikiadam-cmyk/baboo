@@ -42,7 +42,7 @@ export function RequestResetForm() {
       <Button type="submit" size="lg" className="w-full" disabled={isPending}>
         {isPending ? "Envoi…" : "Envoyer le lien"}
       </Button>
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-sm text-ink-muted">
         <Link href="/connexion" className="underline-offset-4 hover:underline">
           Retour à la connexion
         </Link>

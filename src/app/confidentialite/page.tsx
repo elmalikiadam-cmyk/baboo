@@ -11,11 +11,11 @@ export default function ConfidentialitePage() {
       <div className="mx-auto max-w-3xl">
         <p className="eyebrow">Données personnelles</p>
         <h1 className="display-xl mt-2 text-4xl md:text-5xl">Confidentialité.</h1>
-        <p className="mt-4 text-sm text-muted-foreground">
+        <p className="mt-4 text-sm text-ink-muted">
           Dernière mise à jour : {new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}.
         </p>
 
-        <div className="mt-10 space-y-8 text-foreground/85">
+        <div className="mt-10 space-y-8 text-ink">
           <section>
             <h2 className="display-lg text-xl">Données collectées</h2>
             <p className="mt-3 text-sm leading-relaxed">

@@ -45,7 +45,7 @@ export default function AboutPage() {
         <h1 className="display-xl mt-2 text-5xl md:text-[clamp(3rem,8vw,6rem)]">
           Baboo est né d'une conviction simple.
         </h1>
-        <p className="mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
+        <p className="mt-6 max-w-2xl text-lg text-ink-muted md:text-xl">
           L'immobilier au Maroc mérite une plateforme calme, lisible et sincère.
           Nous construisons Baboo pour que chercher un logement — ou le publier —
           redevienne une expérience sereine.
@@ -58,7 +58,7 @@ export default function AboutPage() {
       </section>
 
       <section className="container py-14 md:py-20">
-        <dl className="grid grid-cols-2 gap-y-10 border-y border-foreground/15 py-10 md:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-y-10 border-y border-border py-10 md:grid-cols-4">
           {STATS.map((s) => (
             <div key={s.k}>
               <dt className="eyebrow">{s.k}</dt>
@@ -69,16 +69,16 @@ export default function AboutPage() {
       </section>
 
       <section className="container py-14 md:py-20">
-        <div className="mb-10 border-b border-foreground/15 pb-4">
+        <div className="mb-10 border-b border-border pb-4">
           <p className="eyebrow">Nos valeurs</p>
           <h2 className="display-xl mt-2 text-3xl md:text-5xl">Ce qui nous guide.</h2>
         </div>
         <ul className="grid gap-5 md:grid-cols-2">
           {VALUES.map((v) => (
-            <li key={v.n} className="rounded-md border border-foreground/15 p-7 md:p-9">
-              <p className="mono text-[10px] tracking-[0.14em] text-muted-foreground">/{v.n}</p>
+            <li key={v.n} className="rounded-md border border-border p-7 md:p-9">
+              <p className="mono text-[10px] tracking-[0.14em] text-ink-muted">/{v.n}</p>
               <h3 className="display-xl mt-4 text-3xl">{v.title}</h3>
-              <p className="mt-4 leading-relaxed text-muted-foreground">{v.body}</p>
+              <p className="mt-4 leading-relaxed text-ink-muted">{v.body}</p>
             </li>
           ))}
         </ul>

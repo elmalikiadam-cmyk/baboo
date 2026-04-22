@@ -42,10 +42,10 @@ export function ProjectBrochureForm({ projectId, projectName }: Props) {
   }
 
   return (
-    <aside className="sticky top-24 h-fit rounded-md border border-foreground/15 bg-surface p-6">
+    <aside className="sticky top-24 h-fit rounded-md border border-border bg-surface p-6">
       <p className="eyebrow">Demande de brochure</p>
       <h3 className="display-lg mt-2 text-xl">Recevez le dossier complet.</h3>
-      <p className="mt-2 text-sm text-muted-foreground">
+      <p className="mt-2 text-sm text-ink-muted">
         Plans, prix détaillés, conditions commerciales. Réponse sous 24 h.
       </p>
 
@@ -55,7 +55,7 @@ export function ProjectBrochureForm({ projectId, projectName }: Props) {
             <CheckIcon className="h-5 w-5" />
           </span>
           <h4 className="display-lg mt-3 text-lg">Demande enregistrée.</h4>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-xs text-ink-muted">
             Le promoteur vous envoie la brochure par email dans la journée.
           </p>
         </div>
@@ -75,7 +75,7 @@ export function ProjectBrochureForm({ projectId, projectName }: Props) {
         </form>
       )}
 
-      <p className="mt-4 mono text-[10px] text-muted-foreground">
+      <p className="mt-4 mono text-[10px] text-ink-muted">
         ○ RÉPONSE &lt; 24H · ○ DOSSIER COMPLET · ○ SANS ENGAGEMENT
       </p>
     </aside>
@@ -102,7 +102,7 @@ function BrochureField({
         type={type}
         placeholder={placeholder}
         required={required}
-        className="h-11 w-full rounded-full border border-foreground/15 bg-background px-4 text-sm focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+        className="h-11 w-full rounded-full border border-border bg-background px-4 text-sm focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10"
       />
       {error && <p className="mt-1 text-[11px] text-danger">{error}</p>}
     </div>

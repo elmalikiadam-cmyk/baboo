@@ -18,11 +18,11 @@ export const dynamic = "force-dynamic";
 const PRICE_FR = new Intl.NumberFormat("fr-FR");
 
 const STATUS_STYLE: Record<string, string> = {
-  NEW: "border-foreground bg-foreground text-background",
-  CONTACTED: "border-foreground/20 text-foreground",
-  QUALIFIED: "border-foreground/40 text-foreground",
+  NEW: "border-ink bg-ink text-background",
+  CONTACTED: "border-border text-ink",
+  QUALIFIED: "border-ink text-ink",
   VISIT_SCHEDULED: "border-success/40 bg-success/10 text-success",
-  CLOSED: "border-foreground/15 text-muted-foreground",
+  CLOSED: "border-border text-ink-muted",
   LOST: "border-danger/30 bg-danger/10 text-danger",
 };
 
@@ -94,11 +94,11 @@ export default async function ProDashboard() {
 
   return (
     <div className="container py-10 md:py-16">
-      <div className="flex flex-col gap-6 border-b border-foreground/15 pb-10 md:flex-row md:items-end md:justify-between">
+      <div className="flex flex-col gap-6 border-b border-border pb-10 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="eyebrow">Baboo Pro · {agency.name}</p>
           <h1 className="display-xl mt-2 text-4xl md:text-6xl">Tableau de bord.</h1>
-          <p className="mt-3 max-w-xl text-muted-foreground">
+          <p className="mt-3 max-w-xl text-ink-muted">
             Vos annonces, vos leads, les 30 derniers jours.
           </p>
         </div>
@@ -124,18 +124,18 @@ export default async function ProDashboard() {
       <div className="mt-14 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
         {/* Leads feed */}
         <section>
-          <div className="mb-6 flex items-end justify-between border-b border-foreground/15 pb-4">
+          <div className="mb-6 flex items-end justify-between border-b border-border pb-4">
             <div>
               <p className="eyebrow">Inbox</p>
               <h2 className="display-xl mt-2 text-2xl md:text-3xl">Leads récents.</h2>
             </div>
-            <Link href="/pro/leads" className="mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground">
+            <Link href="/pro/leads" className="mono text-[11px] uppercase tracking-[0.14em] text-ink-muted hover:text-ink">
               Tous ({totalLeads}) →
             </Link>
           </div>
 
           {leads.length === 0 ? (
-            <div className="rounded-md border border-dashed border-foreground/25 p-8 text-center text-sm text-muted-foreground">
+            <div className="rounded-md border border-dashed border-border p-8 text-center text-sm text-ink-muted">
               Pas encore de leads. Vos prochaines demandes de contact apparaîtront ici.
             </div>
           ) : (
@@ -143,11 +143,11 @@ export default async function ProDashboard() {
               {leads.map((l) => (
                 <li
                   key={l.id}
-                  className="group rounded-md border border-foreground/15 bg-surface p-5 transition-colors hover:border-foreground/40"
+                  className="group rounded-md border border-border bg-surface p-5 transition-colors hover:border-ink"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex min-w-0 items-start gap-3">
-                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-foreground text-background display-lg text-sm">
+                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-background display-lg text-sm">
                         {l.name
                           .split(" ")
                           .map((w) => w[0])
@@ -157,7 +157,7 @@ export default async function ProDashboard() {
                       </span>
                       <div className="min-w-0">
                         <p className="display-lg text-base leading-tight">{l.name}</p>
-                        <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                        <p className="mono mt-1 text-[10px] uppercase tracking-[0.1em] text-ink-muted">
                           {(l.listing?.title ?? "—").toUpperCase()} · {relativeDate(l.createdAt).toUpperCase()}
                         </p>
                       </div>
@@ -170,27 +170,27 @@ export default async function ProDashboard() {
                       >
                         {STATUS_LABEL[l.status] ?? l.status}
                       </span>
-                      <span className="mono rounded-full border border-foreground/20 px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+                      <span className="mono rounded-full border border-border px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-ink-muted">
                         {l.source.toUpperCase()}
                       </span>
                     </div>
                   </div>
 
-                  <p className="mt-3 line-clamp-2 border-t border-foreground/10 pt-3 text-sm text-foreground/85">
+                  <p className="mt-3 line-clamp-2 border-t border-ink/10 pt-3 text-sm text-ink">
                     « {l.message} »
                   </p>
 
                   <div className="mt-3 flex gap-2">
                     <a
                       href={`mailto:${l.email}`}
-                      className="mono inline-flex items-center gap-1.5 rounded-full border border-foreground/20 px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-foreground"
+                      className="mono inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
                     >
                       Répondre
                     </a>
                     {l.phone && (
                       <a
                         href={`tel:${l.phone.replace(/\s+/g, "")}`}
-                        className="mono inline-flex items-center gap-1.5 rounded-full border border-foreground/20 px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-foreground"
+                        className="mono inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.12em] hover:border-ink"
                       >
                         Appeler
                       </a>
@@ -204,14 +204,14 @@ export default async function ProDashboard() {
 
         {/* Listings column */}
         <section>
-          <div className="mb-6 flex items-end justify-between border-b border-foreground/15 pb-4">
+          <div className="mb-6 flex items-end justify-between border-b border-border pb-4">
             <div>
               <p className="eyebrow">Portefeuille</p>
               <h2 className="display-xl mt-2 text-2xl md:text-3xl">Mes annonces.</h2>
             </div>
             <Link
               href={`/agence/${agency.slug}`}
-              className="mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+              className="mono text-[11px] uppercase tracking-[0.14em] text-ink-muted hover:text-ink"
             >
               Page publique →
             </Link>
@@ -219,11 +219,11 @@ export default async function ProDashboard() {
 
           <ul className="space-y-3">
             {listings.length === 0 ? (
-              <li className="rounded-md border border-dashed border-foreground/25 p-6 text-center text-sm text-muted-foreground">
+              <li className="rounded-md border border-dashed border-border p-6 text-center text-sm text-ink-muted">
                 Aucune annonce publiée.{" "}
                 <Link
                   href="/pro/publier"
-                  className="font-medium text-foreground underline-offset-4 hover:underline"
+                  className="font-medium text-ink underline-offset-4 hover:underline"
                 >
                   Déposer la première
                 </Link>
@@ -233,17 +233,17 @@ export default async function ProDashboard() {
               listings.map((l) => (
                 <li
                   key={l.id}
-                  className="flex items-center gap-3 rounded-md border border-foreground/15 bg-surface p-3"
+                  className="flex items-center gap-3 rounded-md border border-border bg-surface p-3"
                 >
-                  <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-foreground/5">
+                  <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-surface-warm">
                     <Image src={l.coverImage} alt={l.title} fill sizes="80px" className="object-cover" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="display-lg truncate text-sm leading-tight">{l.title}</p>
-                    <p className="mono mt-0.5 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                    <p className="mono mt-0.5 text-[10px] uppercase tracking-[0.1em] text-ink-muted">
                       {PROPERTY_TYPE_LABEL[l.propertyType].toUpperCase()} · {l.city.name.toUpperCase()} · {PRICE_FR.format(l.price)} MAD
                     </p>
-                    <div className="mono mt-1 flex gap-3 text-[10px] text-muted-foreground">
+                    <div className="mono mt-1 flex gap-3 text-[10px] text-ink-muted">
                       <span className="inline-flex items-center gap-1">
                         <HeartIcon className="h-3 w-3" /> {l._count.favorites}
                       </span>
@@ -254,7 +254,7 @@ export default async function ProDashboard() {
                   </div>
                   <Link
                     href={`/annonce/${l.slug}`}
-                    className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-foreground/15"
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-border"
                   >
                     <ChevronRightIcon className="h-4 w-4" />
                   </Link>
@@ -271,7 +271,7 @@ export default async function ProDashboard() {
 function DashboardDemo({ signedIn, signedInName }: { signedIn: boolean; signedInName?: string }) {
   return (
     <div className="container py-10 md:py-16">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-md border border-foreground bg-foreground px-5 py-4 text-background">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-md border border-ink bg-ink px-5 py-4 text-background">
         <div>
           <p className="mono text-[10px] uppercase tracking-[0.14em] text-background/60">
             {signedIn ? "Aperçu — aucun compte agence rattaché" : "Aperçu — non connecté"}
@@ -285,17 +285,17 @@ function DashboardDemo({ signedIn, signedInName }: { signedIn: boolean; signedIn
         <div className="flex gap-2">
           <Link
             href="/inscription?role=agency"
-            className="mono rounded-full bg-background px-4 py-2 text-[10px] uppercase tracking-[0.14em] text-foreground"
+            className="mono rounded-full bg-background px-4 py-2 text-[10px] uppercase tracking-[0.14em] text-ink"
           >
             {signedIn ? "Contacter Baboo →" : "Créer un compte Pro →"}
           </Link>
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 border-b border-foreground/15 pb-8">
+      <div className="flex flex-col gap-4 border-b border-border pb-8">
         <p className="eyebrow">Baboo Pro</p>
         <h1 className="display-xl text-4xl md:text-6xl">Tableau de bord.</h1>
-        <p className="max-w-xl text-muted-foreground">
+        <p className="max-w-xl text-ink-muted">
           Une fois connectée avec un compte Pro lié à votre agence, cette page affiche vos vrais leads, annonces et statistiques.
         </p>
       </div>
@@ -327,8 +327,8 @@ function StatCard({
     <div
       className={`rounded-md border p-5 ${
         tone === "dark"
-          ? "border-foreground bg-foreground text-background"
-          : "border-foreground/15 bg-surface"
+          ? "border-ink bg-ink text-background"
+          : "border-border bg-surface"
       }`}
     >
       <p className={`eyebrow ${tone === "dark" ? "text-background/60" : ""}`}>{label}</p>

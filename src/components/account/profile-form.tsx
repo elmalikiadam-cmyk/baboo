@@ -48,7 +48,7 @@ export function ProfileForm({ initial }: { initial: Initial }) {
       <div className="space-y-1.5">
         <Label htmlFor="p-email">Email</Label>
         <Input id="p-email" type="email" value={initial.email} disabled readOnly />
-        <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+        <p className="mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
           L'email ne peut pas être modifié.
         </p>
       </div>

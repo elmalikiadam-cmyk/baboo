@@ -39,11 +39,11 @@ export default async function SignUpPage({ searchParams }: Props) {
 
   return (
     <div className="container flex min-h-[70vh] items-center justify-center py-16">
-      <div className="w-full max-w-md rounded-md border border-foreground/15 bg-surface p-8">
+      <div className="w-full max-w-md rounded-md border border-border bg-surface p-8">
         <div className="mb-8 text-center">
           <p className="eyebrow">{copy.eyebrow}</p>
           <h1 className="display-xl mt-2 text-3xl">{copy.title}</h1>
-          <p className="mt-3 text-sm text-muted-foreground">{copy.subtitle}</p>
+          <p className="mt-3 text-sm text-ink-muted">{copy.subtitle}</p>
         </div>
 
         <SignUpForm defaultRole={defaultRole} />
