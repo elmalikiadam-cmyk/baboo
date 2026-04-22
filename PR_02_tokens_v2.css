@@ -1,0 +1,365 @@
+/* ============================================================================
+   PR #2 V2 — Tokens éditoriaux chaleureux
+   ============================================================================
+
+   Fichier à remplacer intégralement : src/app/globals.css
+   (Garder les @tailwind base/components/utilities en haut)
+
+   Direction : palette crème + bleu nuit + terracotta + vert sapin.
+   Typographie : Fraunces (serif display) + Inter (sans body) + JetBrains Mono.
+   Rayons : généreux (16-24px), assumés ronds.
+   ============================================================================ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Baboo V2 — Éditorial chaleureux ─────────────────────────────── */
+
+@layer base {
+  :root {
+    /* ─── Couleurs de marque ─── */
+    --cream: 42 52% 91%;              /* #f3ecdd — fond de page */
+    --cream-2: 42 45% 87%;            /* #ebe3d1 — surface warm, dividers */
+    --cream-3: 40 38% 82%;            /* #ddd2bc — variante désaturée */
+
+    --midnight: 223 42% 18%;          /* #1a2540 — texte primaire, primary button */
+    --midnight-2: 225 34% 25%;        /* #2a3655 — hover primary */
+    --midnight-3: 225 28% 35%;        /* variante clarifiée */
+
+    --terracotta: 13 62% 47%;         /* #c04e2e — accent signature */
+    --terracotta-2: 13 67% 39%;       /* #a33f22 — hover terracotta */
+
+    --forest: 151 24% 23%;            /* #2d4a3e — bloc Pros, exclusif */
+    --forest-2: 151 31% 18%;          /* #1f3a2f — hover forest */
+
+    /* ─── Aliases système (compat Tailwind) ─── */
+    --background: var(--cream);
+    --foreground: var(--midnight);
+    --surface: 0 0% 100%;             /* blanc pour cards d'annonces */
+    --surface-warm: var(--cream-2);
+
+    --muted: 222 15% 42%;             /* #5a6478 — texte secondaire */
+    --muted-foreground: 222 17% 35%;  /* #4a5368 — ratio 6.1:1 sur cream */
+
+    --line: 223 42% 18% / 0.12;
+    --line-strong: 223 42% 18% / 0.85;
+    --border: var(--line);
+
+    --primary: var(--midnight);
+    --primary-foreground: var(--cream);
+
+    --accent: var(--terracotta);
+    --accent-foreground: var(--cream);
+
+    --success: var(--forest);
+    --danger: 2 72% 41%;
+
+    /* ─── Fonts ─── */
+    --font-display-stack: var(--font-fraunces), "Fraunces", "Times New Roman", serif;
+    --font-sans-stack: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono-stack: var(--font-mono), "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+  }
+
+  * {
+    border-color: hsl(var(--line));
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: hsl(var(--cream));
+    color: hsl(var(--midnight));
+    font-family: var(--font-sans-stack);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Les h1-h4 utilisent Fraunces par défaut mais chaque page override via classes display-* */
+  h1, h2, h3, h4 {
+    font-family: var(--font-display-stack);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: hsl(var(--midnight));
+  }
+
+  ::selection {
+    background-color: hsl(var(--terracotta));
+    color: hsl(var(--cream));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--terracotta));
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* ─── Échelle display (Fraunces serif) ─── */
+
+  /* Hero home UNIQUEMENT — une seule occurrence globale */
+  .display-hero {
+    font-family: var(--font-display-stack);
+    font-weight: 700;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    font-optical-sizing: auto;
+  }
+
+  /* H1 de pages internes */
+  .display-xl {
+    font-family: var(--font-display-stack);
+    font-weight: 600;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.0;
+    letter-spacing: -0.015em;
+  }
+
+  /* H2 de sections */
+  .display-lg {
+    font-family: var(--font-display-stack);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  /* Titres de cards éditoriales */
+  .display-md {
+    font-family: var(--font-display-stack);
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+  }
+
+  /* ─── Eyebrow et mono ─── */
+  .eyebrow {
+    font-family: var(--font-mono-stack);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .mono {
+    font-family: var(--font-mono-stack);
+    letter-spacing: 0.06em;
+  }
+
+  .mono-sm {
+    font-family: var(--font-mono-stack);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ─── Utilities de couleur sémantique ─── */
+  .text-terracotta { color: hsl(var(--terracotta)); }
+  .text-midnight { color: hsl(var(--midnight)); }
+  .text-forest { color: hsl(var(--forest)); }
+  .text-cream { color: hsl(var(--cream)); }
+
+  .bg-terracotta { background-color: hsl(var(--terracotta)); }
+  .bg-midnight { background-color: hsl(var(--midnight)); }
+  .bg-forest { background-color: hsl(var(--forest)); }
+  .bg-cream { background-color: hsl(var(--cream)); }
+  .bg-cream-2 { background-color: hsl(var(--cream-2)); }
+  .bg-surface { background-color: hsl(var(--surface)); }
+
+  .border-midnight { border-color: hsl(var(--midnight)); }
+  .border-terracotta { border-color: hsl(var(--terracotta)); }
+
+  /* ─── Barre de section éditoriale ─── */
+  .section-bar {
+    display: inline-block;
+    width: 3px;
+    background-color: hsl(var(--terracotta));
+    border-radius: 2px;
+    align-self: stretch;
+  }
+
+  /* ─── Boutons ─── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: hsl(var(--terracotta));
+    color: hsl(var(--cream));
+    font-weight: 600;
+    border-radius: 9999px;
+    transition: background-color 150ms ease-out;
+    min-height: 44px;
+  }
+  .btn-primary:hover {
+    background-color: hsl(var(--terracotta-2));
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.5rem;
+    background-color: transparent;
+    color: hsl(var(--midnight));
+    border: 2px solid hsl(var(--midnight));
+    font-weight: 500;
+    border-radius: 9999px;
+    transition: all 150ms ease-out;
+    min-height: 44px;
+  }
+  .btn-outline:hover {
+    background-color: hsl(var(--midnight));
+    color: hsl(var(--cream));
+  }
+
+  /* ─── Badges ─── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    font-family: var(--font-sans-stack);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 6px;
+  }
+  .badge-coup-de-coeur { background-color: hsl(var(--terracotta)); color: hsl(var(--cream)); }
+  .badge-nouveau { background-color: hsl(var(--midnight)); color: hsl(var(--cream)); }
+  .badge-exclusif { background-color: hsl(var(--forest)); color: hsl(var(--cream)); }
+  .badge-a-la-une { background-color: hsl(var(--midnight)); color: hsl(var(--cream)); }
+}
+
+@layer utilities {
+  /* ─── Container conservé ─── */
+  .container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+}
+
+
+/* ============================================================================
+   Fichier à modifier : tailwind.config.ts
+   ============================================================================
+
+   Remplacer la config actuelle par celle-ci (extraits clés) :
+
+   extend: {
+     colors: {
+       cream: {
+         DEFAULT: "hsl(var(--cream))",
+         2: "hsl(var(--cream-2))",
+         3: "hsl(var(--cream-3))",
+       },
+       midnight: {
+         DEFAULT: "hsl(var(--midnight))",
+         2: "hsl(var(--midnight-2))",
+         3: "hsl(var(--midnight-3))",
+       },
+       terracotta: {
+         DEFAULT: "hsl(var(--terracotta))",
+         2: "hsl(var(--terracotta-2))",
+       },
+       forest: {
+         DEFAULT: "hsl(var(--forest))",
+         2: "hsl(var(--forest-2))",
+       },
+       background: "hsl(var(--background))",
+       foreground: "hsl(var(--foreground))",
+       surface: {
+         DEFAULT: "hsl(var(--surface))",
+         warm: "hsl(var(--surface-warm))",
+       },
+       muted: {
+         DEFAULT: "hsl(var(--muted))",
+         foreground: "hsl(var(--muted-foreground))",
+       },
+       primary: {
+         DEFAULT: "hsl(var(--primary))",
+         foreground: "hsl(var(--primary-foreground))",
+       },
+       accent: {
+         DEFAULT: "hsl(var(--accent))",
+         foreground: "hsl(var(--accent-foreground))",
+       },
+       success: "hsl(var(--success))",
+       danger: "hsl(var(--danger))",
+     },
+     fontFamily: {
+       sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+       display: ["var(--font-fraunces)", "Fraunces", "Times New Roman", "serif"],
+       mono: ["var(--font-mono)", "ui-monospace", "SF Mono", "monospace"],
+     },
+     borderRadius: {
+       none: "0",
+       md: "6px",
+       xl: "12px",
+       "2xl": "16px",
+       "3xl": "24px",
+       full: "9999px",
+     },
+   },
+
+   Note : on garde md, xl, 2xl, 3xl (contrairement à la V1 brutaliste).
+   On SUPPRIME lg, sm (forcer à choisir dans l'échelle).
+
+   ============================================================================
+   Fichier à modifier : src/app/layout.tsx
+   ============================================================================
+
+   Remplacer les imports de fonts par :
+
+     import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+
+     const fraunces = Fraunces({
+       subsets: ["latin"],
+       variable: "--font-fraunces",
+       display: "swap",
+       weight: ["400", "500", "600", "700", "900"],
+     });
+
+     const inter = Inter({
+       subsets: ["latin"],
+       variable: "--font-inter",
+       display: "swap",
+     });
+
+     const mono = JetBrains_Mono({
+       subsets: ["latin"],
+       variable: "--font-mono",
+       display: "swap",
+       weight: ["400", "500"],
+     });
+
+   Puis dans le <html> ou <body> :
+     className={`${fraunces.variable} ${inter.variable} ${mono.variable}`}
+
+   Supprimer les imports précédents de Barlow Condensed s'ils existent.
+   ============================================================================ */
