@@ -8,10 +8,16 @@ import { AmenityList } from "@/components/listing/amenity-list";
 import { ContactCard } from "@/components/listing/contact-card";
 import { ListingMapPreview } from "@/components/listing/listing-map-preview";
 import { ListingCard } from "@/components/listing/listing-card";
+import { MobileStickyCta } from "@/components/listing/mobile-sticky-cta";
 import { Badge } from "@/components/ui/badge";
-import { HeartIcon, ShareIcon, MapPinIcon } from "@/components/ui/icons";
-import { formatPrice, formatPricePerMonth, relativeDate } from "@/lib/format";
-import { PROPERTY_TYPE_LABEL, TRANSACTION_VERB } from "@/data/taxonomy";
+import { MapPinIcon, ShieldCheckIcon } from "@/components/ui/icons";
+import {
+  formatPrice,
+  formatPricePerMonth,
+  formatPricePerSqm,
+  relativeDate,
+} from "@/lib/format";
+import { PROPERTY_TYPE_LABEL } from "@/data/taxonomy";
 import { buildSearchHref } from "@/lib/search-params";
 import { listingJsonLd } from "@/lib/jsonld";
 
@@ -48,6 +54,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/**
+ * V2 "Maison ouverte" — fiche détail mobile-first.
+ * Mobile : hero 420px, card qui remonte -20px avec rounded-t-[28px],
+ * bloc prix, facts 2x2, description, commodités, carte, publisher card,
+ * sticky CTA au-dessus de la bottom nav.
+ * Desktop : grid [1fr | 380px] avec ContactCard sticky à droite.
+ */
 export default async function ListingPage({ params }: Props) {
   const { slug } = await params;
   const listing = await getListing(slug).catch(() => null);
@@ -70,7 +83,9 @@ export default async function ListingPage({ params }: Props) {
           include: {
             city: true,
             neighborhood: true,
-            agency: { select: { id: true, slug: true, name: true, verified: true, logo: true } },
+            agency: {
+              select: { id: true, slug: true, name: true, verified: true, logo: true },
+            },
           },
         })
         .catch(() => [])
@@ -90,183 +105,238 @@ export default async function ListingPage({ params }: Props) {
     concierge: listing.concierge,
   };
 
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://baboo.ma").replace(/\/+$/, "");
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://baboo.ma").replace(
+    /\/+$/,
+    "",
+  );
   const jsonLd = listingJsonLd(listing, siteUrl);
 
+  const publisherName = listing.agency?.name ?? "Annonceur particulier";
+  const publisherInitials = publisherName
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0] ?? "")
+    .join("")
+    .toUpperCase();
+
   return (
-    <div className="container py-8">
-      <nav aria-label="Fil d'Ariane" className="mb-4 text-xs text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Accueil</Link>
-        <span className="mx-1.5">/</span>
-        <Link
-          href={buildSearchHref({ transaction: listing.transaction, citySlug: listing.citySlug })}
-          className="hover:text-foreground"
-        >
-          {PROPERTY_TYPE_LABEL[listing.propertyType]}s {TRANSACTION_VERB[listing.transaction]} à {listing.city.name}
-        </Link>
-        <span className="mx-1.5">/</span>
-        <span className="text-foreground">{listing.title}</span>
-      </nav>
+    <>
+      <article className="pb-32 md:pb-16">
+        <div className="md:container md:pt-6">
+          <div className="md:grid md:gap-8 md:grid-cols-[1fr_380px]">
+            <div>
+              <ListingGallery
+                cover={listing.coverImage}
+                images={listing.images.map((i) => ({ url: i.url, alt: i.alt }))}
+                title={listing.title}
+                transactionLabel={isRent ? "À louer" : "À vendre"}
+                propertyTypeLabel={PROPERTY_TYPE_LABEL[listing.propertyType]}
+              />
 
-      <ListingGallery
-        cover={listing.coverImage}
-        images={listing.images.map((i) => ({ url: i.url, alt: i.alt }))}
-        title={listing.title}
-        transactionLabel={isRent ? "À louer" : "À vendre"}
-        propertyTypeLabel={PROPERTY_TYPE_LABEL[listing.propertyType]}
-      />
+              {/* Content card qui remonte de -20px sur mobile */}
+              <div className="relative -mt-5 rounded-t-[28px] bg-background px-5 pt-6 pb-4 md:mt-6 md:rounded-none md:bg-transparent md:px-0 md:pt-0">
+                {/* Location + date */}
+                <div className="flex flex-wrap items-center gap-1 text-[13px] text-ink-soft">
+                  <MapPinIcon className="h-3 w-3" aria-hidden />
+                  <span className="font-medium text-ink">
+                    {listing.neighborhood?.name ?? listing.city.name}
+                  </span>
+                  {listing.neighborhood && (
+                    <>
+                      <span className="text-ink-muted">·</span>
+                      <span>{listing.city.name}</span>
+                    </>
+                  )}
+                  <span className="ml-auto text-ink-muted">
+                    {relativeDate(listing.publishedAt ?? listing.createdAt)}
+                  </span>
+                </div>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_380px]">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge tone="neutral">{isRent ? "Location" : "À vendre"}</Badge>
-            <Badge tone="neutral">{PROPERTY_TYPE_LABEL[listing.propertyType]}</Badge>
-            <Badge tone={listing.agency ? "dark" : "light"}>
-              {listing.agency ? "Pro" : "Particulier"}
-            </Badge>
-          </div>
+                {/* Badges compacts */}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <Badge tone="neutral" size="sm">
+                    {PROPERTY_TYPE_LABEL[listing.propertyType]}
+                  </Badge>
+                  <Badge tone={listing.agency ? "dark" : "light"} size="sm">
+                    {listing.agency ? "Pro" : "Particulier"}
+                  </Badge>
+                  {listing.agency?.verified && (
+                    <Badge tone="success" size="sm">
+                      <ShieldCheckIcon className="h-3 w-3" aria-hidden /> Vérifié
+                    </Badge>
+                  )}
+                </div>
 
-          <h1 className="display-xl mt-4 text-3xl md:text-4xl">
-            {listing.title}
-          </h1>
+                {/* Titre */}
+                <h1 className="display-lg mt-3">{listing.title}</h1>
 
-          <p className="mt-2 flex items-center gap-1.5 text-muted-foreground">
-            <MapPinIcon className="h-4 w-4" />
-            {listing.neighborhood?.name ? `${listing.neighborhood.name}, ` : ""}{listing.city.name}
-            <span className="mx-2 text-border">·</span>
-            <span className="text-sm">{relativeDate(listing.publishedAt ?? listing.createdAt)}</span>
-          </p>
+                {/* Bloc prix */}
+                <div className="mt-5 flex items-end justify-between rounded-2xl border border-border bg-surface-warm p-4 md:p-5">
+                  <div>
+                    <p className="eyebrow-muted">Prix</p>
+                    <p className="price-display mt-1 text-[2rem] md:text-[2.25rem]">
+                      {isRent ? formatPricePerMonth(listing.price) : formatPrice(listing.price)}
+                    </p>
+                  </div>
+                  {listing.surface > 0 && listing.propertyType !== "LAND" && (
+                    <div className="text-right text-[11px] text-ink-muted">
+                      <div className="font-medium">
+                        {formatPricePerSqm(listing.price, listing.surface).replace(
+                          " MAD/m²",
+                          "",
+                        )}
+                      </div>
+                      <div>MAD / m²</div>
+                    </div>
+                  )}
+                </div>
 
-          <div className="mt-6 flex flex-wrap items-baseline justify-between gap-4">
-            <p className="display-xl text-4xl md:text-5xl">
-              {isRent ? formatPricePerMonth(listing.price) : formatPrice(listing.price)}
-            </p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-foreground/5"
-              >
-                <HeartIcon className="h-4 w-4" /> Sauvegarder
-              </button>
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-foreground/5"
-              >
-                <ShareIcon className="h-4 w-4" /> Partager
-              </button>
+                {/* Facts */}
+                <div className="mt-5">
+                  <ListingFacts
+                    surface={listing.surface}
+                    landSurface={listing.landSurface}
+                    bedrooms={listing.bedrooms}
+                    bathrooms={listing.bathrooms}
+                    floor={listing.floor}
+                    totalFloors={listing.totalFloors}
+                    propertyType={listing.propertyType}
+                    yearBuilt={listing.yearBuilt}
+                    condition={listing.condition}
+                  />
+                </div>
+
+                {/* Description */}
+                <section className="mt-8">
+                  <h2 className="display-md text-[1.125rem]">Description</h2>
+                  <div className="prose-baboo mt-3 space-y-3 text-sm leading-relaxed text-ink-soft">
+                    {listing.description.split("\n\n").map((p, i) => (
+                      <p key={i}>{p}</p>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Commodités */}
+                <section className="mt-8">
+                  <h2 className="display-md text-[1.125rem]">Commodités</h2>
+                  <div className="mt-3">
+                    <AmenityList flags={amenityFlags} />
+                  </div>
+                </section>
+
+                {/* Carte */}
+                <section className="mt-8">
+                  <h2 className="display-md text-[1.125rem]">Localisation</h2>
+                  <div className="mt-3">
+                    <ListingMapPreview
+                      lat={listing.lat}
+                      lng={listing.lng}
+                      cityName={listing.city.name}
+                      neighborhoodName={listing.neighborhood?.name}
+                    />
+                  </div>
+                </section>
+
+                {/* Publisher card */}
+                <section className="mt-8 rounded-2xl border border-border bg-surface p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-12 w-12 place-items-center rounded-full bg-accent font-display text-[17px] font-medium text-ink-foreground">
+                      {publisherInitials}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="display-md text-[15px]">{publisherName}</p>
+                        {listing.agency?.verified && (
+                          <ShieldCheckIcon className="h-3.5 w-3.5 text-success" aria-hidden />
+                        )}
+                      </div>
+                      <p className="mt-0.5 text-[11px] text-ink-muted">
+                        {listing.agency
+                          ? listing.agency.verified
+                            ? "Agence vérifiée"
+                            : "Professionnel"
+                          : "Particulier"}
+                      </p>
+                    </div>
+                    {listing.agency?.slug && (
+                      <Link
+                        href={`/agence/${listing.agency.slug}`}
+                        className="inline-flex h-9 items-center rounded-full border border-ink px-4 text-xs font-semibold text-ink hover:bg-ink hover:text-ink-foreground"
+                      >
+                        Profil
+                      </Link>
+                    )}
+                  </div>
+                </section>
+
+                {/* Réf + signaler */}
+                <section className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5 text-xs text-ink-muted">
+                  <span>Réf · {listing.id.slice(-6).toUpperCase()}</span>
+                  <button
+                    type="button"
+                    className="underline underline-offset-4 hover:text-ink"
+                  >
+                    Signaler cette annonce
+                  </button>
+                </section>
+              </div>
+
+              {/* Listings similaires */}
+              {similar.length > 0 && (
+                <section className="mt-10 px-5 md:mt-12 md:px-0">
+                  <div className="mb-5 flex items-end justify-between">
+                    <h2 className="display-md">Annonces similaires</h2>
+                    <Link
+                      href={buildSearchHref({
+                        transaction: listing.transaction,
+                        citySlug: listing.citySlug,
+                        propertyTypes: [listing.propertyType],
+                      })}
+                      className="hidden text-xs font-medium text-accent underline underline-offset-[3px] hover:text-accent/80 md:inline"
+                    >
+                      Voir plus
+                    </Link>
+                  </div>
+                  <div className="scrollbar-hide flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-4 md:overflow-visible">
+                    {similar.map((s) => (
+                      <div key={s.id} className="w-[240px] shrink-0 md:w-auto">
+                        <ListingCard listing={s} />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+
+            {/* Sidebar desktop : contact sticky */}
+            <div className="hidden md:block">
+              <ContactCard
+                listingId={listing.id}
+                listingTitle={listing.title}
+                agency={
+                  listing.agency
+                    ? {
+                        name: listing.agency.name,
+                        slug: listing.agency.slug,
+                        verified: listing.agency.verified,
+                        logo: listing.agency.logo,
+                      }
+                    : null
+                }
+                phone={listing.agency?.phone}
+              />
             </div>
           </div>
-
-          <ListingFacts
-            surface={listing.surface}
-            landSurface={listing.landSurface}
-            bedrooms={listing.bedrooms}
-            bathrooms={listing.bathrooms}
-            floor={listing.floor}
-            totalFloors={listing.totalFloors}
-            propertyType={listing.propertyType}
-            yearBuilt={listing.yearBuilt}
-            condition={listing.condition}
-          />
-
-          <section className="py-8">
-            <h2 className="font-display text-2xl font-semibold">Description</h2>
-            <div className="prose prose-sm mt-4 max-w-none text-foreground/90">
-              {listing.description.split("\n\n").map((p, i) => (
-                <p key={i} className="mb-4 leading-relaxed">{p}</p>
-              ))}
-            </div>
-          </section>
-
-          <AmenityList flags={amenityFlags} />
-
-          <ListingMapPreview
-            lat={listing.lat}
-            lng={listing.lng}
-            cityName={listing.city.name}
-            neighborhoodName={listing.neighborhood?.name}
-          />
-
-          <section className="border-t border-border py-8 text-xs text-muted-foreground">
-            <p>
-              Référence Baboo : <span className="font-mono text-foreground">{listing.id.slice(-8).toUpperCase()}</span>
-              {" · "}Publié {relativeDate(listing.publishedAt ?? listing.createdAt)}
-            </p>
-            <button className="mt-3 text-xs underline-offset-4 hover:underline">
-              Signaler cette annonce
-            </button>
-          </section>
         </div>
+      </article>
 
-        <ContactCard
-          listingId={listing.id}
-          listingTitle={listing.title}
-          agency={listing.agency ? {
-            name: listing.agency.name,
-            slug: listing.agency.slug,
-            verified: listing.agency.verified,
-            logo: listing.agency.logo,
-          } : null}
-          phone={listing.agency?.phone}
-        />
-      </div>
-
-      {similar.length > 0 && (
-        <section className="mt-20">
-          <div className="mb-6 flex items-end justify-between gap-6">
-            <h2 className="font-display text-2xl font-semibold md:text-3xl">
-              Biens similaires à {listing.city.name}
-            </h2>
-            <Link
-              href={buildSearchHref({
-                transaction: listing.transaction,
-                citySlug: listing.citySlug,
-                propertyTypes: [listing.propertyType],
-              })}
-              className="hidden rounded-full border border-border px-4 py-2 text-sm hover:bg-foreground/5 md:inline-block"
-            >
-              Voir plus →
-            </Link>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {similar.map((l) => (
-              <ListingCard key={l.id} listing={l} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Mobile sticky conversion bar — sits above the bottom nav (which is 56px tall) */}
-      <div className="fixed inset-x-0 bottom-[64px] z-40 border-t border-foreground/15 bg-background/95 p-3 backdrop-blur lg:hidden">
-        <div className="container flex items-center gap-2">
-          <div className="flex-1 min-w-0">
-            <p className="display-lg text-lg leading-none truncate">
-              {isRent ? formatPricePerMonth(listing.price) : formatPrice(listing.price)}
-            </p>
-            <p className="mono mt-1 text-[10px] uppercase tracking-[0.12em] text-muted-foreground truncate">
-              {listing.neighborhood?.name ? `${listing.neighborhood.name} · ` : ""}
-              {listing.city.name}
-            </p>
-          </div>
-          <a
-            href={listing.agency?.phone ? `tel:${listing.agency.phone.replace(/\s+/g, "")}` : "#"}
-            className="inline-flex h-11 items-center justify-center rounded-full border border-foreground/80 px-4 text-sm font-medium"
-          >
-            Appeler
-          </a>
-          <a
-            href="#contact-form"
-            className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background"
-          >
-            Contacter
-          </a>
-        </div>
-      </div>
+      {/* Mobile sticky CTA */}
+      <MobileStickyCta phone={listing.agency?.phone} />
 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-    </div>
+    </>
   );
 }

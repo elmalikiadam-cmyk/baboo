@@ -1,24 +1,35 @@
 import Link from "next/link";
 import { HeroSearch } from "@/components/search/hero-search";
 import { HowItWorks } from "@/components/marketing/how-it-works";
-import { ForYou } from "@/components/marketing/for-you";
-import { CityStrip } from "@/components/marketing/city-strip";
+import { PublishBanner } from "@/components/marketing/publish-banner";
+import { CityCard } from "@/components/listing/city-card";
 import { ListingCard } from "@/components/listing/listing-card";
-import { FeaturedHeroCard } from "@/components/listing/featured-hero-card";
+import { CITIES } from "@/data/cities";
 import { db, hasDb } from "@/lib/db";
+import { auth } from "@/auth";
 
-export const revalidate = 600;
+export const dynamic = "force-dynamic";
 
 const LISTING_INCLUDE = {
   city: true,
   neighborhood: true,
-  agency: { select: { id: true, slug: true, name: true, verified: true, logo: true } },
+  agency: {
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      verified: true,
+      logo: true,
+    },
+  },
 } as const;
 
 async function getHomeData() {
-  if (!hasDb()) return { featured: null, latest: [], total: 0, cityCounts: [] };
+  if (!hasDb()) {
+    return { featured: null, latest: [], cityCounts: {} as Record<string, number> };
+  }
   try {
-    const [featured, latest, total, cityCounts] = await Promise.all([
+    const [featured, latest, cityCounts] = await Promise.all([
       db.listing.findFirst({
         where: { status: "PUBLISHED", featured: true },
         orderBy: { publishedAt: "desc" },
@@ -27,121 +38,108 @@ async function getHomeData() {
       db.listing.findMany({
         where: { status: "PUBLISHED" },
         orderBy: { publishedAt: "desc" },
-        take: 8,
+        take: 5,
         include: LISTING_INCLUDE,
       }),
-      db.listing.count({ where: { status: "PUBLISHED" } }),
       db.listing.groupBy({
         by: ["citySlug"],
         where: { status: "PUBLISHED" },
-        _count: true,
+        _count: { _all: true },
       }),
     ]);
     return {
       featured,
-      latest: latest.filter((l) => l.id !== featured?.id).slice(0, 8),
-      total,
-      cityCounts: cityCounts.map((c) => ({ citySlug: c.citySlug, count: c._count })),
+      latest: latest.filter((l) => l.id !== featured?.id).slice(0, 4),
+      cityCounts: Object.fromEntries(
+        cityCounts.map((c) => [c.citySlug, c._count._all]),
+      ) as Record<string, number>,
     };
   } catch {
-    return { featured: null, latest: [], total: 0, cityCounts: [] };
+    return { featured: null, latest: [], cityCounts: {} as Record<string, number> };
   }
 }
 
-function formatTotal(n: number): string {
-  return new Intl.NumberFormat("fr-FR").format(n);
-}
-
-// Masthead façon V1 Éditorial du handoff : eyebrow mono "N° XX — MOIS ANNÉE · MAROC",
-// titre "À VENDRE, À LOUER." géant condensé, compteur mono dessous.
+/**
+ * Home V2 "Maison ouverte" — mobile-first.
+ * 1. Greeting (italique) + HeroSearch
+ * 2. Carrousel "Explorer par ville"
+ * 3. Section "Ajoutées récemment" (featured + 4 cartes compactes)
+ * 4. PublishBanner
+ * 5. HowItWorks
+ */
 export default async function HomePage() {
-  const { featured, latest, total, cityCounts } = await getHomeData();
-  const hasData = latest.length > 0 || !!featured;
+  const [session, data] = await Promise.all([auth(), getHomeData()]);
+  const { featured, latest, cityCounts } = data;
 
-  const now = new Date();
-  const month = now
-    .toLocaleDateString("fr-FR", { month: "long", year: "numeric" })
-    .toUpperCase();
-  const issue = `N° ${String(now.getMonth() + 1).padStart(2, "0")} — ${month} · MAROC`;
+  const firstName = session?.user?.name?.split(" ")[0];
+  const hasListings = !!featured || latest.length > 0;
+
+  // Réaffiche featured en 1er sinon on promeut le premier "latest" en featured.
+  const heroListing = featured ?? (latest.length > 0 ? latest[0] : null);
+  const gridListings = featured ? latest : latest.slice(1);
 
   return (
-    <>
-      {/* Masthead */}
-      <section className="border-b border-foreground/15">
-        <div className="container py-12 md:py-16">
-          <p className="eyebrow">{issue}</p>
+    <div className="container">
+      <HeroSearch firstName={firstName} />
 
-          <h1 className="display-xl mt-4 text-[clamp(3rem,11vw,8rem)] uppercase">
-            <span className="block">À vendre,</span>
-            <span className="block">à louer.</span>
-          </h1>
-
-          <p className="mono mt-6 text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            {hasData
-              ? `${formatTotal(total)} annonces vérifiées · particuliers & professionnels`
-              : "Base en cours d'initialisation"}
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-2">
-            <Link href="/recherche?t=sale" className="pill-soft">Je veux acheter</Link>
-            <Link href="/recherche?t=rent" className="pill-soft">Je veux louer</Link>
-            <Link href="/pro/publier" className="pill-soft">Je veux publier</Link>
-          </div>
-
-          <div className="mt-10">
-            <HeroSearch />
-          </div>
+      {/* Carrousel villes — scroll-x sur mobile, grid 6 colonnes sur desktop */}
+      <section className="-mx-5 pb-2 pt-2 md:mx-0 md:pt-8">
+        <div className="flex items-baseline justify-between px-5 pb-3 md:px-0">
+          <h2 className="display-md">Explorer par ville</h2>
+          <Link
+            href="/recherche"
+            className="text-xs font-medium text-accent underline underline-offset-[3px] hover:text-accent/80"
+          >
+            Voir tout
+          </Link>
+        </div>
+        <div className="scrollbar-hide flex gap-2.5 overflow-x-auto px-5 md:grid md:grid-cols-6 md:gap-4 md:overflow-visible md:px-0">
+          {CITIES.map((c) => (
+            <CityCard key={c.slug} city={c} count={cityCounts[c.slug] ?? 0} />
+          ))}
         </div>
       </section>
 
-      {/* Featured — hero full-bleed style éditorial */}
-      {featured && (
-        <section className="container pt-10 md:pt-14">
-          <FeaturedHeroCard listing={featured} />
-        </section>
-      )}
+      {/* Ajoutées récemment */}
+      <section className="pt-8 md:pt-12">
+        <div className="mb-5">
+          <p className="eyebrow">Nouveau cette semaine</p>
+          <h2 className="display-lg mt-2">Ajoutées récemment.</h2>
+        </div>
 
-      {/* Rubrique SÉLECTION — grid 2-col sur mobile/tablet, 3-4 sur desktop */}
-      {latest.length > 0 && (
-        <section className="container py-14 md:py-20">
-          <div className="mb-8 flex items-end justify-between border-t border-foreground/15 pt-6">
-            <h2 className="display-xl text-[clamp(2rem,5vw,3.5rem)] uppercase">
-              Sélection
-            </h2>
-            <Link
-              href="/recherche"
-              className="mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
-            >
-              Voir {formatTotal(total)} →
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 gap-px bg-foreground/15 lg:grid-cols-3 xl:grid-cols-4">
-            {latest.map((l, i) => (
-              <ListingCard key={l.id} listing={l} priority={i < 4} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {!hasData && (
-        <section className="container py-20">
-          <div className="border border-dashed border-foreground/30 bg-surface p-10 text-center">
-            <p className="eyebrow">Base vide</p>
-            <h2 className="display-xl mt-3 text-3xl uppercase">Pas encore d'annonces ici.</h2>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Lance le seed pour charger 60+ annonces de démonstration.
+        {!hasListings ? (
+          <div className="rounded-2xl border border-dashed border-border bg-surface p-10 text-center">
+            <p className="display-md">Les annonces arrivent.</p>
+            <p className="mt-2 text-sm text-ink-soft">
+              Base vide ou hors-ligne. Lancez le seed :{" "}
+              <code className="rounded-sm bg-surface-warm px-1.5 py-0.5 mono text-xs">
+                pnpm db:push && pnpm db:seed
+              </code>
             </p>
-            <code className="mono mt-4 inline-block border border-foreground bg-foreground px-3 py-1.5 text-xs text-background">
-              pnpm db:push && pnpm db:seed
-            </code>
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="space-y-4 md:space-y-0">
+            {heroListing && (
+              <div className="md:mb-6">
+                <ListingCard listing={heroListing} variant="featured" priority />
+              </div>
+            )}
+            {gridListings.length > 0 && (
+              <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4 md:gap-5">
+                {gridListings.map((l) => (
+                  <ListingCard key={l.id} listing={l} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-      <CityStrip counts={cityCounts} />
+        <PublishBanner />
+      </section>
+
       <HowItWorks />
-      <ForYou />
-    </>
+
+      <div className="pb-12" />
+    </div>
   );
 }

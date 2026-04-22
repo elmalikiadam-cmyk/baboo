@@ -16,6 +16,11 @@ export function formatPricePerMonth(amount: number | null | undefined): string {
   return `${MAD_FORMATTER.format(amount)} /mois`;
 }
 
+export function formatPricePerSqm(price: number, surface: number): string {
+  if (!surface) return "—";
+  return `${NUMBER_FR.format(Math.round(price / surface))} MAD/m²`;
+}
+
 export function formatSurface(m2: number | null | undefined): string {
   if (m2 == null) return "—";
   return `${NUMBER_FR.format(m2)} m²`;
