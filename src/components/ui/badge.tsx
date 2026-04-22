@@ -1,28 +1,44 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-type Tone = "neutral" | "dark" | "light" | "success";
+type Tone = "neutral" | "dark" | "light" | "accent" | "success";
+type Size = "sm" | "md";
+type Shape = "round" | "sticker";
+
+const tones: Record<Tone, string> = {
+  neutral: "bg-surface-warm text-ink border border-border",
+  dark: "bg-ink text-ink-foreground",
+  light: "bg-white/95 text-ink backdrop-blur-sm",
+  accent: "bg-accent-soft text-accent",
+  success: "bg-success-soft text-success",
+};
+
+const sizes: Record<Size, string> = {
+  sm: "h-6 px-2.5 text-[10px] font-semibold tracking-[0.04em] uppercase",
+  md: "h-7 px-3 text-xs font-semibold tracking-wide uppercase",
+};
 
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   tone?: Tone;
+  size?: Size;
+  /** "round" = rounded-full (défaut). "sticker" = rounded-sm — étiquette cousue
+   *  utilisée pour "À vendre / À louer" sur photo. */
+  shape?: Shape;
 }
 
-const tones: Record<Tone, string> = {
-  neutral: "bg-foreground/[0.08] text-foreground",
-  dark: "bg-foreground text-background",
-  light: "border border-foreground/20 bg-background text-foreground",
-  success: "bg-success/10 text-success",
-};
-
-export function Badge({ className, tone = "neutral", ...props }: BadgeProps) {
-  return (
+export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
+  ({ className, tone = "neutral", size = "sm", shape = "round", ...props }, ref) => (
     <span
+      ref={ref}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium tracking-wide",
+        "inline-flex items-center gap-1.5 whitespace-nowrap",
+        shape === "round" ? "rounded-full" : "rounded-sm",
         tones[tone],
+        sizes[size],
         className,
       )}
       {...props}
     />
-  );
-}
+  ),
+);
+Badge.displayName = "Badge";

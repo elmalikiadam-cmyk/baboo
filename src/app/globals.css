@@ -2,54 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Baboo — design tokens strict handoff ──────────────────────────
-   Source de vérité : design_handoff_baboo/mockups/tokens.css
-   Thème noir & blanc cassé, brutaliste typographique. Rayons 0-2px,
-   surfaces opaques, pas de glass, pas de gradients ambiants. */
+/* ═══════════════════════════════════════════════════════════════════════
+ * Baboo — direction "Maison ouverte"
+ * Palette terre & crème, photo-first, marocain sans folklore.
+ * Source de vérité : baboo_v2/README.md + baboo_v2/CLAUDE.md.
+ * ═══════════════════════════════════════════════════════════════════════ */
 
 @layer base {
   :root {
-    /* Surfaces — valeurs exactes du handoff */
-    --background: 44 22% 93%;        /* #f2efe8 — paper principal */
-    --paper-2: 44 20% 88%;           /* #e9e5db — dividers, cards muettes */
-    --paper-3: 42 19% 82%;           /* #dcd7c9 — stripes placeholder */
-    --foreground: 0 0% 4%;           /* #0a0a0a — ink */
-    --surface: 44 22% 95%;           /* cards, surfaces élevées */
-    --surface-muted: 44 20% 88%;
+    /* Surfaces — crème chaude */
+    --background: 37 43% 96%;          /* #FAF6F0 — crème fond principal */
+    --surface: 37 43% 96%;
+    --surface-warm: 38 40% 91%;        /* #F4EDE1 */
+    --surface-cool: 37 35% 89%;        /* #EFE9DC */
 
-    --muted: 0 0% 32%;
-    --muted-foreground: 0 0% 28%;    /* passe AA sur paper #f2efe8 (ratio ~7.5:1) */
+    /* Encres — presque noir légèrement chaud */
+    --foreground: 30 11% 10%;          /* #1A1815 */
+    --ink: 30 11% 10%;
+    --ink-soft: 28 7% 27%;             /* #4A4641 */
+    --ink-muted: 30 7% 51%;            /* #8A837A */
+    --ink-foreground: 37 43% 96%;
 
-    --line: 0 0% 4% / 0.12;          /* hairline */
-    --line-strong: 0 0% 4% / 0.85;
+    /* Bordures — sable chaud */
+    --border: 38 30% 85%;              /* #E8DFC9 */
+    --border-soft: 38 35% 88%;
+    --border-strong: 30 11% 10%;
 
-    /* Dark inversion */
-    --ink: 0 0% 4%;
-    --ink-2: 0 0% 10%;
-    --ink-3: 0 0% 16%;
-    --ink-foreground: 44 22% 93%;
+    /* Primary = ink (pas de bleu) */
+    --primary: 30 11% 10%;
+    --primary-foreground: 37 43% 96%;
 
-    /* Primary = ink */
-    --primary: 0 0% 4%;
-    --primary-foreground: 44 22% 93%;
+    /* Accent — terracotta discret. Jamais sur les CTAs principaux. */
+    --accent: 11 63% 44%;              /* #B8442A */
+    --accent-soft: 17 60% 89%;         /* #F3DCD1 */
+    --accent-foreground: 37 43% 96%;
 
-    /* Accent — vert Maroc discret, RÉSERVÉ aux badges verified/success.
-       Jamais sur CTA principal. Pas de jaune (brûlé par Avito), pas d'or. */
-    --accent: 155 46% 34%;
-    --accent-foreground: 44 22% 95%;
-
-    /* Status */
-    --success: 155 46% 34%;
+    /* Semantic */
+    --success: 76 26% 33%;             /* #5B6B3F olive */
+    --success-soft: 71 25% 87%;        /* #E4E7D5 */
     --danger: 2 72% 41%;
 
-    /* Fonts */
-    --font-display-stack: "Bahnschrift", var(--font-barlow), "Arial Narrow", system-ui, sans-serif;
-    --font-sans-stack: var(--font-inter), system-ui, -apple-system, sans-serif;
+    /* Compat V1 — aliases pour ne pas casser les 71 fichiers qui utilisent
+     * les anciens noms de tokens. À déprécier progressivement. */
+    --paper-2: 38 40% 91%;             /* alias --surface-warm */
+    --paper-3: 37 35% 89%;             /* alias --surface-cool */
+    --surface-muted: 38 40% 91%;       /* alias --surface-warm */
+    --muted: 28 7% 27%;                /* alias --ink-soft */
+    --muted-foreground: 28 7% 27%;     /* alias --ink-soft */
+    --ink-2: 28 7% 27%;                /* alias --ink-soft */
+    --ink-3: 30 7% 51%;                /* alias --ink-muted */
+
+    /* Fonts — variables définies par next/font dans layout.tsx */
+    --font-display-stack: var(--font-fraunces), Georgia, serif;
+    --font-sans-stack: var(--font-inter-tight), system-ui, -apple-system, sans-serif;
     --font-mono-stack: var(--font-mono), ui-monospace, "SF Mono", "Menlo", monospace;
   }
 
   * {
-    border-color: hsl(var(--foreground) / 0.12);
+    border-color: hsl(var(--border));
   }
 
   html {
@@ -59,57 +69,90 @@
 
   body {
     background: hsl(var(--background));
-    color: hsl(var(--foreground));
+    color: hsl(var(--ink-soft));
     font-family: var(--font-sans-stack);
+    font-size: 15px;
+    line-height: 1.5;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display-stack);
-    font-weight: 800;
-    font-stretch: 75%;
+    font-weight: 500;
     letter-spacing: -0.02em;
-    line-height: 0.95;
+    line-height: 1.08;
+    color: hsl(var(--ink));
   }
 
   ::selection {
-    background-color: hsl(var(--foreground));
+    background-color: hsl(var(--ink));
     color: hsl(var(--background));
   }
 
   :focus-visible {
-    outline: 2px solid hsl(var(--foreground));
+    outline: 2px solid hsl(var(--ink));
     outline-offset: 2px;
   }
 }
 
 @layer components {
-  /* Classes typographiques — letter-spacing cadré par UI guidelines.
-     ≥48px → -0.03em, 24-47px → -0.015em, <24px → 0. Jamais -0.04em. */
+  /* ─────────────────────────────────────────────────────────────────
+   * Typographie — valeurs exactes spec V2.
+   * ───────────────────────────────────────────────────────────────── */
   .display-xl {
     font-family: var(--font-display-stack);
-    font-weight: 700;
-    font-stretch: 75%;
-    letter-spacing: -0.03em;
-    line-height: 0.95;
+    font-weight: 500;
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    color: hsl(var(--ink));
   }
 
   .display-lg {
     font-family: var(--font-display-stack);
-    font-weight: 600;
-    font-stretch: 75%;
+    font-weight: 500;
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    color: hsl(var(--ink));
+  }
+
+  .display-md {
+    font-family: var(--font-display-stack);
+    font-weight: 500;
+    font-size: 1.375rem;
     letter-spacing: -0.015em;
+    line-height: 1.1;
+    color: hsl(var(--ink));
+  }
+
+  .price-display {
+    font-family: var(--font-display-stack);
+    font-weight: 400;
+    font-size: clamp(1.5rem, 3vw, 2.125rem);
+    letter-spacing: -0.025em;
     line-height: 1;
+    color: hsl(var(--ink));
   }
 
   .eyebrow {
     font-family: var(--font-mono-stack);
-    font-size: 10px;
+    font-size: 0.625rem;
     font-weight: 500;
-    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: hsl(var(--muted-foreground));
+    letter-spacing: 0.14em;
+    color: hsl(var(--accent));
+  }
+
+  .eyebrow-muted {
+    font-family: var(--font-mono-stack);
+    font-size: 0.625rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: hsl(var(--ink-muted));
   }
 
   .mono {
@@ -117,36 +160,49 @@
     letter-spacing: 0.06em;
   }
 
-  /* Pills — rounded-full autorisées uniquement sur éléments sémantiquement pill. */
+  /* ─────────────────────────────────────────────────────────────────
+   * Pattern zellige discret sur photos.
+   * ───────────────────────────────────────────────────────────────── */
+  .dot-pattern {
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(255, 255, 255, 0.08) 1px,
+      transparent 0
+    );
+    background-size: 16px 16px;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+   * Utilitaires legacy (compat V1) — à déprécier.
+   * ───────────────────────────────────────────────────────────────── */
   .pill {
     @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors;
   }
   .pill-dark {
-    @apply pill bg-foreground text-background hover:bg-foreground/90;
+    @apply pill bg-ink text-ink-foreground hover:bg-ink/90;
   }
   .pill-soft {
-    @apply pill bg-foreground/[0.06] text-foreground border border-foreground/10 hover:bg-foreground/[0.12];
+    @apply pill bg-surface-warm text-ink border border-border hover:bg-surface-cool;
   }
 
-  /* Photo placeholder strié 135° — reproduction fidèle du handoff */
   .bb-photo-placeholder {
     background:
       repeating-linear-gradient(
         135deg,
-        hsl(var(--paper-2)) 0 10px,
-        hsl(var(--paper-3)) 10px 20px
+        hsl(var(--surface-warm)) 0 10px,
+        hsl(var(--surface-cool)) 10px 20px
       );
     position: relative;
     overflow: hidden;
-    color: hsl(var(--ink-2));
+    color: hsl(var(--ink-soft));
   }
 
   .hairline {
-    border-color: hsl(var(--foreground) / 0.12);
+    border-color: hsl(var(--border));
   }
 }
 
 @layer utilities {
-  .font-stretch-condensed { font-stretch: 75%; }
-  .font-stretch-normal { font-stretch: 100%; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { scrollbar-width: none; }
 }

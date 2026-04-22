@@ -1,8 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-// Strict handoff : inputs à coins durs, bordure 1px, fond surface opaque.
-// Pas de rounded-full (sauf cas pill explicite).
+// V2 "Maison ouverte" : inputs rounded-full h-12, bordure sable chaude, fond surface.
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, type = "text", ...props }, ref) => (
@@ -10,8 +9,10 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
       ref={ref}
       type={type}
       className={cn(
-        "flex h-11 w-full border border-foreground/20 bg-surface px-4 text-sm text-foreground placeholder:text-muted-foreground/70",
-        "focus-visible:outline-none focus-visible:border-foreground focus-visible:ring-2 focus-visible:ring-foreground/10",
+        "flex h-12 w-full rounded-full border border-border bg-surface px-5",
+        "text-sm text-ink placeholder:text-ink-muted",
+        "transition-colors duration-200 ease-out",
+        "focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
@@ -21,11 +22,30 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
 );
 Input.displayName = "Input";
 
+export const Textarea = React.forwardRef<
+  HTMLTextAreaElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>
+>(({ className, ...props }, ref) => (
+  <textarea
+    ref={ref}
+    className={cn(
+      "flex min-h-[96px] w-full rounded-2xl border border-border bg-surface p-4",
+      "text-sm text-ink placeholder:text-ink-muted",
+      "transition-colors duration-200 ease-out",
+      "focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10",
+      "disabled:cursor-not-allowed disabled:opacity-50",
+      className,
+    )}
+    {...props}
+  />
+));
+Textarea.displayName = "Textarea";
+
 export const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
   ({ className, ...props }, ref) => (
     <label
       ref={ref}
-      className={cn("mono text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground", className)}
+      className={cn("block text-xs font-medium text-ink-muted", className)}
       {...props}
     />
   ),
@@ -37,11 +57,17 @@ export const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttrib
     <select
       ref={ref}
       className={cn(
-        "flex h-11 w-full appearance-none border border-foreground/20 bg-surface pl-4 pr-10 text-sm text-foreground",
-        "bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22none%22 stroke=%22%230a0a0a%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 d=%22M3 4.5l3 3 3-3%22/></svg>')] bg-no-repeat bg-[right_14px_center]",
-        "focus-visible:outline-none focus-visible:border-foreground focus-visible:ring-2 focus-visible:ring-foreground/10",
+        "flex h-12 w-full rounded-full border border-border bg-surface px-5 pr-9",
+        "text-sm text-ink",
+        "transition-colors duration-200 ease-out",
+        "focus-visible:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10",
+        "appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:12px_auto]",
         className,
       )}
+      style={{
+        backgroundImage:
+          "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231A1815' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")",
+      }}
       {...props}
     >
       {children}

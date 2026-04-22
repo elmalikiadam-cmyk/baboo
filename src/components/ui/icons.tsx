@@ -96,6 +96,12 @@ export const ChevronRightIcon = (p: IconProps) => (
   </svg>
 );
 
+export const ChevronLeftIcon = (p: IconProps) => (
+  <svg {...svgProps} {...p}>
+    <path d="m15 6-6 6 6 6" />
+  </svg>
+);
+
 export const CloseIcon = (p: IconProps) => (
   <svg {...svgProps} {...p}>
     <path d="m6 6 12 12M18 6 6 18" />
@@ -116,26 +122,90 @@ export const BuildingIcon = (p: IconProps) => (
   </svg>
 );
 
-// ─── Baboo logo ─────────────────────────────────────────────────────────
-// Import direct du PNG source (design_handoff_baboo/assets/baboo-logo.png)
-// copié dans public/baboo-logo.png. Rendu fidèle au brief.
-// Sur fond sombre, passer variant="light" pour inverser la couleur.
+// ─── V2 "Maison ouverte" : icônes supplémentaires ───────────────────────
 
-interface BabooLogoProps {
-  className?: string;
-  variant?: "dark" | "light";
-}
-
-export const BabooLogo = ({ className, variant = "dark" }: BabooLogoProps) => (
-  // eslint-disable-next-line @next/next/no-img-element
-  <img
-    src="/baboo-logo.png"
-    alt="Baboo"
-    className={
-      (className ?? "h-7 w-auto") +
-      (variant === "light" ? " [filter:brightness(0)_invert(1)]" : "")
-    }
-  />
+export const HomeIcon = (p: IconProps) => (
+  <svg {...svgProps} {...p}>
+    <path d="M3 11 12 4l9 7v10H3z" />
+    <path d="M9 21v-7h6v7" />
+  </svg>
 );
 
-export const BabooMark = BabooLogo;
+export const BookmarkIcon = (p: IconProps) => (
+  <svg {...svgProps} {...p}>
+    <path d="M6 4h12v17l-6-4-6 4V4z" />
+  </svg>
+);
+
+export const MessageCircleIcon = (p: IconProps) => (
+  <svg {...svgProps} {...p}>
+    <path d="M21 12a8 8 0 0 1-11.6 7.15L3 21l1.85-6.4A8 8 0 1 1 21 12Z" />
+  </svg>
+);
+
+export const SlidersIcon = (p: IconProps) => (
+  <svg {...svgProps} {...p}>
+    <path d="M3 6h10" />
+    <path d="M17 6h4" />
+    <path d="M3 18h4" />
+    <path d="M11 18h10" />
+    <path d="M3 12h6" />
+    <path d="M13 12h8" />
+    <circle cx="15" cy="6" r="2" />
+    <circle cx="9" cy="18" r="2" />
+    <circle cx="11" cy="12" r="2" />
+  </svg>
+);
+
+export const Maximize2Icon = (p: IconProps) => (
+  <svg {...svgProps} {...p}>
+    <path d="m3 21 7-7M14 10l7-7M21 14v7h-7M10 3H3v7" />
+  </svg>
+);
+
+export const CalendarIcon = (p: IconProps) => (
+  <svg {...svgProps} {...p}>
+    <rect x="3" y="5" width="18" height="16" rx="2" />
+    <path d="M3 10h18M8 3v4M16 3v4" />
+  </svg>
+);
+
+export const ShieldCheckIcon = (p: IconProps) => (
+  <svg {...svgProps} {...p}>
+    <path d="M12 3 4 6v6c0 4.5 3.3 8.6 8 10 4.7-1.4 8-5.5 8-10V6l-8-3z" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);
+
+export const ArrowRightIcon = (p: IconProps) => (
+  <svg {...svgProps} {...p}>
+    <path d="M5 12h14M13 6l6 6-6 6" />
+  </svg>
+);
+
+// Alias V2 (noms "lucide-like", sans suffixe "Icon") pour les composants
+// portés depuis baboo_v2/. Permet d'écrire `import { Search } from ...`.
+export {
+  SearchIcon as Search,
+  MapPinIcon as MapPin,
+  BedIcon as Bed,
+  BathIcon as Bath,
+  Maximize2Icon as Maximize2,
+  HeartIcon as Heart,
+  PhoneIcon as Phone,
+  ShareIcon as Share2,
+  CheckIcon as Check,
+  PlusIcon as Plus,
+  ChevronRightIcon as ChevronRight,
+  ChevronLeftIcon as ChevronLeft,
+  CloseIcon as X,
+  UserIcon as User,
+  BuildingIcon as Building2,
+  HomeIcon as Home,
+  BookmarkIcon as Bookmark,
+  MessageCircleIcon as MessageCircle,
+  SlidersIcon as SlidersHorizontal,
+  CalendarIcon as Calendar,
+  ShieldCheckIcon as ShieldCheck,
+  ArrowRightIcon as ArrowRight,
+};
