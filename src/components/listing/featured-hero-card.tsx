@@ -1,58 +1,61 @@
 import Image from "next/image";
 import Link from "next/link";
+import { FavoriteButton } from "@/components/listing/favorite-button";
+import { formatPrice, formatSurface } from "@/lib/format";
 import type { ListingWithRelations } from "@/lib/listings-query";
-import { formatSurface } from "@/lib/format";
 
-const PRICE_FR = new Intl.NumberFormat("fr-FR");
-
-// Strict handoff "HeroCard" — issu de feed-editorial.jsx.
-// Full-bleed photo, label bordered en coin haut-gauche, eyebrow mono
-// sous la photo, prix géant 52px 900, meta mono, pas de rounded.
-
-interface Props {
-  listing: ListingWithRelations;
-}
-
-export function FeaturedHeroCard({ listing }: Props) {
-  const isRent = listing.transaction === "RENT";
+/**
+ * V3 « Éditorial chaleureux » — card hero "Coup de cœur" pour la colonne
+ * droite de la home (desktop) ou sous le hero (mobile).
+ * Photo 4:5 rounded-3xl, badge Coup de cœur top-left, card flottante avec
+ * prix, titre, CTA primary midnight + favori.
+ */
+export function FeaturedHeroCard({ listing }: { listing: ListingWithRelations }) {
   const href = `/annonce/${listing.slug}`;
-  const isPro = Boolean(listing.agency);
 
   return (
-    <Link href={href} className="group block">
-      {/* Hero photo full-bleed style */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-cream-2 md:aspect-[21/10]">
+    <div className="relative">
+      <Link
+        href={href}
+        className="relative block aspect-[4/5] overflow-hidden rounded-3xl bg-cream-2"
+        aria-label={listing.title}
+      >
         <Image
           src={listing.coverImage}
           alt={listing.title}
           fill
-          sizes="100vw"
+          sizes="(min-width: 1024px) 480px, 90vw"
+          className="object-cover"
           priority
-          className="object-cover transition-transform duration-500 ease-out-soft group-hover:scale-[1.02]"
         />
-        <span className="mono absolute left-3 top-3 inline-flex items-center gap-2 border border-midnight bg-cream px-2 py-1 text-[9px] font-medium uppercase tracking-[0.14em] text-midnight">
-          ◉ À LA UNE
+        <span className="badge badge-coup-de-coeur absolute left-5 top-5">
+          Coup de cœur
         </span>
-      </div>
+      </Link>
 
-      {/* Meta sous la photo — style éditorial handoff */}
-      <div className="mt-4">
-        <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted">
-          {isRent ? "LOCATION" : "VENTE"} · {isPro ? "PRO" : "PARTICULIER"} · {listing.city.name.toUpperCase()}
-          {listing.neighborhood?.name ? ` · ${listing.neighborhood.name.toUpperCase()}` : ""}
-        </p>
-        <p className="display-xl mt-1 text-[clamp(2.5rem,6vw,4rem)]">
-          {PRICE_FR.format(listing.price)}
-          <span className="mono ml-3 align-middle text-sm font-medium text-muted">
-            {isRent ? "MAD/MOIS" : "MAD"}
+      <div className="absolute inset-x-5 bottom-5 rounded-2xl bg-white p-5 shadow-lg sm:bottom-8 sm:left-8 sm:right-auto sm:max-w-[340px]">
+        <p className="eyebrow">À la une · {listing.city.name}</p>
+        <div className="mt-2 flex items-baseline gap-2">
+          <span className="display-lg font-semibold text-midnight">
+            {formatPrice(listing.price)}
           </span>
+        </div>
+        <h3 className="display-md mt-1 line-clamp-1">{listing.title}</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {formatSurface(listing.surface)}
+          {listing.bedrooms != null && ` · ${listing.bedrooms} chambres`}
+          {listing.bathrooms != null && ` · ${listing.bathrooms} sdb`}
         </p>
-        <p className="mono mt-2 text-[11px] uppercase tracking-[0.1em] text-muted">
-          {listing.title.toUpperCase()} · {formatSurface(listing.surface).toUpperCase()}
-          {listing.bedrooms != null ? ` · ${listing.bedrooms} CH` : ""}
-          {listing.bathrooms != null ? ` · ${listing.bathrooms} SDB` : ""}
-        </p>
+        <div className="mt-4 flex items-center gap-2">
+          <Link
+            href={href}
+            className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-midnight px-5 text-sm font-semibold text-cream transition-colors hover:bg-midnight-2"
+          >
+            Voir l'annonce
+          </Link>
+          <FavoriteButton slug={listing.slug} size="md" variant="outlined" />
+        </div>
       </div>
-    </Link>
+    </div>
   );
 }

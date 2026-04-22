@@ -199,6 +199,8 @@ model Listing {
   // Flags
   featured         Boolean        @default(false)
   exclusive        Boolean        @default(false)
+  // V3 éditorial : curation manuelle équipe Baboo (« Coup de cœur »).
+  coupDeCoeur      Boolean        @default(false)
 
   // SEO
   metaTitle        String?

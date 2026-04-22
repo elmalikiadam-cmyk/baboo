@@ -1,59 +1,62 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { BabooLogo } from "@/components/layout/baboo-logo";
 import { UserMenu } from "@/components/layout/user-menu";
 import { MessageCircleIcon } from "@/components/ui/icons";
 import { auth } from "@/auth";
 import { countUnreadConversations } from "@/lib/messaging";
 
-const NAV = [
-  { href: "/recherche?t=sale", label: "Acheter" },
-  { href: "/recherche?t=rent", label: "Louer" },
-  { href: "/projets", label: "Projets neufs" },
-  { href: "/pro", label: "Espace Pro" },
+const NAV_ITEMS = [
+  { label: "Acheter", href: "/recherche?t=sale" },
+  { label: "Louer", href: "/recherche?t=rent" },
+  { label: "Projets neufs", href: "/projets" },
+  { label: "Agences", href: "/agences" },
 ];
 
+/**
+ * V3 « Éditorial chaleureux » — header sticky sur fond cream 95% + backdrop.
+ * Logo baboo. à gauche, nav centrale, lien "Publier une annonce" + pill
+ * outline "Se connecter" à droite.
+ */
 export async function SiteHeader() {
   const session = await auth();
   const user = session?.user;
   const unread = user?.id ? await countUnreadConversations(user.id) : 0;
 
   return (
-    <header className="sticky top-0 z-40 h-16 border-b border-border bg-cream/80 backdrop-blur-md md:h-20">
-      <div className="container flex h-full items-center gap-8">
-        <Link
-          href="/"
-          aria-label="Baboo, accueil"
-          className="shrink-0 text-midnight transition-opacity hover:opacity-80"
-        >
-          <BabooLogo size={22} />
+    <header className="sticky top-0 z-40 border-b border-midnight/10 bg-cream/95 backdrop-blur-md">
+      <div className="container flex h-16 items-center justify-between md:h-20">
+        <Link href="/" className="flex items-center" aria-label="Accueil Baboo">
+          <BabooLogo height={28} />
         </Link>
 
-        <nav className="mx-auto hidden items-center gap-8 md:flex">
-          {NAV.map((n) => (
+        <nav
+          className="hidden items-center gap-8 md:flex"
+          aria-label="Navigation principale"
+        >
+          {NAV_ITEMS.map((item) => (
             <Link
-              key={n.href}
-              href={n.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-midnight"
+              key={item.href}
+              href={item.href}
+              className="text-sm font-medium text-midnight transition-colors hover:text-terracotta"
             >
-              {n.label}
+              {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="hidden items-center gap-4 md:flex">
           {user ? (
             <>
               <Link
                 href="/messages"
                 aria-label="Messagerie"
-                className="relative hidden h-9 w-9 place-items-center rounded-full border border-border bg-cream-2 text-midnight transition-colors hover:bg-cream-3 md:grid"
+                className="relative grid h-10 w-10 place-items-center rounded-full border border-midnight/20 bg-white text-midnight transition-colors hover:border-midnight"
               >
                 <MessageCircleIcon className="h-4 w-4" />
                 {unread > 0 && (
                   <span
-                    aria-label={`${unread} message${unread > 1 ? "s" : ""} non lu${unread > 1 ? "s" : ""}`}
-                    className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-terracotta px-1 text-[9px] font-semibold text-terracotta-foreground"
+                    aria-label={`${unread} non lu${unread > 1 ? "s" : ""}`}
+                    className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-terracotta px-1 text-[9px] font-semibold text-cream"
                   >
                     {unread > 9 ? "9+" : unread}
                   </span>
@@ -71,24 +74,43 @@ export async function SiteHeader() {
               />
             </>
           ) : (
-            <div className="hidden md:flex md:items-center md:gap-2">
-              <Link href="/connexion">
-                <Button variant="ghost" size="sm">
-                  Connexion
-                </Button>
+            <>
+              <Link
+                href="/pro/publier"
+                className="text-sm font-medium text-midnight transition-colors hover:text-terracotta"
+              >
+                Publier une annonce
               </Link>
-              <Link href="/pro/publier">
-                <Button size="sm">Publier une annonce</Button>
+              <Link
+                href="/connexion"
+                className="inline-flex h-11 items-center rounded-full border-2 border-midnight px-6 text-sm font-medium text-midnight transition-colors hover:bg-midnight hover:text-cream"
+              >
+                Se connecter
               </Link>
-            </div>
+            </>
           )}
-          {!user && (
+        </div>
+
+        {/* Mobile : avatar utilisateur ou bouton connexion */}
+        <div className="flex items-center gap-2 md:hidden">
+          {user ? (
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-midnight text-cream">
+              <span className="mono text-[11px] font-semibold">
+                {(user.name ?? user.email ?? "?")
+                  .split(" ")
+                  .slice(0, 2)
+                  .map((w) => w[0] ?? "")
+                  .join("")
+                  .toUpperCase()}
+              </span>
+            </div>
+          ) : (
             <Link
               href="/connexion"
-              aria-label="Connexion"
-              className="grid h-9 w-9 place-items-center rounded-full border border-border bg-cream-2 text-xs font-semibold text-midnight md:hidden"
+              aria-label="Se connecter"
+              className="inline-flex h-10 items-center rounded-full border-2 border-midnight px-4 text-xs font-semibold text-midnight"
             >
-              SE
+              Connexion
             </Link>
           )}
         </div>

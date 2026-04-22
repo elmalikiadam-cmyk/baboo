@@ -528,6 +528,9 @@ async function main() {
         agencyId: agencyForCity?.id ?? null,
         featured: created < 8,
         exclusive: p.index % 7 === 0,
+        // V3 éditorial — ~15% des annonces marquées « Coup de cœur » pour
+        // alimenter les badges en home et résultats de recherche.
+        coupDeCoeur: p.index % 7 === 3 || p.index % 11 === 5,
         publishedAt: new Date(Date.now() - (p.index * 86_400_000) / 3),
       },
     });

@@ -1,16 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  MapPinIcon,
-  BedIcon,
-  BathIcon,
-  Maximize2Icon,
-  CheckIcon,
-} from "@/components/ui/icons";
-import { Badge } from "@/components/ui/badge";
-import { FavoriteButton } from "@/components/listing/favorite-button";
-import { formatPrice, formatPricePerMonth } from "@/lib/format";
+import { formatPrice, formatSurface } from "@/lib/format";
 import type { ListingWithRelations } from "@/lib/listings-query";
+import { FavoriteButton } from "@/components/listing/favorite-button";
 
 type Variant = "default" | "featured" | "compact";
 
@@ -21,113 +13,116 @@ interface Props {
 }
 
 /**
- * V2 "Maison ouverte". La photo est reine (aspect 5:4 par défaut, 4:3 si
- * featured). Badge Pro/Particulier top-left, heart top-right, sticker
- * transaction bottom-left. Prix en Fraunces, facts discrets sous un hairline.
+ * V3 « Éditorial chaleureux » — card rounded-2xl sur fond blanc, photo 4:3
+ * (5:4 en compact, 16:10 en featured), badge éditorial unique
+ * (Coup de cœur / Nouveau / Exclusif / À la une) top-left, favori
+ * top-right. Prix en Fraunces semibold, localisation casse normale, méta
+ * en mono avec séparateurs ·. Divider pointillé avant le bloc mono.
  */
 export function ListingCard({ listing, variant = "default", priority }: Props) {
   const isRent = listing.transaction === "RENT";
-  const isPro = Boolean(listing.agency);
-  const verified = isPro && !!listing.agency?.verified;
   const href = `/annonce/${listing.slug}`;
-  const district = listing.neighborhood?.name ?? listing.city.name;
+  const editorialBadge = getEditorialBadge(listing);
 
-  const aspectClass = variant === "featured" ? "aspect-[4/3]" : "aspect-[5/4]";
-  const priceClass =
+  const aspectClass =
     variant === "featured"
-      ? "price-display text-[2rem] md:text-[2.125rem]"
-      : "price-display text-[1.625rem] md:text-[1.75rem]";
+      ? "aspect-[16/10]"
+      : variant === "compact"
+        ? "aspect-[5/4]"
+        : "aspect-[4/3]";
 
   return (
-    <article className="group relative overflow-hidden rounded-2xl border border-border bg-cream transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-warm">
-      <Link href={href} className="block" aria-label={listing.title}>
-        <div className={`relative ${aspectClass} overflow-hidden bg-cream-2`}>
-          <Image
-            src={listing.coverImage}
-            alt={listing.title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-            priority={priority}
-          />
-          <div className="pointer-events-none absolute inset-0 dot-pattern" aria-hidden />
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-midnight/10 bg-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md">
+      <Link
+        href={href}
+        className={`relative block ${aspectClass} overflow-hidden bg-cream-2`}
+      >
+        <Image
+          src={listing.coverImage}
+          alt={`${listing.title} à ${listing.neighborhood?.name ?? listing.city.name}`}
+          fill
+          sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
+          className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+          priority={priority}
+        />
 
-          {/* Badge Pro / Particulier */}
-          <div className="absolute left-3 top-3">
-            <Badge tone={isPro ? "dark" : "light"} size="sm">
-              {isPro && verified && (
-                <CheckIcon className="h-2.5 w-2.5 text-forest" aria-hidden />
-              )}
-              {isPro ? "Pro" : "Particulier"}
-            </Badge>
-          </div>
+        {editorialBadge && (
+          <span
+            className={`absolute left-3 top-3 badge ${editorialBadge.className}`}
+            aria-label={`Label éditorial : ${editorialBadge.label}`}
+          >
+            {editorialBadge.label}
+          </span>
+        )}
 
-          {/* Sticker transaction bottom-left */}
-          <div className="absolute bottom-3 left-3">
-            <Badge tone="light" size="sm" shape="sticker">
-              {isRent ? "À louer" : "À vendre"}
-            </Badge>
-          </div>
+        <div className="absolute right-3 top-3">
+          <FavoriteButton slug={listing.slug} variant="floating" />
         </div>
       </Link>
 
-      {/* Favorite button, positionné par le composant lui-même en top-right */}
-      <div className="absolute right-3 top-3 z-10">
-        <FavoriteButton slug={listing.slug} />
-      </div>
-
-      <Link href={href} className="block p-4">
-        {/* Prix */}
+      <Link href={href} className="flex flex-1 flex-col p-4">
+        {/* Prix — Fraunces 20px semibold */}
         <div className="flex items-baseline gap-1.5">
-          <span className={priceClass}>
-            {isRent ? formatPricePerMonth(listing.price) : formatPrice(listing.price)}
+          <span className="display-md font-semibold text-midnight">
+            {formatPrice(listing.price)}
           </span>
-        </div>
-
-        {/* Localisation */}
-        <div className="mt-2 flex items-center gap-1 text-[13px] text-muted-foreground">
-          <MapPinIcon className="h-3 w-3" aria-hidden />
-          <span className="font-medium text-midnight">{district}</span>
-          {listing.neighborhood && (
-            <>
-              <span className="text-muted">·</span>
-              <span>{listing.city.name}</span>
-            </>
+          {isRent && (
+            <span className="mono-sm text-muted-foreground">/mois</span>
           )}
         </div>
 
-        {/* Facts */}
-        <div
-          className={
-            variant === "compact"
-              ? "mt-2 flex gap-4 text-xs text-muted-foreground"
-              : "mt-3 flex gap-4 border-t border-cream-2 pt-3 text-xs text-muted-foreground"
-          }
-        >
-          {listing.bedrooms != null && (
-            <span className="inline-flex items-center gap-1.5">
-              <BedIcon className="h-3 w-3" aria-hidden />
-              <span>
-                <strong className="font-semibold text-midnight">{listing.bedrooms}</strong> ch.
-              </span>
-            </span>
-          )}
-          {listing.bathrooms != null && (
-            <span className="inline-flex items-center gap-1.5">
-              <BathIcon className="h-3 w-3" aria-hidden />
-              <span>
-                <strong className="font-semibold text-midnight">{listing.bathrooms}</strong> sdb
-              </span>
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1.5">
-            <Maximize2Icon className="h-3 w-3" aria-hidden />
-            <span>
-              <strong className="font-semibold text-midnight">{listing.surface}</strong> m²
-            </span>
-          </span>
-        </div>
+        {/* Titre */}
+        <h3 className="display-md mt-1.5 line-clamp-1 text-[1rem] text-midnight">
+          {listing.title}
+        </h3>
+
+        {/* Localisation — casse normale */}
+        <p className="mt-0.5 text-[13px] text-muted-foreground">
+          {listing.neighborhood?.name
+            ? `${listing.city.name} · ${listing.neighborhood.name}`
+            : listing.city.name}
+        </p>
+
+        {/* Divider pointillé */}
+        <div className="my-3 border-t border-dashed border-midnight/15" />
+
+        {/* Méta en mono */}
+        <p className="mono text-[11px] tracking-[0.08em] text-muted-foreground">
+          {formatSurface(listing.surface).toUpperCase()}
+          {listing.bedrooms != null && ` · ${listing.bedrooms} CH`}
+          {listing.bathrooms != null && ` · ${listing.bathrooms} SDB`}
+          {listing.pool && ` · PISCINE`}
+          {listing.seaView && ` · VUE MER`}
+        </p>
       </Link>
     </article>
   );
+}
+
+/** Un seul badge, ordre de priorité : coup de cœur > exclusif > nouveau
+ *  (publishedAt < 7j) > à la une (featured). */
+function getEditorialBadge(
+  listing: ListingWithRelations,
+): { label: string; className: string } | null {
+  if (listing.coupDeCoeur) {
+    return { label: "Coup de cœur", className: "badge-coup-de-coeur" };
+  }
+  if (listing.exclusive) {
+    return { label: "Exclusif", className: "badge-exclusif" };
+  }
+  if (isNew(listing)) {
+    return { label: "Nouveau", className: "badge-nouveau" };
+  }
+  if (listing.featured) {
+    return { label: "À la une", className: "badge-a-la-une" };
+  }
+  return null;
+}
+
+function isNew(listing: ListingWithRelations): boolean {
+  const date = listing.publishedAt ?? listing.createdAt;
+  if (!date) return false;
+  const published = typeof date === "string" ? new Date(date) : date;
+  const daysSince = (Date.now() - published.getTime()) / (1000 * 60 * 60 * 24);
+  return daysSince <= 7;
 }
