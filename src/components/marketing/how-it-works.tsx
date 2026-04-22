@@ -30,29 +30,26 @@ const STEPS = [
  * surface-warm), pas d'illustrations lourdes.
  */
 export function HowItWorks() {
+  // Le titre et l'eyebrow sont rendus par le parent (src/app/page.tsx)
+  // pour éviter un doublon. Ce composant ne rend plus que les 3 cartes
+  // numérotées.
   return (
-    <section className="mt-14">
-      <div className="mb-8">
-        <p className="eyebrow-muted">Comment ça marche</p>
-        <h2 className="display-lg mt-2">Trois étapes, pas une de plus.</h2>
-      </div>
-      <div className="grid gap-6 md:grid-cols-3">
-        {STEPS.map(({ n, Icon, title, body }) => (
-          <div
-            key={n}
-            className="rounded-2xl border border-border bg-cream p-5"
-          >
-            <div className="flex items-center gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-cream-2">
-                <Icon className="h-4 w-4 text-midnight" />
-              </span>
-              <p className="eyebrow-muted">{n}</p>
-            </div>
-            <h3 className="display-md mt-4 text-[1.125rem]">{title}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{body}</p>
+    <div className="grid gap-6 md:grid-cols-3">
+      {STEPS.map(({ n, Icon, title, body }) => (
+        <div
+          key={n}
+          className="rounded-2xl border border-border bg-cream p-5"
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-cream-2">
+              <Icon className="h-4 w-4 text-midnight" />
+            </span>
+            <p className="eyebrow-muted">{n}</p>
           </div>
-        ))}
-      </div>
-    </section>
+          <h3 className="display-md mt-4 text-[1.125rem]">{title}</h3>
+          <p className="mt-2 text-sm text-muted-foreground">{body}</p>
+        </div>
+      ))}
+    </div>
   );
 }
