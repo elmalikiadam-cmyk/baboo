@@ -54,6 +54,11 @@ model User {
   landlordVerification          LandlordVerification?  @relation("LandlordVerificationUser")
   landlordVerificationsReviewed LandlordVerification[] @relation("LandlordVerificationReviewer")
   documents                     DocumentVault[]        @relation("DocumentVaultOwner")
+
+  // Dossier locataire (Brique 3)
+  tenantProfile              TenantProfile?      @relation("TenantProfileUser")
+  tenantApplications         TenantApplication[] @relation("TenantApplicationUser")
+  tenantApplicationsReviewed TenantApplication[] @relation("TenantApplicationReviewer")
 }
 
 // Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
@@ -119,17 +124,18 @@ model Developer {
 // ---------- Geo ----------
 
 model City {
-  slug          String         @id
-  name          String
-  region        String
-  lat           Float
-  lng           Float
-  cover         String?
-  tagline       String?
-  listingCount  Int            @default(0)
-  neighborhoods Neighborhood[]
-  listings      Listing[]
-  properties    Property[]
+  slug           String          @id
+  name           String
+  region         String
+  lat            Float
+  lng            Float
+  cover          String?
+  tagline        String?
+  listingCount   Int             @default(0)
+  neighborhoods  Neighborhood[]
+  listings       Listing[]
+  properties     Property[]
+  tenantProfiles TenantProfile[]
 }
 
 model Neighborhood {
@@ -299,6 +305,7 @@ model Listing {
   favorites     Favorite[]
   leads         Lead[]
   conversations Conversation[]
+  applications  TenantApplication[] @relation("ListingApplications")
 
   @@index([citySlug, transaction, propertyType])
   @@index([status, publishedAt])
@@ -594,4 +601,149 @@ model DocumentVault {
 
   @@index([userId, category])
   @@index([relatedEntityId])
+}
+
+// ---------- Dossier locataire ----------
+
+enum EmploymentType {
+  CDI
+  CDD
+  FONCTIONNAIRE
+  INDEPENDANT
+  ETUDIANT
+  RETRAITE
+  SANS_EMPLOI
+  AUTRE
+}
+
+enum GuarantorType {
+  PARENT
+  EMPLOYEUR
+  PROCHE
+  ENTREPRISE
+  AUTRE
+}
+
+enum ApplicationStatus {
+  PENDING // Soumise, pas encore lue
+  SHORTLISTED // Présélectionnée par le bailleur
+  ACCEPTED // Retenue (bail à rédiger — Brique 5)
+  REJECTED // Refusée par le bailleur
+  WITHDRAWN // Retirée par le locataire
+}
+
+// Profil locataire — CV habitation. Un seul par user (1:1). Rempli
+// une fois, réutilisable sur toutes les candidatures. L'attribution
+// du rôle LOCATAIRE est faite en self-service dès que le profil est
+// marqué `completed` — pas de KYC admin (différent de BAILLEUR qui,
+// lui, demande validation manuelle des docs).
+model TenantProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation("TenantProfileUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Situation pro
+  employment        EmploymentType
+  employer          String?
+  position          String?
+  monthlyIncome     Int // en dirhams, brut déclaré
+  contractStartDate DateTime?
+  contractEndDate   DateTime? // pour CDD, stage
+
+  // Foyer
+  householdSize Int     @default(1)
+  hasChildren   Boolean @default(false)
+  smoker        Boolean @default(false)
+  hasPets       Boolean @default(false)
+
+  // Recherche
+  targetCitySlug String?
+  targetCity     City?     @relation(fields: [targetCitySlug], references: [slug])
+  maxBudget      Int?
+  moveInDate     DateTime?
+  bio            String?   @db.Text
+
+  // État
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  guarantors   Guarantor[]
+  applications TenantApplication[] @relation("TenantProfileApplications")
+
+  @@index([completed])
+  @@index([targetCitySlug])
+}
+
+// Garant — rattaché au TenantProfile. Un locataire peut avoir 0 ou
+// plusieurs garants (parent + employeur par exemple). Les documents
+// du garant vivent dans DocumentVault avec category=OTHER et un
+// relatedEntityId pointant sur l'id Guarantor.
+model Guarantor {
+  id              String        @id @default(cuid())
+  tenantProfileId String
+  tenantProfile   TenantProfile @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  type         GuarantorType
+  fullName     String
+  email        String?
+  phone        String?
+  relationship String? // texte libre « père », « oncle », « employeur »
+
+  // Finances (sauf pour type EMPLOYEUR / ENTREPRISE où c'est optionnel)
+  monthlyIncome Int?
+  employment    EmploymentType?
+  employer      String?
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantProfileId])
+}
+
+// Candidature = liaison TenantProfile ↔ Listing. Le scoring est
+// calculé au submit et stocké (immutable). Les re-calculs peuvent
+// arriver lors d'une update de profil ou d'une correction manuelle
+// par un admin.
+model TenantApplication {
+  id String @id @default(cuid())
+
+  listingId String
+  listing   Listing @relation("ListingApplications", fields: [listingId], references: [id], onDelete: Cascade)
+
+  // Dénormalisé pour conserver la trace du candidat même si le profil
+  // est supprimé (conformité minimale RGPD : on garde qui a postulé).
+  tenantUserId String
+  tenantUser   User   @relation("TenantApplicationUser", fields: [tenantUserId], references: [id], onDelete: Cascade)
+
+  tenantProfileId String
+  tenantProfile   TenantProfile @relation("TenantProfileApplications", fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  status  ApplicationStatus @default(PENDING)
+  message String?           @db.Text
+
+  // Scoring figé au moment de la soumission.
+  score        Int // 0-100
+  scoreLabel   String // « Solide », « Correct », « À discuter », « Fragile »
+  scoreReasons String[] // raisons lisibles pour le bailleur
+
+  // Snapshot financier pour éviter les dépendances aux champs mutables.
+  snapshotIncome Int
+  snapshotRent   Int
+  snapshotRatio  Float // revenus / loyer (mensuel)
+
+  submittedAt     DateTime  @default(now())
+  reviewedAt      DateTime?
+  reviewedBy      String?
+  reviewer        User?     @relation("TenantApplicationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  rejectionReason String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([listingId, tenantUserId])
+  @@index([listingId, status])
+  @@index([tenantUserId])
+  @@index([status, submittedAt])
 }

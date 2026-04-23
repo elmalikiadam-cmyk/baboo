@@ -191,6 +191,20 @@ export default async function ListingPage({ params }: Props) {
                   )}
                 </div>
 
+                {/* CTA Candidater — location uniquement. Affiché juste
+                 *  sous le bloc prix pour maximiser la visibilité mobile
+                 *  (au-dessus de la fold). Routage géré côté serveur
+                 *  par /annonce/[slug]/candidater qui absorbe l'état
+                 *  (non connecté / sans dossier / déjà candidaté). */}
+                {isRent && listing.status === "PUBLISHED" && (
+                  <Link
+                    href={`/annonce/${listing.slug}/candidater`}
+                    className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-full bg-terracotta px-6 text-sm font-semibold text-cream hover:bg-terracotta-2 md:hidden"
+                  >
+                    Candidater sur ce bien →
+                  </Link>
+                )}
+
                 {/* Facts */}
                 <div className="mt-5">
                   <ListingFacts
@@ -309,7 +323,15 @@ export default async function ListingPage({ params }: Props) {
             </div>
 
             {/* Sidebar desktop : contact sticky */}
-            <div className="hidden md:block">
+            <div className="hidden space-y-4 md:block">
+              {isRent && listing.status === "PUBLISHED" && (
+                <Link
+                  href={`/annonce/${listing.slug}/candidater`}
+                  className="flex h-12 w-full items-center justify-center rounded-full bg-terracotta px-6 text-sm font-semibold text-cream hover:bg-terracotta-2"
+                >
+                  Candidater sur ce bien →
+                </Link>
+              )}
               <ContactCard
                 listingId={listing.id}
                 listingTitle={listing.title}
