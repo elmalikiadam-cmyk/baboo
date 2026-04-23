@@ -8,7 +8,7 @@ import { HomeIcon, ArrowRightIcon } from "@/components/ui/icons";
 export function PublishBanner() {
   return (
     <Link
-      href="/pro/publier"
+      href="/publier"
       className="mt-8 flex items-center gap-4 rounded-2xl border border-forest/30 bg-forest-soft p-5 transition-colors hover:border-forest/50"
     >
       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-forest text-cream">

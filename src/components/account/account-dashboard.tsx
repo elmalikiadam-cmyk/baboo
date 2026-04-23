@@ -72,7 +72,7 @@ export function AccountDashboard({ isSignedIn, isAgency }: Props) {
             />
           ) : (
             <QuickLink
-              href="/pro/publier"
+              href="/publier"
               icon={<PlusIcon className="h-5 w-5" />}
               label="Publier"
               subtitle="Déposer une annonce"

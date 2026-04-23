@@ -14,9 +14,7 @@ type Props = {
 
 export default async function EditListingPage({ params }: Props) {
   const session = await auth();
-  if (!session?.user) redirect("/connexion");
-  const agencyId = session.user.agencyId;
-  if (!agencyId) redirect("/pro");
+  if (!session?.user?.id) redirect("/connexion");
 
   if (!hasDb()) notFound();
   const { id } = await params;
@@ -32,7 +30,15 @@ export default async function EditListingPage({ params }: Props) {
     .catch(() => null);
 
   if (!listing) notFound();
-  if (listing.agencyId !== agencyId) redirect("/pro/listings");
+
+  // Accès : agence propriétaire, OU owner direct (bailleur particulier).
+  const agencyId = session.user.agencyId;
+  const canEdit =
+    (agencyId && listing.agencyId === agencyId) ||
+    listing.ownerId === session.user.id;
+  if (!canEdit) {
+    redirect(agencyId ? "/pro/listings" : "/bailleur/dashboard");
+  }
 
   return (
     <div className="container py-10 md:py-16">

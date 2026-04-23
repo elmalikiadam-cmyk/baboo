@@ -18,6 +18,8 @@ enum UserRole {
   AGENCY
   DEVELOPER
   ADMIN
+  BAILLEUR
+  LOCATAIRE
 }
 
 model User {
@@ -28,18 +30,79 @@ model User {
   phone         String?
   image         String?
   passwordHash  String?
+  // Rôle « primaire » — conservé pour compat legacy. La source de vérité
+  // multi-rôles est la table UserRoleGrant (un user peut cumuler BAILLEUR,
+  // LOCATAIRE, AGENCY, etc.). Cette colonne restera populée par le helper
+  // grantRole() avec le rôle le plus privilégié actif.
   role          UserRole  @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  agency       Agency?
-  developer    Developer?
-  listings     Listing[]      @relation("ListingOwner")
-  favorites    Favorite[]
+  agency        Agency?
+  developer     Developer?
+  listings      Listing[]                 @relation("ListingOwner")
+  properties    Property[]                @relation("PropertyOwner")
+  favorites     Favorite[]
   savedSearches SavedSearch[]
-  leads        Lead[]         @relation("LeadFromUser")
+  leads         Lead[]                    @relation("LeadFromUser")
   conversations ConversationParticipant[]
-  sentMessages  Message[]     @relation("MessageSender")
+  sentMessages  Message[]                 @relation("MessageSender")
+  roleGrants    UserRoleGrant[]           @relation("RoleGrantUser")
+  rolesGranted  UserRoleGrant[]           @relation("RoleGrantedBy")
+
+  // KYC bailleur (Brique 2)
+  landlordVerification          LandlordVerification?  @relation("LandlordVerificationUser")
+  landlordVerificationsReviewed LandlordVerification[] @relation("LandlordVerificationReviewer")
+  documents                     DocumentVault[]        @relation("DocumentVaultOwner")
+
+  // Dossier locataire (Brique 3)
+  tenantProfile              TenantProfile?      @relation("TenantProfileUser")
+  tenantApplications         TenantApplication[] @relation("TenantApplicationUser")
+  tenantApplicationsReviewed TenantApplication[] @relation("TenantApplicationReviewer")
+
+  // Planificateur visites (Brique 4)
+  visitSlotsCreated      VisitSlot[]    @relation("VisitSlotCreator")
+  visitBookings          VisitBooking[] @relation("VisitBookingVisitor")
+  visitBookingsConfirmed VisitBooking[] @relation("VisitBookingConfirmer")
+
+  // Bail (Brique 5)
+  leasesAsLandlord Lease[] @relation("LeaseLandlord")
+  leasesAsTenant   Lease[] @relation("LeaseTenant")
+  leasesActivated  Lease[] @relation("LeaseActivator")
+
+  // EDL (Brique 6)
+  inventoryReportsCreated InventoryReport[] @relation("InventoryReportCreator")
+
+  // Gestion locative (Brique 7)
+  paymentsDeclared Payment[] @relation("PaymentDeclarer")
+
+  // SaaS agences + marketplace (Brique 8)
+  agencyMembership        AgencyMember?    @relation("AgencyMembership")
+  agencyMemberInvitations AgencyMember[]   @relation("AgencyMemberInviter")
+  craftsman               Craftsman?       @relation("CraftsmanUser")
+  serviceRequests         ServiceRequest[] @relation("ServiceRequestRequester")
+}
+
+// Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
+// Permet à un même compte d'être simultanément BAILLEUR + LOCATAIRE + AGENCY,
+// ce qui colle à la réalité marocaine. La source de vérité pour toute
+// vérification d'autorisation doit être cette table (voir src/lib/roles.ts),
+// pas le champ scalaire User.role qui reste legacy.
+model UserRoleGrant {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation("RoleGrantUser", fields: [userId], references: [id], onDelete: Cascade)
+  role      UserRole
+  grantedAt DateTime  @default(now())
+  grantedBy String?
+  grantor   User?     @relation("RoleGrantedBy", fields: [grantedBy], references: [id], onDelete: SetNull)
+  expiresAt DateTime?
+  revokedAt DateTime?
+  reason    String?
+
+  @@unique([userId, role])
+  @@index([userId, revokedAt])
+  @@index([role, revokedAt])
 }
 
 model Agency {
@@ -59,7 +122,8 @@ model Agency {
   citySlug    String?
   createdAt   DateTime @default(now())
 
-  listings    Listing[] @relation("ListingAgency")
+  listings Listing[]      @relation("ListingAgency")
+  members  AgencyMember[]
 
   @@index([citySlug])
 }
@@ -77,35 +141,81 @@ model Developer {
   verified    Boolean  @default(false)
   createdAt   DateTime @default(now())
 
-  projects    Project[]
+  projects Project[]
 }
 
 // ---------- Geo ----------
 
 model City {
-  slug          String         @id
-  name          String
-  region        String
-  lat           Float
-  lng           Float
-  cover         String?
-  tagline       String?
-  listingCount  Int            @default(0)
-  neighborhoods Neighborhood[]
-  listings      Listing[]
+  slug           String          @id
+  name           String
+  region         String
+  lat            Float
+  lng            Float
+  cover          String?
+  tagline        String?
+  listingCount   Int             @default(0)
+  neighborhoods  Neighborhood[]
+  listings       Listing[]
+  properties     Property[]
+  tenantProfiles TenantProfile[]
 }
 
 model Neighborhood {
-  id          String    @id @default(cuid())
-  slug        String
-  name        String
-  citySlug    String
-  city        City      @relation(fields: [citySlug], references: [slug], onDelete: Cascade)
-  lat         Float?
-  lng         Float?
-  listings    Listing[]
+  id         String     @id @default(cuid())
+  slug       String
+  name       String
+  citySlug   String
+  city       City       @relation(fields: [citySlug], references: [slug], onDelete: Cascade)
+  lat        Float?
+  lng        Float?
+  listings   Listing[]
+  properties Property[]
 
   @@unique([citySlug, slug])
+  @@index([citySlug])
+}
+
+// ---------- Property (bien physique) ----------
+
+// Un « bien » physique — distinct de « Listing » qui est une annonce.
+// Un même bien peut porter plusieurs annonces au fil du temps
+// (vente puis retrait puis remise en location, par exemple) et sera la
+// racine pour les dossiers bailleur, baux, EDL, gestion locative dans les
+// briques suivantes. Nullable sur Listing pour migration progressive.
+model Property {
+  id      String @id @default(cuid())
+  ownerId String
+  owner   User   @relation("PropertyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Identification
+  label        String? // libellé interne (« Appart Agdal 3p »)
+  propertyType PropertyType
+  surface      Int?
+  landSurface  Int?
+  bedrooms     Int?
+  bathrooms    Int?
+  floor        Int?
+  totalFloors  Int?
+  yearBuilt    Int?
+
+  // Localisation (dénormalisée pour autonomie vs Listing)
+  citySlug       String
+  city           City          @relation(fields: [citySlug], references: [slug])
+  neighborhoodId String?
+  neighborhood   Neighborhood? @relation(fields: [neighborhoodId], references: [id])
+  addressLine    String?
+  lat            Float?
+  lng            Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listings        Listing[]        @relation("ListingProperty")
+  leases          Lease[]          @relation("PropertyLeases")
+  serviceRequests ServiceRequest[] @relation("PropertyServiceRequests")
+
+  @@index([ownerId])
   @@index([citySlug])
 }
 
@@ -144,90 +254,101 @@ enum Condition {
 }
 
 model Listing {
-  id             String         @id @default(cuid())
-  slug           String         @unique
-  title          String
-  description    String         @db.Text
-  transaction    Transaction
-  propertyType   PropertyType
-  status         ListingStatus  @default(PENDING)
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  title        String
+  description  String        @db.Text
+  transaction  Transaction
+  propertyType PropertyType
+  status       ListingStatus @default(PENDING)
 
-  price          Int
-  charges        Int?
-  surface        Int
-  landSurface    Int?
-  bedrooms       Int?
-  bathrooms      Int?
-  floor          Int?
-  totalFloors    Int?
-  condition      Condition?
-  yearBuilt      Int?
+  price       Int
+  charges     Int?
+  surface     Int
+  landSurface Int?
+  bedrooms    Int?
+  bathrooms   Int?
+  floor       Int?
+  totalFloors Int?
+  condition   Condition?
+  yearBuilt   Int?
 
   // Amenities (denormalized boolean columns — keeps filters fast)
-  parking          Boolean @default(false)
-  elevator         Boolean @default(false)
-  furnished        Boolean @default(false)
-  terrace          Boolean @default(false)
-  balcony          Boolean @default(false)
-  garden           Boolean @default(false)
-  pool             Boolean @default(false)
-  security         Boolean @default(false)
-  seaView          Boolean @default(false)
-  airConditioning  Boolean @default(false)
-  concierge        Boolean @default(false)
+  parking         Boolean @default(false)
+  elevator        Boolean @default(false)
+  furnished       Boolean @default(false)
+  terrace         Boolean @default(false)
+  balcony         Boolean @default(false)
+  garden          Boolean @default(false)
+  pool            Boolean @default(false)
+  security        Boolean @default(false)
+  seaView         Boolean @default(false)
+  airConditioning Boolean @default(false)
+  concierge       Boolean @default(false)
 
   // Location
-  citySlug         String
-  city             City           @relation(fields: [citySlug], references: [slug])
-  neighborhoodId   String?
-  neighborhood     Neighborhood?  @relation(fields: [neighborhoodId], references: [id])
-  addressLine      String?
-  addressHidden    Boolean        @default(true)
-  lat              Float
-  lng              Float
+  citySlug       String
+  city           City          @relation(fields: [citySlug], references: [slug])
+  neighborhoodId String?
+  neighborhood   Neighborhood? @relation(fields: [neighborhoodId], references: [id])
+  addressLine    String?
+  addressHidden  Boolean       @default(true)
+  lat            Float
+  lng            Float
 
   // Media
-  coverImage       String
-  images           ListingMedia[]
+  coverImage String
+  images     ListingMedia[]
 
   // Ownership
-  ownerId          String
-  owner            User           @relation("ListingOwner", fields: [ownerId], references: [id])
-  agencyId         String?
-  agency           Agency?        @relation("ListingAgency", fields: [agencyId], references: [id])
+  ownerId  String
+  owner    User    @relation("ListingOwner", fields: [ownerId], references: [id])
+  agencyId String?
+  agency   Agency? @relation("ListingAgency", fields: [agencyId], references: [id])
+
+  // Bien physique sous-jacent — nullable pendant la migration (backfill via
+  // scripts/backfill-property.ts). Devra redevenir obligatoire dans une
+  // brique ultérieure une fois le parc entièrement migré.
+  propertyId String?
+  property   Property? @relation("ListingProperty", fields: [propertyId], references: [id], onDelete: SetNull)
 
   // Flags
-  featured         Boolean        @default(false)
-  exclusive        Boolean        @default(false)
+  featured    Boolean @default(false)
+  exclusive   Boolean @default(false)
   // V3 éditorial : curation manuelle équipe Baboo (« Coup de cœur »).
-  coupDeCoeur      Boolean        @default(false)
+  coupDeCoeur Boolean @default(false)
 
   // SEO
-  metaTitle        String?
-  metaDescription  String?
+  metaTitle       String?
+  metaDescription String?
 
   // Timestamps
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  publishedAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
 
-  favorites        Favorite[]
-  leads            Lead[]
-  conversations    Conversation[]
+  favorites     Favorite[]
+  leads         Lead[]
+  conversations Conversation[]
+  applications  TenantApplication[] @relation("ListingApplications")
+  visitSlots    VisitSlot[]         @relation("ListingVisitSlots")
+  visitBookings VisitBooking[]      @relation("ListingVisitBookings")
+  leases        Lease[]             @relation("ListingLeases")
 
   @@index([citySlug, transaction, propertyType])
   @@index([status, publishedAt])
   @@index([status, featured, publishedAt])
   @@index([price])
+  @@index([propertyId])
 }
 
 model ListingMedia {
-  id         String   @id @default(cuid())
-  listingId  String
-  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  url        String
-  alt        String?
-  position   Int      @default(0)
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  position  Int     @default(0)
 
   @@index([listingId])
 }
@@ -235,26 +356,26 @@ model ListingMedia {
 // ---------- Engagement ----------
 
 model Favorite {
-  id         String   @id @default(cuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  listingId  String
-  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
   @@unique([userId, listingId])
   @@index([userId])
 }
 
 model SavedSearch {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  query       String   @db.Text
-  frequency   String   @default("daily") // instant | daily | weekly
-  lastRunAt   DateTime?
-  createdAt   DateTime @default(now())
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  query     String    @db.Text
+  frequency String    @default("daily") // instant | daily | weekly
+  lastRunAt DateTime?
+  createdAt DateTime  @default(now())
 
   @@index([userId])
 }
@@ -269,24 +390,24 @@ enum LeadStatus {
 }
 
 model Lead {
-  id          String     @id @default(cuid())
+  id        String     @id @default(cuid())
   // Si rattaché à une annonce. Optionnel pour les leads issus du formulaire
   // de contact général ou d'une demande de brochure projet.
-  listingId   String?
-  listing     Listing?   @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  listingId String?
+  listing   Listing?   @relation(fields: [listingId], references: [id], onDelete: SetNull)
   // Si rattaché à un projet neuf (demande de brochure).
-  projectId   String?
-  project     Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  userId      String?
-  user        User?      @relation("LeadFromUser", fields: [userId], references: [id])
-  name        String
-  email       String
-  phone       String?
-  message     String     @db.Text
+  projectId String?
+  project   Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  userId    String?
+  user      User?      @relation("LeadFromUser", fields: [userId], references: [id])
+  name      String
+  email     String
+  phone     String?
+  message   String     @db.Text
   // form | whatsapp | call | visit | project | general | publication-interest
-  source      String     @default("form")
-  status      LeadStatus @default(NEW)
-  createdAt   DateTime   @default(now())
+  source    String     @default("form")
+  status    LeadStatus @default(NEW)
+  createdAt DateTime   @default(now())
 
   @@index([listingId, createdAt])
   @@index([projectId, createdAt])
@@ -318,22 +439,22 @@ model Project {
   status       ProjectStatus @default(SELLING)
   createdAt    DateTime      @default(now())
 
-  units        ProjectUnit[]
-  leads        Lead[]
+  units ProjectUnit[]
+  leads Lead[]
 
   @@index([citySlug])
 }
 
 model ProjectUnit {
-  id           String   @id @default(cuid())
+  id           String       @id @default(cuid())
   projectId    String
-  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   label        String
   propertyType PropertyType
   bedrooms     Int?
   surface      Int
   price        Int
-  available    Boolean  @default(true)
+  available    Boolean      @default(true)
 
   @@index([projectId])
 }
@@ -341,12 +462,12 @@ model ProjectUnit {
 // ---------- Messaging ----------
 
 model Conversation {
-  id           String                    @id @default(cuid())
-  listingId    String?
-  listing      Listing?                  @relation(fields: [listingId], references: [id], onDelete: SetNull)
-  subject      String?
-  createdAt    DateTime                  @default(now())
-  lastMessageAt DateTime                 @default(now())
+  id            String   @id @default(cuid())
+  listingId     String?
+  listing       Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  subject       String?
+  createdAt     DateTime @default(now())
+  lastMessageAt DateTime @default(now())
 
   participants ConversationParticipant[]
   messages     Message[]
@@ -399,4 +520,762 @@ model AuthToken {
 
   @@index([userId, purpose])
   @@index([expiresAt])
+}
+
+// ---------- KYC bailleur ----------
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum KycOwnershipType {
+  TITRE_FONCIER
+  ACTE_NOTARIE
+  ATTESTATION_AYANTS_DROIT
+  MANDAT
+  AUTRE
+}
+
+enum KycIdType {
+  CIN
+  PASSPORT
+  RESIDENCE_PERMIT
+}
+
+// Dossier de vérification bailleur — un seul par user (cardinalité 1:1).
+// L'approbation déclenche grantRole(BAILLEUR). Le rejet peut être
+// corrigé par le user (re-soumission = reset du statut en PENDING).
+//
+// La table DocumentVault stocke les fichiers physiques ; on garde ici
+// uniquement les pointeurs + métadonnées légales.
+model LandlordVerification {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation("LandlordVerificationUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  status KycStatus @default(PENDING)
+
+  // Identité
+  idType       KycIdType
+  idNumber     String?
+  idFrontDocId String?
+  idFrontDoc   DocumentVault? @relation("KycIdFront", fields: [idFrontDocId], references: [id], onDelete: SetNull)
+  idBackDocId  String?
+  idBackDoc    DocumentVault? @relation("KycIdBack", fields: [idBackDocId], references: [id], onDelete: SetNull)
+
+  // Droit de louer
+  ownershipType  KycOwnershipType @default(ATTESTATION_AYANTS_DROIT)
+  ownershipDocId String?
+  ownershipDoc   DocumentVault?   @relation("KycOwnership", fields: [ownershipDocId], references: [id], onDelete: SetNull)
+  attestation    Boolean          @default(false) // case « j'atteste avoir le droit de louer ce bien »
+
+  // Paiement (optionnel pour publier, requis pour la gestion locative v1)
+  ribDocId  String?
+  ribDoc    DocumentVault? @relation("KycRib", fields: [ribDocId], references: [id], onDelete: SetNull)
+  ibanLast4 String? // on ne stocke pas l'IBAN complet ; juste les 4 derniers
+
+  // Audit
+  submittedAt     DateTime  @default(now())
+  reviewedAt      DateTime?
+  reviewedBy      String?
+  reviewer        User?     @relation("LandlordVerificationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  rejectionReason String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, submittedAt])
+  @@index([reviewedBy])
+}
+
+// Coffre-fort de documents — table unique pour tous les fichiers privés
+// liés à un user (KYC, RIB, titres, baux, EDL, quittances à venir).
+// Les fichiers sont stockés dans le bucket privé Supabase ; `path` est la
+// clé S3-like, `signedUrl` n'est JAMAIS persistée (re-générée à la demande).
+enum DocumentCategory {
+  KYC_ID
+  KYC_OWNERSHIP
+  KYC_RIB
+  LEASE // bail signé (Brique 5)
+  INVENTORY // EDL (Brique 6)
+  RECEIPT // quittance de loyer (Brique 7)
+  OTHER
+}
+
+model DocumentVault {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("DocumentVaultOwner", fields: [userId], references: [id], onDelete: Cascade)
+
+  category DocumentCategory
+  path     String           @unique // clé dans le bucket privé
+  filename String
+  mimeType String
+  size     Int // bytes
+
+  // Tag libre pour retrouver le contexte (« listing:xxx », « lease:yyy »)
+  relatedEntityId String?
+
+  uploadedAt DateTime  @default(now())
+  deletedAt  DateTime? // soft-delete pour audit / conformité loi 09-08
+
+  // Relations inverses vers LandlordVerification (pointeurs nommés)
+  kycIdFronts   LandlordVerification[] @relation("KycIdFront")
+  kycIdBacks    LandlordVerification[] @relation("KycIdBack")
+  kycOwnerships LandlordVerification[] @relation("KycOwnership")
+  kycRibs       LandlordVerification[] @relation("KycRib")
+
+  // Relations inverses vers Lease (Brique 5)
+  leaseGenerated Lease[] @relation("LeaseGeneratedDoc")
+  leaseSigned    Lease[] @relation("LeaseSignedDoc")
+
+  // Relations inverses vers RentPeriod (Brique 7)
+  rentReceipts RentPeriod[] @relation("RentReceiptDoc")
+
+  @@index([userId, category])
+  @@index([relatedEntityId])
+}
+
+// ---------- Dossier locataire ----------
+
+enum EmploymentType {
+  CDI
+  CDD
+  FONCTIONNAIRE
+  INDEPENDANT
+  ETUDIANT
+  RETRAITE
+  SANS_EMPLOI
+  AUTRE
+}
+
+enum GuarantorType {
+  PARENT
+  EMPLOYEUR
+  PROCHE
+  ENTREPRISE
+  AUTRE
+}
+
+enum ApplicationStatus {
+  PENDING // Soumise, pas encore lue
+  SHORTLISTED // Présélectionnée par le bailleur
+  ACCEPTED // Retenue (bail à rédiger — Brique 5)
+  REJECTED // Refusée par le bailleur
+  WITHDRAWN // Retirée par le locataire
+}
+
+// Profil locataire — CV habitation. Un seul par user (1:1). Rempli
+// une fois, réutilisable sur toutes les candidatures. L'attribution
+// du rôle LOCATAIRE est faite en self-service dès que le profil est
+// marqué `completed` — pas de KYC admin (différent de BAILLEUR qui,
+// lui, demande validation manuelle des docs).
+model TenantProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation("TenantProfileUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Situation pro
+  employment        EmploymentType
+  employer          String?
+  position          String?
+  monthlyIncome     Int // en dirhams, brut déclaré
+  contractStartDate DateTime?
+  contractEndDate   DateTime? // pour CDD, stage
+
+  // Foyer
+  householdSize Int     @default(1)
+  hasChildren   Boolean @default(false)
+  smoker        Boolean @default(false)
+  hasPets       Boolean @default(false)
+
+  // Recherche
+  targetCitySlug String?
+  targetCity     City?     @relation(fields: [targetCitySlug], references: [slug])
+  maxBudget      Int?
+  moveInDate     DateTime?
+  bio            String?   @db.Text
+
+  // État
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  guarantors   Guarantor[]
+  applications TenantApplication[] @relation("TenantProfileApplications")
+
+  @@index([completed])
+  @@index([targetCitySlug])
+}
+
+// Garant — rattaché au TenantProfile. Un locataire peut avoir 0 ou
+// plusieurs garants (parent + employeur par exemple). Les documents
+// du garant vivent dans DocumentVault avec category=OTHER et un
+// relatedEntityId pointant sur l'id Guarantor.
+model Guarantor {
+  id              String        @id @default(cuid())
+  tenantProfileId String
+  tenantProfile   TenantProfile @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  type         GuarantorType
+  fullName     String
+  email        String?
+  phone        String?
+  relationship String? // texte libre « père », « oncle », « employeur »
+
+  // Finances (sauf pour type EMPLOYEUR / ENTREPRISE où c'est optionnel)
+  monthlyIncome Int?
+  employment    EmploymentType?
+  employer      String?
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantProfileId])
+}
+
+// Candidature = liaison TenantProfile ↔ Listing. Le scoring est
+// calculé au submit et stocké (immutable). Les re-calculs peuvent
+// arriver lors d'une update de profil ou d'une correction manuelle
+// par un admin.
+model TenantApplication {
+  id String @id @default(cuid())
+
+  listingId String
+  listing   Listing @relation("ListingApplications", fields: [listingId], references: [id], onDelete: Cascade)
+
+  // Dénormalisé pour conserver la trace du candidat même si le profil
+  // est supprimé (conformité minimale RGPD : on garde qui a postulé).
+  tenantUserId String
+  tenantUser   User   @relation("TenantApplicationUser", fields: [tenantUserId], references: [id], onDelete: Cascade)
+
+  tenantProfileId String
+  tenantProfile   TenantProfile @relation("TenantProfileApplications", fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  status  ApplicationStatus @default(PENDING)
+  message String?           @db.Text
+
+  // Scoring figé au moment de la soumission.
+  score        Int // 0-100
+  scoreLabel   String // « Solide », « Correct », « À discuter », « Fragile »
+  scoreReasons String[] // raisons lisibles pour le bailleur
+
+  // Snapshot financier pour éviter les dépendances aux champs mutables.
+  snapshotIncome Int
+  snapshotRent   Int
+  snapshotRatio  Float // revenus / loyer (mensuel)
+
+  submittedAt     DateTime  @default(now())
+  reviewedAt      DateTime?
+  reviewedBy      String?
+  reviewer        User?     @relation("TenantApplicationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  rejectionReason String?   @db.Text
+
+  // Bail généré à partir de cette candidature (Brique 5). Au plus un
+  // bail par candidature — relation 1:0..1.
+  lease Lease? @relation("ApplicationLease")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([listingId, tenantUserId])
+  @@index([listingId, status])
+  @@index([tenantUserId])
+  @@index([status, submittedAt])
+}
+
+// ---------- Planificateur visites ----------
+
+enum VisitBookingStatus {
+  BOOKED // Réservé par le candidat, pas encore confirmé
+  CONFIRMED // Confirmé par le bailleur (après pré-sélection)
+  CANCELLED // Annulé par l'une ou l'autre partie
+  NO_SHOW // Candidat absent le jour J
+  COMPLETED // Visite réalisée
+}
+
+// Créneau de visite défini par le bailleur / l'agence pour une annonce.
+// Un créneau peut accepter plusieurs bookings (visite groupée) si
+// maxBookings > 1, sinon il se ferme automatiquement au premier.
+model VisitSlot {
+  id String @id @default(cuid())
+
+  listingId String
+  listing   Listing @relation("ListingVisitSlots", fields: [listingId], references: [id], onDelete: Cascade)
+
+  // Créneau temporel. startsAt et endsAt sont stockés en UTC ; la vue
+  // utilise la timezone Africa/Casablanca pour l'affichage.
+  startsAt DateTime
+  endsAt   DateTime
+
+  // Nb max de réservations pour ce créneau. 1 = visite privée. >1 =
+  // visite groupée (open house).
+  maxBookings Int @default(1)
+
+  // Note interne visible uniquement par le bailleur (« prévoir 15min
+  // de tampon », « code porte 4567 », etc.).
+  internalNote String? @db.Text
+
+  createdAt DateTime @default(now())
+  createdBy String
+  creator   User     @relation("VisitSlotCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  bookings VisitBooking[]
+
+  @@index([listingId, startsAt])
+  @@index([startsAt])
+}
+
+// Réservation d'un créneau par un candidat.
+model VisitBooking {
+  id String @id @default(cuid())
+
+  slotId String
+  slot   VisitSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+
+  // Dénormalisé pour filtrer rapidement par annonce / user sans join.
+  listingId String
+  listing   Listing @relation("ListingVisitBookings", fields: [listingId], references: [id], onDelete: Cascade)
+
+  visitorUserId String
+  visitorUser   User   @relation("VisitBookingVisitor", fields: [visitorUserId], references: [id], onDelete: Cascade)
+
+  status  VisitBookingStatus @default(BOOKED)
+  message String?            @db.Text
+
+  // Audit
+  confirmedAt DateTime?
+  confirmedBy String?
+  confirmer   User?     @relation("VisitBookingConfirmer", fields: [confirmedBy], references: [id], onDelete: SetNull)
+
+  cancelledAt        DateTime?
+  cancelledBy        String? // soit visitor, soit bailleur
+  cancellationReason String?   @db.Text
+
+  // Suivi rappels (QStash). reminderScheduledId = id du job QStash
+  // stocké pour pouvoir l'annuler si le booking est annulé avant
+  // envoi.
+  reminderScheduledId String?
+  reminderSentAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([slotId, visitorUserId])
+  @@index([listingId, status])
+  @@index([visitorUserId])
+  @@index([status])
+}
+
+// ---------- Bail (contrat de location) ----------
+
+enum LeaseStatus {
+  DRAFT // Brouillon éditable
+  GENERATED // PDF généré, en attente de signature physique
+  SIGNED_UPLOADED // Version signée uploadée, en attente d'activation
+  ACTIVE // Bail actif (gestion locative en cours — Brique 7)
+  TERMINATED // Résilié (fin anticipée)
+  EXPIRED // Arrivé au terme naturel
+}
+
+enum LeaseFurnishing {
+  FURNISHED
+  UNFURNISHED
+  SEMI_FURNISHED
+}
+
+// Contrat de location. Pas de signature électronique en V1 — le PDF
+// est généré, téléchargé, signé physiquement, re-uploadé en version
+// signée. L'activation manuelle par le bailleur clôt le workflow.
+// Référence légale : loi 67-12 (bail d'habitation au Maroc).
+model Lease {
+  id String @id @default(cuid())
+
+  // Rattachement bien / annonce (l'annonce peut être archivée après
+  // coup sans que le bail disparaisse).
+  propertyId String?
+  property   Property? @relation("PropertyLeases", fields: [propertyId], references: [id], onDelete: SetNull)
+  listingId  String?
+  listing    Listing?  @relation("ListingLeases", fields: [listingId], references: [id], onDelete: SetNull)
+
+  // Parties
+  landlordUserId String
+  landlordUser   User   @relation("LeaseLandlord", fields: [landlordUserId], references: [id], onDelete: Restrict)
+  tenantUserId   String
+  tenantUser     User   @relation("LeaseTenant", fields: [tenantUserId], references: [id], onDelete: Restrict)
+
+  // Provenance (optionnel : un bail peut être créé hors flux candidature)
+  applicationId String?            @unique
+  application   TenantApplication? @relation("ApplicationLease", fields: [applicationId], references: [id], onDelete: SetNull)
+
+  status LeaseStatus @default(DRAFT)
+
+  // Termes financiers
+  monthlyRent    Int // MAD, hors charges
+  monthlyCharges Int @default(0)
+  depositAmount  Int // caution, typiquement 2 mois de loyer
+  paymentDay     Int @default(1) // jour du mois 1-28
+
+  // Termes temporels
+  startDate        DateTime
+  endDate          DateTime? // NULL = bail à durée indéterminée (reconduction tacite)
+  noticePeriodDays Int       @default(90) // préavis 3 mois par défaut (loi 67-12)
+
+  // Caractéristiques
+  furnishing      LeaseFurnishing @default(UNFURNISHED)
+  propertyAddress String          @db.Text // adresse textuelle complète pour le PDF
+  propertyCity    String
+  propertySurface Int // m²
+
+  // Clauses additionnelles librement rédigées par le bailleur.
+  specialClauses String? @db.Text
+
+  // Documents — chemins dans DocumentVault (bucket privé).
+  generatedDocId String?
+  generatedDoc   DocumentVault? @relation("LeaseGeneratedDoc", fields: [generatedDocId], references: [id], onDelete: SetNull)
+  signedDocId    String?
+  signedDoc      DocumentVault? @relation("LeaseSignedDoc", fields: [signedDocId], references: [id], onDelete: SetNull)
+
+  // Audit
+  generatedAt       DateTime?
+  signedUploadedAt  DateTime?
+  activatedAt       DateTime?
+  activatedBy       String?
+  activator         User?     @relation("LeaseActivator", fields: [activatedBy], references: [id], onDelete: SetNull)
+  terminatedAt      DateTime?
+  terminationReason String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // États des lieux (Brique 6) — entrée + sortie.
+  inventoryReports InventoryReport[] @relation("LeaseInventoryReports")
+
+  // Gestion locative (Brique 7) — périodes mensuelles générées
+  // automatiquement à partir du bail ACTIVE.
+  rentPeriods RentPeriod[] @relation("LeaseRentPeriods")
+
+  // Demandes d'intervention (Brique 8) — bailleur ou locataire
+  // peut créer une ServiceRequest rattachée au bail.
+  serviceRequests ServiceRequest[] @relation("LeaseServiceRequests")
+
+  @@index([landlordUserId, status])
+  @@index([tenantUserId, status])
+  @@index([propertyId])
+  @@index([status])
+}
+
+// ---------- État des lieux (EDL) ----------
+
+enum InventoryType {
+  ENTRY // EDL d'entrée (à la remise des clés)
+  EXIT // EDL de sortie (au départ du locataire)
+}
+
+enum InventoryStatus {
+  DRAFT // En cours d'édition
+  VALIDATED // Validé par les deux parties (figé)
+}
+
+enum RoomCondition {
+  EXCELLENT
+  GOOD
+  AVERAGE
+  POOR
+}
+
+// État des lieux rattaché à un bail. Deux rapports par bail au max :
+// un EDL d'entrée (obligatoire à la remise des clés) et un EDL de
+// sortie (au départ). Les deux parties valident par une checkbox
+// (pas de signature électronique en V1). Le PDF d'archive pourra
+// être généré ultérieurement.
+//
+// Référence légale : article 6 de la loi 67-12 — l'EDL doit être
+// établi contradictoirement et contresigné par les deux parties,
+// sous peine de présumer que le locataire a reçu le bien en bon état.
+model InventoryReport {
+  id String @id @default(cuid())
+
+  leaseId String
+  lease   Lease  @relation("LeaseInventoryReports", fields: [leaseId], references: [id], onDelete: Cascade)
+
+  type   InventoryType
+  status InventoryStatus @default(DRAFT)
+
+  // Notes générales du rapport (clés, compteurs, remarques globales).
+  generalNotes String? @db.Text
+
+  // Validations contradictoires — un booléen par partie + un timestamp.
+  // Lorsque les deux sont true, le statut passe à VALIDATED
+  // automatiquement côté action.
+  landlordValidated   Boolean   @default(false)
+  landlordValidatedAt DateTime?
+  tenantValidated     Boolean   @default(false)
+  tenantValidatedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  creator   User     @relation("InventoryReportCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+
+  rooms InventoryRoom[]
+
+  @@unique([leaseId, type])
+  @@index([status])
+  @@index([leaseId, status])
+}
+
+// Pièce ou zone de l'EDL (« Salon », « Cuisine », « Chambre 1 »,
+// « Extérieur »…). Ordre personnalisable. Condition globale par pièce
+// + notes libres. Les photos sont stockées dans DocumentVault avec
+// category=INVENTORY et relatedEntityId pointant sur l'id de la pièce.
+model InventoryRoom {
+  id       String          @id @default(cuid())
+  reportId String
+  report   InventoryReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  name      String
+  condition RoomCondition @default(GOOD)
+  notes     String?       @db.Text
+  order     Int           @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reportId, order])
+}
+
+// ---------- Gestion locative ----------
+
+enum RentPeriodStatus {
+  DUE // Non encore échue ou échue sans paiement
+  PARTIALLY_PAID // Paiement partiel reçu
+  PAID // Intégralement payée
+  LATE // Échue depuis > 5 jours sans paiement intégral
+  WAIVED // Loyer abandonné par le bailleur (mois offert, négociation)
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CASH
+  CHECK
+  STANDING_ORDER // prélèvement / virement permanent
+  OTHER
+}
+
+// Une période de loyer = un mois de location. Générée
+// automatiquement par `generateRentPeriods()` à partir du bail
+// (startDate, endDate, monthlyRent, monthlyCharges, paymentDay).
+// Les montants sont snapshot pour ne pas bouger si le bail est modifié
+// rétroactivement (cas improbable mais sécurise l'historique légal).
+model RentPeriod {
+  id String @id @default(cuid())
+
+  leaseId String
+  lease   Lease  @relation("LeaseRentPeriods", fields: [leaseId], references: [id], onDelete: Cascade)
+
+  periodStart DateTime // début de période (premier du mois dans le cas standard)
+  periodEnd   DateTime // fin de période (dernier du mois)
+  dueDate     DateTime // échéance de paiement (paymentDay)
+
+  amountRent    Int // snapshot depuis Lease.monthlyRent
+  amountCharges Int // snapshot depuis Lease.monthlyCharges
+  amountTotal   Int // rent + charges
+
+  status RentPeriodStatus @default(DUE)
+
+  // Quittance PDF générée — un seul doc par période, replace-safe.
+  receiptDocId       String?
+  receiptDoc         DocumentVault? @relation("RentReceiptDoc", fields: [receiptDocId], references: [id], onDelete: SetNull)
+  receiptGeneratedAt DateTime?
+
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([leaseId, periodStart])
+  @@index([leaseId, dueDate])
+  @@index([status])
+  @@index([leaseId, status])
+}
+
+// Déclaration de paiement. Peut être créée par le bailleur (« je
+// confirme avoir reçu ») ou par le locataire (« j'ai payé tel jour »).
+// Plusieurs paiements possibles sur une même période (ex: arrhes +
+// solde). Le status de la période est recalculé à chaque modification.
+model Payment {
+  id String @id @default(cuid())
+
+  rentPeriodId String
+  rentPeriod   RentPeriod @relation(fields: [rentPeriodId], references: [id], onDelete: Cascade)
+
+  declaredById   String
+  declaredBy     User   @relation("PaymentDeclarer", fields: [declaredById], references: [id], onDelete: Restrict)
+  // Rôle sous lequel la personne a déclaré le paiement. Permet de
+  // distinguer les déclarations du bailleur (qui valent preuve de
+  // réception) de celles du locataire (qui demandent confirmation).
+  declaredByRole String // "LANDLORD" ou "TENANT"
+
+  amount    Int // MAD, toujours positif
+  method    PaymentMethod @default(BANK_TRANSFER)
+  reference String? // N° de virement, N° de chèque, etc.
+  paidAt    DateTime // date effective du paiement (pas du déclarant)
+  notes     String?       @db.Text
+
+  createdAt DateTime @default(now())
+
+  @@index([rentPeriodId])
+  @@index([declaredById])
+}
+
+// ---------- Multi-utilisateurs agence ----------
+
+enum AgencyMemberRole {
+  OWNER // Créateur / propriétaire de l'agence
+  MANAGER // Droits sur annonces, leads, équipe, finances
+  AGENT // Droits sur annonces + leads seulement
+}
+
+// Rattachement user ↔ agence avec rôle fonctionnel. Un user peut
+// appartenir à une seule agence à la fois (unique userId). Permet à
+// plusieurs personnes (directeur, agents, assistants) de se partager
+// la gestion d'une même agence.
+//
+// L'utilisateur Agency.userId historique reste = OWNER par convention.
+// À la création d'une agence, on insère automatiquement une ligne
+// AgencyMember OWNER pour uniformiser les requêtes.
+model AgencyMember {
+  id String @id @default(cuid())
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  userId String @unique
+  user   User   @relation("AgencyMembership", fields: [userId], references: [id], onDelete: Cascade)
+
+  role AgencyMemberRole @default(AGENT)
+
+  invitedBy String?
+  inviter   User?     @relation("AgencyMemberInviter", fields: [invitedBy], references: [id], onDelete: SetNull)
+  invitedAt DateTime?
+  joinedAt  DateTime  @default(now())
+
+  @@index([agencyId, role])
+}
+
+// ---------- Marketplace artisans ----------
+
+enum CraftsmanSpeciality {
+  PLOMBERIE
+  ELECTRICITE
+  PEINTURE
+  MACONNERIE
+  SERRURERIE
+  MENUISERIE
+  CLIMATISATION
+  NETTOYAGE
+  JARDINAGE
+  MULTITRAVAUX // « homme à tout faire »
+  AUTRE
+}
+
+// Profil artisan — rattaché à un compte User (1:1 pour la V1). Le
+// profil est visible publiquement dans /artisans dès qu'il est créé,
+// mais ne porte le badge « vérifié » qu'après validation admin.
+model Craftsman {
+  id String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation("CraftsmanUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  slug        String              @unique
+  displayName String
+  speciality  CraftsmanSpeciality
+  description String?             @db.Text
+
+  phone    String
+  whatsapp String?
+  email    String?
+
+  // Villes d'intervention — slugs de City, array natif Postgres.
+  serviceCitySlugs String[]
+
+  // Tarification indicative (optionnel) — chaîne libre pour V1
+  // (« 150 MAD la visite », « sur devis », etc.).
+  rateInfo String?
+
+  photo String? // URL photo profil (bucket public)
+  cover String? // bannière portfolio
+
+  verified   Boolean   @default(false)
+  verifiedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  serviceRequests ServiceRequest[] @relation("ServiceRequestCraftsman")
+
+  @@index([speciality, verified])
+  @@index([verified, createdAt])
+}
+
+enum ServiceRequestStatus {
+  OPEN // Créée, en attente d'assignation ou de devis
+  ASSIGNED // Assignée à un artisan, en attente d'acceptation
+  ACCEPTED // Acceptée par l'artisan
+  IN_PROGRESS // Intervention en cours
+  COMPLETED // Terminée
+  CANCELLED // Annulée (par le demandeur ou l'artisan)
+}
+
+// Demande d'intervention : bailleur ou locataire déclare un besoin
+// (fuite, panne électrique, peinture…), optionnellement rattaché à un
+// bail (pour que les deux parties y aient accès). Le demandeur peut
+// directement assigner un artisan du directory, ou laisser la demande
+// OPEN pour recevoir des propositions (flow à enrichir en V2).
+model ServiceRequest {
+  id String @id @default(cuid())
+
+  // Provenance : bail (optionnel pour retrouver via /bailleur/
+  // interventions et /locataire/interventions).
+  leaseId String?
+  lease   Lease?  @relation("LeaseServiceRequests", fields: [leaseId], references: [id], onDelete: SetNull)
+
+  propertyId String?
+  property   Property? @relation("PropertyServiceRequests", fields: [propertyId], references: [id], onDelete: SetNull)
+
+  requesterUserId String
+  requesterUser   User   @relation("ServiceRequestRequester", fields: [requesterUserId], references: [id], onDelete: Restrict)
+
+  // Typologie
+  speciality  CraftsmanSpeciality
+  title       String
+  description String              @db.Text
+  budgetMin   Int? // MAD, optionnel
+  budgetMax   Int?
+  urgency     String? // libre : « urgent », « dans la semaine »…
+
+  // Attribution
+  status              ServiceRequestStatus @default(OPEN)
+  assignedCraftsmanId String?
+  assignedCraftsman   Craftsman?           @relation("ServiceRequestCraftsman", fields: [assignedCraftsmanId], references: [id], onDelete: SetNull)
+
+  // Audit
+  assignedAt         DateTime?
+  acceptedAt         DateTime?
+  completedAt        DateTime?
+  cancelledAt        DateTime?
+  cancellationReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([requesterUserId, status])
+  @@index([assignedCraftsmanId, status])
+  @@index([speciality, status])
+  @@index([status])
 }

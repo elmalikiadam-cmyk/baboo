@@ -191,6 +191,28 @@ export default async function ListingPage({ params }: Props) {
                   )}
                 </div>
 
+                {/* CTAs location (mobile). Candidater = primaire,
+                 *  Réserver une visite = secondaire. Les deux sont
+                 *  routés côté serveur par les sous-pages dédiées, qui
+                 *  absorbent l'état (non connecté / sans dossier /
+                 *  déjà candidaté). */}
+                {isRent && listing.status === "PUBLISHED" && (
+                  <div className="mt-4 flex flex-col gap-2 md:hidden">
+                    <Link
+                      href={`/annonce/${listing.slug}/candidater`}
+                      className="inline-flex h-12 w-full items-center justify-center rounded-full bg-terracotta px-6 text-sm font-semibold text-cream hover:bg-terracotta-2"
+                    >
+                      Candidater sur ce bien →
+                    </Link>
+                    <Link
+                      href={`/annonce/${listing.slug}/visiter`}
+                      className="inline-flex h-11 w-full items-center justify-center rounded-full border-2 border-midnight px-6 text-sm font-medium text-midnight hover:bg-midnight hover:text-cream"
+                    >
+                      Réserver une visite
+                    </Link>
+                  </div>
+                )}
+
                 {/* Facts */}
                 <div className="mt-5">
                   <ListingFacts
@@ -309,7 +331,23 @@ export default async function ListingPage({ params }: Props) {
             </div>
 
             {/* Sidebar desktop : contact sticky */}
-            <div className="hidden md:block">
+            <div className="hidden space-y-3 md:block">
+              {isRent && listing.status === "PUBLISHED" && (
+                <>
+                  <Link
+                    href={`/annonce/${listing.slug}/candidater`}
+                    className="flex h-12 w-full items-center justify-center rounded-full bg-terracotta px-6 text-sm font-semibold text-cream hover:bg-terracotta-2"
+                  >
+                    Candidater sur ce bien →
+                  </Link>
+                  <Link
+                    href={`/annonce/${listing.slug}/visiter`}
+                    className="flex h-11 w-full items-center justify-center rounded-full border-2 border-midnight px-6 text-sm font-medium text-midnight hover:bg-midnight hover:text-cream"
+                  >
+                    Réserver une visite
+                  </Link>
+                </>
+              )}
               <ContactCard
                 listingId={listing.id}
                 listingTitle={listing.title}

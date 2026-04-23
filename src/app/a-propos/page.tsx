@@ -94,7 +94,7 @@ export default function AboutPage() {
             Qu'on soit particulier, agence ou promoteur, Baboo vous donne le même soin. Publication gratuite, leads qualifiés, interface claire.
           </p>
           <div className="mt-8 flex gap-3">
-            <Link href="/pro/publier" className="inline-flex items-center gap-2 rounded-full bg-cream px-5 py-2.5 text-sm font-medium text-midnight">
+            <Link href="/publier" className="inline-flex items-center gap-2 rounded-full bg-cream px-5 py-2.5 text-sm font-medium text-midnight">
               Déposer une annonce
             </Link>
             <Link href="/contact" className="inline-flex items-center gap-2 rounded-full border border-cream/30 px-5 py-2.5 text-sm font-medium text-cream hover:bg-cream/10">

@@ -91,7 +91,7 @@ export function MobileBottomBar({ unreadMessages = null }: Props) {
         {/* Bouton PUBLIER central — surélevé, cercle terracotta 56px */}
         <div className="-mt-6 flex w-[88px] shrink-0 flex-col items-center">
           <Link
-            href="/pro/publier"
+            href="/publier"
             aria-label="Publier une annonce"
             className="grid h-14 w-14 place-items-center rounded-full bg-terracotta text-cream shadow-lg transition-all duration-200 ease-out hover:bg-terracotta-2 active:scale-95"
           >

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Prisma, ProjectStatus, PropertyType } from "@prisma/client";
 import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
+import { toSlug, uniqueSlug as uniqueSlugFactory } from "@/lib/slug";
 
 export type ProjectResult =
   | { ok: true; id: string; slug: string }
@@ -34,28 +35,14 @@ function flatten(err: z.ZodError): { error: string; fieldErrors: Record<string, 
   return { error: "Formulaire invalide.", fieldErrors };
 }
 
-function slugify(s: string): string {
-  return s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-}
-
 async function uniqueProjectSlug(base: string, ignoreId?: string): Promise<string> {
-  let slug = base;
-  let i = 2;
-  while (true) {
+  return uniqueSlugFactory(base, async (candidate) => {
     const existing = await db.project.findUnique({
-      where: { slug },
+      where: { slug: candidate },
       select: { id: true },
     });
-    if (!existing || existing.id === ignoreId) return slug;
-    slug = `${base}-${i++}`;
-    if (i > 50) return `${base}-${Date.now().toString(36)}`;
-  }
+    return !!existing && existing.id !== ignoreId;
+  });
 }
 
 function parseForm(form: FormData): Record<string, unknown> {
@@ -89,7 +76,7 @@ export async function createProject(form: FormData): Promise<ProjectResult> {
   const parsed = projectSchema.safeParse(parseForm(form));
   if (!parsed.success) return { ok: false, ...flatten(parsed.error) };
 
-  const slug = await uniqueProjectSlug(slugify(parsed.data.name));
+  const slug = await uniqueProjectSlug(toSlug(parsed.data.name));
   try {
     const p = await db.project.create({
       data: {
@@ -130,7 +117,7 @@ export async function updateProject(id: string, form: FormData): Promise<Project
   // Renouvelle le slug si le nom change significativement.
   let slug = existing.slug;
   if (parsed.data.name !== existing.name) {
-    slug = await uniqueProjectSlug(slugify(parsed.data.name), existing.id);
+    slug = await uniqueProjectSlug(toSlug(parsed.data.name), existing.id);
   }
 
   try {

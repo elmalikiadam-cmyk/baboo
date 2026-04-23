@@ -127,7 +127,7 @@ export default async function HomePage() {
             eyebrow="Particuliers"
             title="Publiez votre annonce gratuitement."
             body="Touchez des milliers d'acheteurs sérieux en quelques clics. Photos illimitées, statistiques de vues, contacts directs."
-            cta={{ label: "Publier une annonce →", href: "/pro/publier" }}
+            cta={{ label: "Publier une annonce →", href: "/publier" }}
           />
           <DualBlock
             variant="pros"
