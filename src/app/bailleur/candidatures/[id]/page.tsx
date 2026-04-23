@@ -6,6 +6,7 @@ import { db, hasDb } from "@/lib/db";
 import { applicationStatusLabel } from "@/lib/tenant-score";
 import { relativeDate } from "@/lib/format";
 import { ApplicationReviewActions } from "@/components/bailleur/application-review-actions";
+import { CreateLeaseFromApplicationButton } from "@/components/bailleur/create-lease-from-application-button";
 
 export const metadata: Metadata = {
   title: "Candidature — Baboo",
@@ -64,6 +65,7 @@ export default async function ApplicationDetailPage({
       tenantProfile: {
         include: { guarantors: { orderBy: { createdAt: "asc" } } },
       },
+      lease: { select: { id: true, status: true } },
     },
   });
   if (!app) notFound();
@@ -248,6 +250,13 @@ export default async function ApplicationDetailPage({
               currentStatus={app.status}
               rejectionReason={app.rejectionReason}
             />
+
+            {app.status === "ACCEPTED" && (
+              <CreateLeaseFromApplicationButton
+                applicationId={app.id}
+                existingLeaseId={app.lease?.id ?? null}
+              />
+            )}
 
             <div className="rounded-2xl border border-midnight/10 bg-cream p-5">
               <p className="eyebrow">Contact</p>

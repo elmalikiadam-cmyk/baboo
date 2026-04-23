@@ -64,6 +64,11 @@ model User {
   visitSlotsCreated      VisitSlot[]    @relation("VisitSlotCreator")
   visitBookings          VisitBooking[] @relation("VisitBookingVisitor")
   visitBookingsConfirmed VisitBooking[] @relation("VisitBookingConfirmer")
+
+  // Bail (Brique 5)
+  leasesAsLandlord Lease[] @relation("LeaseLandlord")
+  leasesAsTenant   Lease[] @relation("LeaseTenant")
+  leasesActivated  Lease[] @relation("LeaseActivator")
 }
 
 // Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
@@ -194,6 +199,7 @@ model Property {
   updatedAt DateTime @updatedAt
 
   listings Listing[] @relation("ListingProperty")
+  leases   Lease[]   @relation("PropertyLeases")
 
   @@index([ownerId])
   @@index([citySlug])
@@ -313,6 +319,7 @@ model Listing {
   applications  TenantApplication[] @relation("ListingApplications")
   visitSlots    VisitSlot[]         @relation("ListingVisitSlots")
   visitBookings VisitBooking[]      @relation("ListingVisitBookings")
+  leases        Lease[]             @relation("ListingLeases")
 
   @@index([citySlug, transaction, propertyType])
   @@index([status, publishedAt])
@@ -606,6 +613,10 @@ model DocumentVault {
   kycOwnerships LandlordVerification[] @relation("KycOwnership")
   kycRibs       LandlordVerification[] @relation("KycRib")
 
+  // Relations inverses vers Lease (Brique 5)
+  leaseGenerated Lease[] @relation("LeaseGeneratedDoc")
+  leaseSigned    Lease[] @relation("LeaseSignedDoc")
+
   @@index([userId, category])
   @@index([relatedEntityId])
 }
@@ -746,6 +757,10 @@ model TenantApplication {
   reviewer        User?     @relation("TenantApplicationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
   rejectionReason String?   @db.Text
 
+  // Bail généré à partir de cette candidature (Brique 5). Au plus un
+  // bail par candidature — relation 1:0..1.
+  lease Lease? @relation("ApplicationLease")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -835,5 +850,92 @@ model VisitBooking {
   @@unique([slotId, visitorUserId])
   @@index([listingId, status])
   @@index([visitorUserId])
+  @@index([status])
+}
+
+// ---------- Bail (contrat de location) ----------
+
+enum LeaseStatus {
+  DRAFT // Brouillon éditable
+  GENERATED // PDF généré, en attente de signature physique
+  SIGNED_UPLOADED // Version signée uploadée, en attente d'activation
+  ACTIVE // Bail actif (gestion locative en cours — Brique 7)
+  TERMINATED // Résilié (fin anticipée)
+  EXPIRED // Arrivé au terme naturel
+}
+
+enum LeaseFurnishing {
+  FURNISHED
+  UNFURNISHED
+  SEMI_FURNISHED
+}
+
+// Contrat de location. Pas de signature électronique en V1 — le PDF
+// est généré, téléchargé, signé physiquement, re-uploadé en version
+// signée. L'activation manuelle par le bailleur clôt le workflow.
+// Référence légale : loi 67-12 (bail d'habitation au Maroc).
+model Lease {
+  id String @id @default(cuid())
+
+  // Rattachement bien / annonce (l'annonce peut être archivée après
+  // coup sans que le bail disparaisse).
+  propertyId String?
+  property   Property? @relation("PropertyLeases", fields: [propertyId], references: [id], onDelete: SetNull)
+  listingId  String?
+  listing    Listing?  @relation("ListingLeases", fields: [listingId], references: [id], onDelete: SetNull)
+
+  // Parties
+  landlordUserId String
+  landlordUser   User   @relation("LeaseLandlord", fields: [landlordUserId], references: [id], onDelete: Restrict)
+  tenantUserId   String
+  tenantUser     User   @relation("LeaseTenant", fields: [tenantUserId], references: [id], onDelete: Restrict)
+
+  // Provenance (optionnel : un bail peut être créé hors flux candidature)
+  applicationId String?            @unique
+  application   TenantApplication? @relation("ApplicationLease", fields: [applicationId], references: [id], onDelete: SetNull)
+
+  status LeaseStatus @default(DRAFT)
+
+  // Termes financiers
+  monthlyRent    Int // MAD, hors charges
+  monthlyCharges Int @default(0)
+  depositAmount  Int // caution, typiquement 2 mois de loyer
+  paymentDay     Int @default(1) // jour du mois 1-28
+
+  // Termes temporels
+  startDate        DateTime
+  endDate          DateTime? // NULL = bail à durée indéterminée (reconduction tacite)
+  noticePeriodDays Int       @default(90) // préavis 3 mois par défaut (loi 67-12)
+
+  // Caractéristiques
+  furnishing      LeaseFurnishing @default(UNFURNISHED)
+  propertyAddress String          @db.Text // adresse textuelle complète pour le PDF
+  propertyCity    String
+  propertySurface Int // m²
+
+  // Clauses additionnelles librement rédigées par le bailleur.
+  specialClauses String? @db.Text
+
+  // Documents — chemins dans DocumentVault (bucket privé).
+  generatedDocId String?
+  generatedDoc   DocumentVault? @relation("LeaseGeneratedDoc", fields: [generatedDocId], references: [id], onDelete: SetNull)
+  signedDocId    String?
+  signedDoc      DocumentVault? @relation("LeaseSignedDoc", fields: [signedDocId], references: [id], onDelete: SetNull)
+
+  // Audit
+  generatedAt       DateTime?
+  signedUploadedAt  DateTime?
+  activatedAt       DateTime?
+  activatedBy       String?
+  activator         User?     @relation("LeaseActivator", fields: [activatedBy], references: [id], onDelete: SetNull)
+  terminatedAt      DateTime?
+  terminationReason String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([landlordUserId, status])
+  @@index([tenantUserId, status])
+  @@index([propertyId])
   @@index([status])
 }
