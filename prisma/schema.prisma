@@ -75,6 +75,12 @@ model User {
 
   // Gestion locative (Brique 7)
   paymentsDeclared Payment[] @relation("PaymentDeclarer")
+
+  // SaaS agences + marketplace (Brique 8)
+  agencyMembership        AgencyMember?    @relation("AgencyMembership")
+  agencyMemberInvitations AgencyMember[]   @relation("AgencyMemberInviter")
+  craftsman               Craftsman?       @relation("CraftsmanUser")
+  serviceRequests         ServiceRequest[] @relation("ServiceRequestRequester")
 }
 
 // Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
@@ -116,7 +122,8 @@ model Agency {
   citySlug    String?
   createdAt   DateTime @default(now())
 
-  listings Listing[] @relation("ListingAgency")
+  listings Listing[]      @relation("ListingAgency")
+  members  AgencyMember[]
 
   @@index([citySlug])
 }
@@ -204,8 +211,9 @@ model Property {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  listings Listing[] @relation("ListingProperty")
-  leases   Lease[]   @relation("PropertyLeases")
+  listings        Listing[]        @relation("ListingProperty")
+  leases          Lease[]          @relation("PropertyLeases")
+  serviceRequests ServiceRequest[] @relation("PropertyServiceRequests")
 
   @@index([ownerId])
   @@index([citySlug])
@@ -950,6 +958,10 @@ model Lease {
   // automatiquement à partir du bail ACTIVE.
   rentPeriods RentPeriod[] @relation("LeaseRentPeriods")
 
+  // Demandes d'intervention (Brique 8) — bailleur ou locataire
+  // peut créer une ServiceRequest rattachée au bail.
+  serviceRequests ServiceRequest[] @relation("LeaseServiceRequests")
+
   @@index([landlordUserId, status])
   @@index([tenantUserId, status])
   @@index([propertyId])
@@ -1118,4 +1130,152 @@ model Payment {
 
   @@index([rentPeriodId])
   @@index([declaredById])
+}
+
+// ---------- Multi-utilisateurs agence ----------
+
+enum AgencyMemberRole {
+  OWNER // Créateur / propriétaire de l'agence
+  MANAGER // Droits sur annonces, leads, équipe, finances
+  AGENT // Droits sur annonces + leads seulement
+}
+
+// Rattachement user ↔ agence avec rôle fonctionnel. Un user peut
+// appartenir à une seule agence à la fois (unique userId). Permet à
+// plusieurs personnes (directeur, agents, assistants) de se partager
+// la gestion d'une même agence.
+//
+// L'utilisateur Agency.userId historique reste = OWNER par convention.
+// À la création d'une agence, on insère automatiquement une ligne
+// AgencyMember OWNER pour uniformiser les requêtes.
+model AgencyMember {
+  id String @id @default(cuid())
+
+  agencyId String
+  agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  userId String @unique
+  user   User   @relation("AgencyMembership", fields: [userId], references: [id], onDelete: Cascade)
+
+  role AgencyMemberRole @default(AGENT)
+
+  invitedBy String?
+  inviter   User?     @relation("AgencyMemberInviter", fields: [invitedBy], references: [id], onDelete: SetNull)
+  invitedAt DateTime?
+  joinedAt  DateTime  @default(now())
+
+  @@index([agencyId, role])
+}
+
+// ---------- Marketplace artisans ----------
+
+enum CraftsmanSpeciality {
+  PLOMBERIE
+  ELECTRICITE
+  PEINTURE
+  MACONNERIE
+  SERRURERIE
+  MENUISERIE
+  CLIMATISATION
+  NETTOYAGE
+  JARDINAGE
+  MULTITRAVAUX // « homme à tout faire »
+  AUTRE
+}
+
+// Profil artisan — rattaché à un compte User (1:1 pour la V1). Le
+// profil est visible publiquement dans /artisans dès qu'il est créé,
+// mais ne porte le badge « vérifié » qu'après validation admin.
+model Craftsman {
+  id String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation("CraftsmanUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  slug        String              @unique
+  displayName String
+  speciality  CraftsmanSpeciality
+  description String?             @db.Text
+
+  phone    String
+  whatsapp String?
+  email    String?
+
+  // Villes d'intervention — slugs de City, array natif Postgres.
+  serviceCitySlugs String[]
+
+  // Tarification indicative (optionnel) — chaîne libre pour V1
+  // (« 150 MAD la visite », « sur devis », etc.).
+  rateInfo String?
+
+  photo String? // URL photo profil (bucket public)
+  cover String? // bannière portfolio
+
+  verified   Boolean   @default(false)
+  verifiedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  serviceRequests ServiceRequest[] @relation("ServiceRequestCraftsman")
+
+  @@index([speciality, verified])
+  @@index([verified, createdAt])
+}
+
+enum ServiceRequestStatus {
+  OPEN // Créée, en attente d'assignation ou de devis
+  ASSIGNED // Assignée à un artisan, en attente d'acceptation
+  ACCEPTED // Acceptée par l'artisan
+  IN_PROGRESS // Intervention en cours
+  COMPLETED // Terminée
+  CANCELLED // Annulée (par le demandeur ou l'artisan)
+}
+
+// Demande d'intervention : bailleur ou locataire déclare un besoin
+// (fuite, panne électrique, peinture…), optionnellement rattaché à un
+// bail (pour que les deux parties y aient accès). Le demandeur peut
+// directement assigner un artisan du directory, ou laisser la demande
+// OPEN pour recevoir des propositions (flow à enrichir en V2).
+model ServiceRequest {
+  id String @id @default(cuid())
+
+  // Provenance : bail (optionnel pour retrouver via /bailleur/
+  // interventions et /locataire/interventions).
+  leaseId String?
+  lease   Lease?  @relation("LeaseServiceRequests", fields: [leaseId], references: [id], onDelete: SetNull)
+
+  propertyId String?
+  property   Property? @relation("PropertyServiceRequests", fields: [propertyId], references: [id], onDelete: SetNull)
+
+  requesterUserId String
+  requesterUser   User   @relation("ServiceRequestRequester", fields: [requesterUserId], references: [id], onDelete: Restrict)
+
+  // Typologie
+  speciality  CraftsmanSpeciality
+  title       String
+  description String              @db.Text
+  budgetMin   Int? // MAD, optionnel
+  budgetMax   Int?
+  urgency     String? // libre : « urgent », « dans la semaine »…
+
+  // Attribution
+  status              ServiceRequestStatus @default(OPEN)
+  assignedCraftsmanId String?
+  assignedCraftsman   Craftsman?           @relation("ServiceRequestCraftsman", fields: [assignedCraftsmanId], references: [id], onDelete: SetNull)
+
+  // Audit
+  assignedAt         DateTime?
+  acceptedAt         DateTime?
+  completedAt        DateTime?
+  cancelledAt        DateTime?
+  cancellationReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([requesterUserId, status])
+  @@index([assignedCraftsmanId, status])
+  @@index([speciality, status])
+  @@index([status])
 }
