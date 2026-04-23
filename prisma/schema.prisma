@@ -18,6 +18,8 @@ enum UserRole {
   AGENCY
   DEVELOPER
   ADMIN
+  BAILLEUR
+  LOCATAIRE
 }
 
 model User {
@@ -28,18 +30,47 @@ model User {
   phone         String?
   image         String?
   passwordHash  String?
+  // Rôle « primaire » — conservé pour compat legacy. La source de vérité
+  // multi-rôles est la table UserRoleGrant (un user peut cumuler BAILLEUR,
+  // LOCATAIRE, AGENCY, etc.). Cette colonne restera populée par le helper
+  // grantRole() avec le rôle le plus privilégié actif.
   role          UserRole  @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  agency       Agency?
-  developer    Developer?
-  listings     Listing[]      @relation("ListingOwner")
-  favorites    Favorite[]
+  agency        Agency?
+  developer     Developer?
+  listings      Listing[]                 @relation("ListingOwner")
+  properties    Property[]                @relation("PropertyOwner")
+  favorites     Favorite[]
   savedSearches SavedSearch[]
-  leads        Lead[]         @relation("LeadFromUser")
+  leads         Lead[]                    @relation("LeadFromUser")
   conversations ConversationParticipant[]
-  sentMessages  Message[]     @relation("MessageSender")
+  sentMessages  Message[]                 @relation("MessageSender")
+  roleGrants    UserRoleGrant[]           @relation("RoleGrantUser")
+  rolesGranted  UserRoleGrant[]           @relation("RoleGrantedBy")
+}
+
+// Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
+// Permet à un même compte d'être simultanément BAILLEUR + LOCATAIRE + AGENCY,
+// ce qui colle à la réalité marocaine. La source de vérité pour toute
+// vérification d'autorisation doit être cette table (voir src/lib/roles.ts),
+// pas le champ scalaire User.role qui reste legacy.
+model UserRoleGrant {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation("RoleGrantUser", fields: [userId], references: [id], onDelete: Cascade)
+  role      UserRole
+  grantedAt DateTime  @default(now())
+  grantedBy String?
+  grantor   User?     @relation("RoleGrantedBy", fields: [grantedBy], references: [id], onDelete: SetNull)
+  expiresAt DateTime?
+  revokedAt DateTime?
+  reason    String?
+
+  @@unique([userId, role])
+  @@index([userId, revokedAt])
+  @@index([role, revokedAt])
 }
 
 model Agency {
@@ -59,7 +90,7 @@ model Agency {
   citySlug    String?
   createdAt   DateTime @default(now())
 
-  listings    Listing[] @relation("ListingAgency")
+  listings Listing[] @relation("ListingAgency")
 
   @@index([citySlug])
 }
@@ -77,7 +108,7 @@ model Developer {
   verified    Boolean  @default(false)
   createdAt   DateTime @default(now())
 
-  projects    Project[]
+  projects Project[]
 }
 
 // ---------- Geo ----------
@@ -93,19 +124,62 @@ model City {
   listingCount  Int            @default(0)
   neighborhoods Neighborhood[]
   listings      Listing[]
+  properties    Property[]
 }
 
 model Neighborhood {
-  id          String    @id @default(cuid())
-  slug        String
-  name        String
-  citySlug    String
-  city        City      @relation(fields: [citySlug], references: [slug], onDelete: Cascade)
-  lat         Float?
-  lng         Float?
-  listings    Listing[]
+  id         String     @id @default(cuid())
+  slug       String
+  name       String
+  citySlug   String
+  city       City       @relation(fields: [citySlug], references: [slug], onDelete: Cascade)
+  lat        Float?
+  lng        Float?
+  listings   Listing[]
+  properties Property[]
 
   @@unique([citySlug, slug])
+  @@index([citySlug])
+}
+
+// ---------- Property (bien physique) ----------
+
+// Un « bien » physique — distinct de « Listing » qui est une annonce.
+// Un même bien peut porter plusieurs annonces au fil du temps
+// (vente puis retrait puis remise en location, par exemple) et sera la
+// racine pour les dossiers bailleur, baux, EDL, gestion locative dans les
+// briques suivantes. Nullable sur Listing pour migration progressive.
+model Property {
+  id      String @id @default(cuid())
+  ownerId String
+  owner   User   @relation("PropertyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Identification
+  label        String? // libellé interne (« Appart Agdal 3p »)
+  propertyType PropertyType
+  surface      Int?
+  landSurface  Int?
+  bedrooms     Int?
+  bathrooms    Int?
+  floor        Int?
+  totalFloors  Int?
+  yearBuilt    Int?
+
+  // Localisation (dénormalisée pour autonomie vs Listing)
+  citySlug       String
+  city           City          @relation(fields: [citySlug], references: [slug])
+  neighborhoodId String?
+  neighborhood   Neighborhood? @relation(fields: [neighborhoodId], references: [id])
+  addressLine    String?
+  lat            Float?
+  lng            Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listings Listing[] @relation("ListingProperty")
+
+  @@index([ownerId])
   @@index([citySlug])
 }
 
@@ -144,90 +218,97 @@ enum Condition {
 }
 
 model Listing {
-  id             String         @id @default(cuid())
-  slug           String         @unique
-  title          String
-  description    String         @db.Text
-  transaction    Transaction
-  propertyType   PropertyType
-  status         ListingStatus  @default(PENDING)
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  title        String
+  description  String        @db.Text
+  transaction  Transaction
+  propertyType PropertyType
+  status       ListingStatus @default(PENDING)
 
-  price          Int
-  charges        Int?
-  surface        Int
-  landSurface    Int?
-  bedrooms       Int?
-  bathrooms      Int?
-  floor          Int?
-  totalFloors    Int?
-  condition      Condition?
-  yearBuilt      Int?
+  price       Int
+  charges     Int?
+  surface     Int
+  landSurface Int?
+  bedrooms    Int?
+  bathrooms   Int?
+  floor       Int?
+  totalFloors Int?
+  condition   Condition?
+  yearBuilt   Int?
 
   // Amenities (denormalized boolean columns — keeps filters fast)
-  parking          Boolean @default(false)
-  elevator         Boolean @default(false)
-  furnished        Boolean @default(false)
-  terrace          Boolean @default(false)
-  balcony          Boolean @default(false)
-  garden           Boolean @default(false)
-  pool             Boolean @default(false)
-  security         Boolean @default(false)
-  seaView          Boolean @default(false)
-  airConditioning  Boolean @default(false)
-  concierge        Boolean @default(false)
+  parking         Boolean @default(false)
+  elevator        Boolean @default(false)
+  furnished       Boolean @default(false)
+  terrace         Boolean @default(false)
+  balcony         Boolean @default(false)
+  garden          Boolean @default(false)
+  pool            Boolean @default(false)
+  security        Boolean @default(false)
+  seaView         Boolean @default(false)
+  airConditioning Boolean @default(false)
+  concierge       Boolean @default(false)
 
   // Location
-  citySlug         String
-  city             City           @relation(fields: [citySlug], references: [slug])
-  neighborhoodId   String?
-  neighborhood     Neighborhood?  @relation(fields: [neighborhoodId], references: [id])
-  addressLine      String?
-  addressHidden    Boolean        @default(true)
-  lat              Float
-  lng              Float
+  citySlug       String
+  city           City          @relation(fields: [citySlug], references: [slug])
+  neighborhoodId String?
+  neighborhood   Neighborhood? @relation(fields: [neighborhoodId], references: [id])
+  addressLine    String?
+  addressHidden  Boolean       @default(true)
+  lat            Float
+  lng            Float
 
   // Media
-  coverImage       String
-  images           ListingMedia[]
+  coverImage String
+  images     ListingMedia[]
 
   // Ownership
-  ownerId          String
-  owner            User           @relation("ListingOwner", fields: [ownerId], references: [id])
-  agencyId         String?
-  agency           Agency?        @relation("ListingAgency", fields: [agencyId], references: [id])
+  ownerId  String
+  owner    User    @relation("ListingOwner", fields: [ownerId], references: [id])
+  agencyId String?
+  agency   Agency? @relation("ListingAgency", fields: [agencyId], references: [id])
+
+  // Bien physique sous-jacent — nullable pendant la migration (backfill via
+  // scripts/backfill-property.ts). Devra redevenir obligatoire dans une
+  // brique ultérieure une fois le parc entièrement migré.
+  propertyId String?
+  property   Property? @relation("ListingProperty", fields: [propertyId], references: [id], onDelete: SetNull)
 
   // Flags
-  featured         Boolean        @default(false)
-  exclusive        Boolean        @default(false)
+  featured    Boolean @default(false)
+  exclusive   Boolean @default(false)
   // V3 éditorial : curation manuelle équipe Baboo (« Coup de cœur »).
-  coupDeCoeur      Boolean        @default(false)
+  coupDeCoeur Boolean @default(false)
 
   // SEO
-  metaTitle        String?
-  metaDescription  String?
+  metaTitle       String?
+  metaDescription String?
 
   // Timestamps
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  publishedAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
 
-  favorites        Favorite[]
-  leads            Lead[]
-  conversations    Conversation[]
+  favorites     Favorite[]
+  leads         Lead[]
+  conversations Conversation[]
 
   @@index([citySlug, transaction, propertyType])
   @@index([status, publishedAt])
   @@index([status, featured, publishedAt])
   @@index([price])
+  @@index([propertyId])
 }
 
 model ListingMedia {
-  id         String   @id @default(cuid())
-  listingId  String
-  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  url        String
-  alt        String?
-  position   Int      @default(0)
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  position  Int     @default(0)
 
   @@index([listingId])
 }
@@ -235,26 +316,26 @@ model ListingMedia {
 // ---------- Engagement ----------
 
 model Favorite {
-  id         String   @id @default(cuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  listingId  String
-  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
   @@unique([userId, listingId])
   @@index([userId])
 }
 
 model SavedSearch {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  query       String   @db.Text
-  frequency   String   @default("daily") // instant | daily | weekly
-  lastRunAt   DateTime?
-  createdAt   DateTime @default(now())
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  query     String    @db.Text
+  frequency String    @default("daily") // instant | daily | weekly
+  lastRunAt DateTime?
+  createdAt DateTime  @default(now())
 
   @@index([userId])
 }
@@ -269,24 +350,24 @@ enum LeadStatus {
 }
 
 model Lead {
-  id          String     @id @default(cuid())
+  id        String     @id @default(cuid())
   // Si rattaché à une annonce. Optionnel pour les leads issus du formulaire
   // de contact général ou d'une demande de brochure projet.
-  listingId   String?
-  listing     Listing?   @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  listingId String?
+  listing   Listing?   @relation(fields: [listingId], references: [id], onDelete: SetNull)
   // Si rattaché à un projet neuf (demande de brochure).
-  projectId   String?
-  project     Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  userId      String?
-  user        User?      @relation("LeadFromUser", fields: [userId], references: [id])
-  name        String
-  email       String
-  phone       String?
-  message     String     @db.Text
+  projectId String?
+  project   Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  userId    String?
+  user      User?      @relation("LeadFromUser", fields: [userId], references: [id])
+  name      String
+  email     String
+  phone     String?
+  message   String     @db.Text
   // form | whatsapp | call | visit | project | general | publication-interest
-  source      String     @default("form")
-  status      LeadStatus @default(NEW)
-  createdAt   DateTime   @default(now())
+  source    String     @default("form")
+  status    LeadStatus @default(NEW)
+  createdAt DateTime   @default(now())
 
   @@index([listingId, createdAt])
   @@index([projectId, createdAt])
@@ -318,22 +399,22 @@ model Project {
   status       ProjectStatus @default(SELLING)
   createdAt    DateTime      @default(now())
 
-  units        ProjectUnit[]
-  leads        Lead[]
+  units ProjectUnit[]
+  leads Lead[]
 
   @@index([citySlug])
 }
 
 model ProjectUnit {
-  id           String   @id @default(cuid())
+  id           String       @id @default(cuid())
   projectId    String
-  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   label        String
   propertyType PropertyType
   bedrooms     Int?
   surface      Int
   price        Int
-  available    Boolean  @default(true)
+  available    Boolean      @default(true)
 
   @@index([projectId])
 }
@@ -341,12 +422,12 @@ model ProjectUnit {
 // ---------- Messaging ----------
 
 model Conversation {
-  id           String                    @id @default(cuid())
-  listingId    String?
-  listing      Listing?                  @relation(fields: [listingId], references: [id], onDelete: SetNull)
-  subject      String?
-  createdAt    DateTime                  @default(now())
-  lastMessageAt DateTime                 @default(now())
+  id            String   @id @default(cuid())
+  listingId     String?
+  listing       Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  subject       String?
+  createdAt     DateTime @default(now())
+  lastMessageAt DateTime @default(now())
 
   participants ConversationParticipant[]
   messages     Message[]

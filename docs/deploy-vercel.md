@@ -60,9 +60,14 @@ Optionnelles :
 
 | Key | Usage |
 |---|---|
-| `ADMIN_ENABLED` | `true` pour exposer `/admin` (sinon 404) |
+| `UPSTASH_REDIS_REST_URL` | Rate-limit anti-spam (no-op si absent) |
+| `UPSTASH_REDIS_REST_TOKEN` | Token Upstash REST associé |
 | `NEXT_PUBLIC_MAPBOX_TOKEN` | Token Mapbox public pour la carte |
 | `RESEND_API_KEY` | Envoi d'emails transactionnels (pas encore actif) |
+
+> L'accès à `/admin` n'est plus piloté par un flag global. Il dépend
+> uniquement du rôle `ADMIN` attribué à un compte via la table
+> `UserRoleGrant` (voir `src/lib/roles.ts`).
 
 ## 3. Seeder la base
 
@@ -154,7 +159,7 @@ Tester le flow complet :
 - [ ] `/annonce/<slug>` — test de contact qui remonte un Lead en DB
 - [ ] `/favoris` — ajout/retrait d'un favori persiste au refresh
 - [ ] `/recherches` — création d'une alerte persiste
-- [ ] `/admin` renvoie 404 (sauf si `ADMIN_ENABLED=true` explicite)
+- [ ] `/admin` redirige vers `/` pour un compte sans rôle ADMIN
 - [ ] `sitemap.xml` accessible
 - [ ] Branding final (logo, meta-description, favicon) validé
 

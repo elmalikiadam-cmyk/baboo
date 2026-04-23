@@ -6,7 +6,37 @@ import { z } from "zod";
 import { db, hasDb } from "@/lib/db";
 import { verifyPassword } from "@/lib/password";
 
-type UserRole = "USER" | "AGENCY" | "DEVELOPER" | "ADMIN";
+type UserRole =
+  | "USER"
+  | "AGENCY"
+  | "DEVELOPER"
+  | "ADMIN"
+  | "BAILLEUR"
+  | "LOCATAIRE";
+
+// Lecture des rôles cumulables actifs depuis UserRoleGrant.
+// Inline ici pour éviter une dépendance circulaire `src/lib/roles.ts` →
+// `src/lib/db.ts` → `src/auth.ts`. Le helper public reste
+// `getUserRoles()` dans src/lib/roles.ts pour tout le reste du code.
+async function loadActiveRoles(userId: string): Promise<UserRole[]> {
+  if (!hasDb()) return ["USER"];
+  try {
+    const now = new Date();
+    const grants = await db.userRoleGrant.findMany({
+      where: {
+        userId,
+        revokedAt: null,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      },
+      select: { role: true },
+    });
+    const roles = new Set<UserRole>(grants.map((g) => g.role as UserRole));
+    roles.add("USER");
+    return Array.from(roles);
+  } catch {
+    return ["USER"];
+  }
+}
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -66,12 +96,15 @@ export const authConfig: NextAuthConfig = {
         const ok = await verifyPassword(password, user.passwordHash);
         if (!ok) return null;
 
+        const roles = await loadActiveRoles(user.id);
+
         return {
           id: user.id,
           email: user.email,
           name: user.name ?? user.email.split("@")[0],
           image: user.image ?? null,
           role: user.role,
+          roles,
           agencyId: user.agency?.id ?? null,
           agencySlug: user.agency?.slug ?? null,
           agencyName: user.agency?.name ?? null,
@@ -125,6 +158,7 @@ export const authConfig: NextAuthConfig = {
       if (user) {
         const u = user as typeof user & {
           role?: UserRole;
+          roles?: UserRole[];
           agencyId?: string | null;
           agencySlug?: string | null;
           agencyName?: string | null;
@@ -133,6 +167,7 @@ export const authConfig: NextAuthConfig = {
           developerName?: string | null;
         };
         token.role = u.role;
+        token.roles = u.roles ?? (u.role ? [u.role] : ["USER"]);
         token.agencyId = u.agencyId ?? null;
         token.agencySlug = u.agencySlug ?? null;
         token.agencyName = u.agencyName ?? null;
@@ -154,6 +189,7 @@ export const authConfig: NextAuthConfig = {
           if (dbUser) {
             token.sub = dbUser.id;
             token.role = dbUser.role;
+            token.roles = await loadActiveRoles(dbUser.id);
             token.agencyId = dbUser.agency?.id ?? null;
             token.agencySlug = dbUser.agency?.slug ?? null;
             token.agencyName = dbUser.agency?.name ?? null;
@@ -171,6 +207,7 @@ export const authConfig: NextAuthConfig = {
       if (session.user) {
         const t = token as typeof token & {
           role?: UserRole;
+          roles?: UserRole[];
           agencyId?: string | null;
           agencySlug?: string | null;
           agencyName?: string | null;
@@ -180,6 +217,10 @@ export const authConfig: NextAuthConfig = {
         };
         session.user.id = (token.sub as string | undefined) ?? session.user.id;
         session.user.role = t.role ?? "USER";
+        // Les JWT émis avant cette migration n'ont pas `roles` — on
+        // reconstruit une liste minimale depuis le rôle primaire pour
+        // éviter un undefined côté consumer.
+        session.user.roles = t.roles ?? (t.role ? [t.role] : ["USER"]);
         session.user.agencyId = t.agencyId ?? null;
         session.user.agencySlug = t.agencySlug ?? null;
         session.user.agencyName = t.agencyName ?? null;

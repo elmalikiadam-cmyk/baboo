@@ -1,14 +1,27 @@
 import type { DefaultSession } from "next-auth";
 
-type UserRole = "USER" | "AGENCY" | "DEVELOPER" | "ADMIN";
+type UserRole =
+  | "USER"
+  | "AGENCY"
+  | "DEVELOPER"
+  | "ADMIN"
+  | "BAILLEUR"
+  | "LOCATAIRE";
 
 // Augmentation de la Session pour typer les champs custom accessibles
 // depuis les Server Components via `await auth()`.
+//
+// - `role`  : rôle primaire scalaire, conservé pour compat legacy.
+// - `roles` : rôles cumulables actifs (source de vérité multi-rôles).
+//             Toute vérification d'accès doit s'appuyer sur cette liste
+//             (ou, encore mieux, sur `hasRole()` de src/lib/roles.ts qui
+//             tape la DB et court-circuite les JWT périmés).
 declare module "next-auth" {
   interface Session {
     user: {
       id: string;
       role: UserRole;
+      roles: UserRole[];
       agencyId?: string | null;
       agencySlug?: string | null;
       agencyName?: string | null;
@@ -20,6 +33,7 @@ declare module "next-auth" {
 
   interface User {
     role?: UserRole;
+    roles?: UserRole[];
     agencyId?: string | null;
     agencySlug?: string | null;
     agencyName?: string | null;
@@ -35,6 +49,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     role?: UserRole;
+    roles?: UserRole[];
     agencyId?: string | null;
     agencySlug?: string | null;
     agencyName?: string | null;
@@ -47,6 +62,7 @@ declare module "next-auth/jwt" {
 declare module "@auth/core/jwt" {
   interface JWT {
     role?: UserRole;
+    roles?: UserRole[];
     agencyId?: string | null;
     agencySlug?: string | null;
     agencyName?: string | null;

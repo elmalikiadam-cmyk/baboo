@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Transaction, PropertyType, ListingStatus, Condition, Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
+import { toSlug, uniqueSlug as uniqueSlugFactory } from "@/lib/slug";
 
 const ListingInput = z.object({
   title: z.string().min(5, "Titre trop court (min. 5 caractères).").max(140),
@@ -39,27 +40,14 @@ export type CrudResult =
   | { ok: true; id: string; slug: string }
   | { ok: false; error: string; fieldErrors?: Record<string, string> };
 
-function slugify(s: string): string {
-  return s
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-}
-
-async function uniqueSlug(base: string): Promise<string> {
-  let slug = base;
-  let i = 2;
-  while (await db.listing.findUnique({ where: { slug }, select: { id: true } })) {
-    slug = `${base}-${i++}`;
-    if (i > 50) {
-      slug = `${base}-${Date.now().toString(36)}`;
-      break;
-    }
-  }
-  return slug;
+async function uniqueListingSlug(base: string): Promise<string> {
+  return uniqueSlugFactory(base, async (candidate) => {
+    const hit = await db.listing.findUnique({
+      where: { slug: candidate },
+      select: { id: true },
+    });
+    return !!hit;
+  });
 }
 
 function parseFormData(form: FormData): Record<string, unknown> {
@@ -140,7 +128,7 @@ export async function createListing(form: FormData): Promise<CrudResult> {
   const city = await db.city.findUnique({ where: { slug: data.citySlug } });
   if (!city) return { ok: false, error: "Ville inconnue." };
 
-  const slug = await uniqueSlug(slugify(data.title));
+  const slug = await uniqueListingSlug(toSlug(data.title));
 
   try {
     const additionalImages = parseAdditionalImages(data.additionalImages);
