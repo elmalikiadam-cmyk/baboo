@@ -37,7 +37,9 @@ export default async function AgenciesIndex() {
 
       <div className="border-b border-border pb-6">
         <p className="eyebrow">{agencies.length} agences partenaires</p>
-        <h1 className="display-xl mt-2 text-4xl md:text-6xl">Nos agences.</h1>
+        <h1 className="display-xl mt-2 text-4xl md:text-6xl">
+          Nos <span className="text-terracotta">agences</span>.
+        </h1>
         <p className="mt-4 max-w-2xl text-muted">
           Sélection d'agences et brokers présents sur Baboo, vérifiés par notre équipe.
         </p>

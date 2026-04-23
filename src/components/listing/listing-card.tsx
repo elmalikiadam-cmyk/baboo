@@ -12,12 +12,14 @@ interface Props {
   priority?: boolean;
 }
 
+const PRICE_FR = new Intl.NumberFormat("fr-FR");
+
 /**
- * V3 « Éditorial chaleureux » — card rounded-2xl sur fond blanc, photo 4:3
- * (5:4 en compact, 16:10 en featured), badge éditorial unique
- * (Coup de cœur / Nouveau / Exclusif / À la une) top-left, favori
- * top-right. Prix en Fraunces semibold, localisation casse normale, méta
- * en mono avec séparateurs ·. Divider pointillé avant le bloc mono.
+ * V4 « Éditorial » — card inspirée de ProjectCard /projets. Fond cream,
+ * coins modérés (rounded-md), hiérarchie typographique nette :
+ * eyebrow ville+quartier · display-lg titre · mono agence/promoteur ·
+ * description · footer prix + méta. Badge éditorial top-left en
+ * accent terracotta pour casser la monotonie.
  */
 export function ListingCard({ listing, variant = "default", priority }: Props) {
   const isRent = listing.transaction === "RENT";
@@ -31,8 +33,12 @@ export function ListingCard({ listing, variant = "default", priority }: Props) {
         ? "aspect-[5/4]"
         : "aspect-[4/3]";
 
+  const publisherLabel = listing.agency?.name
+    ? listing.agency.name.toUpperCase()
+    : "PARTICULIER";
+
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-midnight/10 bg-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md">
+    <article className="group relative flex flex-col overflow-hidden rounded-md border border-midnight/10 bg-cream transition-transform hover:-translate-y-0.5">
       <Link
         href={href}
         className={`relative block ${aspectClass} overflow-hidden bg-cream-2`}
@@ -41,80 +47,115 @@ export function ListingCard({ listing, variant = "default", priority }: Props) {
           src={listing.coverImage}
           alt={`${listing.title} à ${listing.neighborhood?.name ?? listing.city.name}`}
           fill
-          sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
+          sizes="(min-width: 1280px) 33vw, (min-width: 768px) 45vw, 92vw"
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           priority={priority}
         />
 
         {editorialBadge && (
           <span
-            className={`absolute left-3 top-3 badge ${editorialBadge.className}`}
+            className={`absolute left-3 top-3 mono rounded-sm px-2.5 py-1 text-[10px] font-medium tracking-[0.14em] ${editorialBadge.className}`}
             aria-label={`Label éditorial : ${editorialBadge.label}`}
           >
             {editorialBadge.label}
           </span>
         )}
 
+        {/* Transaction pill top-right-adjacent — indique location vs vente
+            sans écraser le bouton favori. */}
+        <span className="absolute right-14 top-3 mono rounded-sm bg-midnight/85 px-2 py-1 text-[10px] font-medium tracking-[0.14em] text-cream">
+          {isRent ? "LOCATION" : "VENTE"}
+        </span>
+
         <div className="absolute right-3 top-3">
           <FavoriteButton slug={listing.slug} variant="floating" />
         </div>
       </Link>
 
-      <Link href={href} className="flex flex-1 flex-col p-4">
-        {/* Prix — Fraunces 20px semibold */}
-        <div className="flex items-baseline gap-1.5">
-          <span className="display-md font-semibold text-midnight">
-            {formatPrice(listing.price)}
-          </span>
-          {isRent && (
-            <span className="mono-sm text-muted-foreground">/mois</span>
+      <Link href={href} className="flex flex-1 flex-col p-5">
+        <p className="eyebrow">
+          {(listing.city.name).toUpperCase()}
+          {listing.neighborhood?.name && (
+            <> · {listing.neighborhood.name.toUpperCase()}</>
           )}
-        </div>
+        </p>
 
-        {/* Titre */}
-        <h3 className="display-md mt-1.5 line-clamp-1 text-[1rem] text-midnight">
+        <h3 className="display-lg mt-2 line-clamp-2 text-[1.4rem] leading-[1.15] text-midnight">
           {listing.title}
         </h3>
 
-        {/* Localisation — casse normale */}
-        <p className="mt-0.5 text-[13px] text-muted-foreground">
-          {listing.neighborhood?.name
-            ? `${listing.city.name} · ${listing.neighborhood.name}`
-            : listing.city.name}
+        <p className="mono mt-1 text-[11px] text-muted-foreground">
+          {publisherLabel}
+          {listing.agency?.verified && (
+            <span className="ml-1 text-terracotta">· VÉRIFIÉ</span>
+          )}
         </p>
 
-        {/* Divider pointillé */}
-        <div className="my-3 border-t border-dashed border-midnight/15" />
-
-        {/* Méta en mono */}
-        <p className="mono text-[11px] tracking-[0.08em] text-muted-foreground">
+        {/* Méta en mono — surface, pièces, équipements clés */}
+        <p className="mono mt-4 text-[11px] tracking-[0.08em] text-muted-foreground">
           {formatSurface(listing.surface).toUpperCase()}
           {listing.bedrooms != null && ` · ${listing.bedrooms} CH`}
           {listing.bathrooms != null && ` · ${listing.bathrooms} SDB`}
           {listing.pool && ` · PISCINE`}
           {listing.seaView && ` · VUE MER`}
         </p>
+
+        <div className="mt-auto flex items-baseline justify-between border-t border-midnight/10 pt-4">
+          <span className="mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            {isRent ? "Loyer" : "Prix"}
+          </span>
+          <span className="display-lg text-xl text-midnight">
+            {isRent ? (
+              <>
+                <span className="text-terracotta">{PRICE_FR.format(listing.price)}</span>
+                <span className="mono ml-1 text-[10px] text-muted-foreground">MAD / MOIS</span>
+              </>
+            ) : (
+              <>
+                {formatPrice(listing.price)}
+              </>
+            )}
+          </span>
+        </div>
       </Link>
     </article>
   );
 }
 
-/** Un seul badge, ordre de priorité : coup de cœur > exclusif > nouveau
- *  (publishedAt < 7j) > à la une (featured). */
+/**
+ * Un seul badge, ordre de priorité. Les classNames mappent sur des
+ * palettes cohérentes avec V3 mais optimisées pour le fond cream :
+ *   - coup de cœur : terracotta solide
+ *   - exclusif     : midnight solide
+ *   - nouveau      : accent terracotta outline
+ *   - à la une     : forest outline
+ */
 function getEditorialBadge(
   listing: ListingWithRelations,
 ): { label: string; className: string } | null {
   if (listing.coupDeCoeur) {
-    return { label: "Coup de cœur", className: "badge-coup-de-coeur" };
+    return {
+      label: "COUP DE CŒUR",
+      className: "bg-terracotta text-cream",
+    };
   }
   if (listing.exclusive) {
-    return { label: "Exclusif", className: "badge-exclusif" };
+    return {
+      label: "EXCLUSIF",
+      className: "bg-midnight text-cream",
+    };
   }
   if (isNew(listing)) {
-    return { label: "Nouveau", className: "badge-nouveau" };
+    return {
+      label: "NOUVEAU",
+      className: "bg-cream/95 text-terracotta border border-terracotta/40",
+    };
   }
   if (listing.featured) {
-    return { label: "À la une", className: "badge-a-la-une" };
+    return {
+      label: "À LA UNE",
+      className: "bg-cream/95 text-forest border border-forest/40",
+    };
   }
   return null;
 }

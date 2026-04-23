@@ -46,7 +46,9 @@ export default async function ProjectsIndex() {
 
       <div className="border-b border-border pb-6">
         <p className="eyebrow">{projects.length} programmes</p>
-        <h1 className="display-xl mt-2 text-4xl md:text-6xl">Projets neufs.</h1>
+        <h1 className="display-xl mt-2 text-4xl md:text-6xl">
+          Projets <span className="text-terracotta">neufs</span>.
+        </h1>
         <p className="mt-4 max-w-2xl text-muted">
           Appartements, villas, et résidences en cours de commercialisation. Livraisons programmées entre 2025 et 2028.
         </p>
@@ -77,9 +79,14 @@ export default async function ProjectsIndex() {
                     sizes="(min-width: 1024px) 400px, 92vw"
                     className="object-cover transition-transform duration-500 ease-out-soft group-hover:scale-[1.03]"
                   />
-                  <span className="absolute left-3 top-3 mono rounded-sm bg-cream/95 px-2 py-0.5 text-[9px] font-medium tracking-[0.12em]">
+                  <span className="absolute left-3 top-3 mono rounded-sm bg-cream/95 px-2.5 py-1 text-[10px] font-medium tracking-[0.14em]">
                     {STATUS_LABEL[p.status]?.toUpperCase() ?? p.status}
                   </span>
+                  {p.status === "SELLING" && (
+                    <span className="absolute right-3 top-3 mono rounded-sm bg-terracotta px-2 py-1 text-[9px] font-semibold tracking-[0.16em] text-cream">
+                      NEUF
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex flex-1 flex-col p-5">
@@ -98,7 +105,10 @@ export default async function ProjectsIndex() {
                     <span className="mono text-[10px] text-muted">{p.units.length} types de biens</span>
                     {minPrice && (
                       <span className="display-lg text-lg">
-                        à partir de {PRICE_FR.format(minPrice)}{" "}
+                        à partir de{" "}
+                        <span className="text-terracotta">
+                          {PRICE_FR.format(minPrice)}
+                        </span>{" "}
                         <span className="mono text-[10px] text-muted">MAD</span>
                       </span>
                     )}

@@ -7,6 +7,7 @@ import { SearchToolbar } from "@/components/search/search-toolbar";
 import { SearchPagination } from "@/components/search/search-pagination";
 import { AppliedChips } from "@/components/search/applied-chips";
 import { SaveSearchButton } from "@/components/search/save-search-button";
+import { SearchLayout } from "@/components/search/search-layout";
 import { findListings } from "@/lib/listings-query";
 import { parseSearchParams, buildSearchHref } from "@/lib/search-params";
 import { CITIES } from "@/data/cities";
@@ -54,12 +55,32 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { items, total, totalPages } = await findListings(filters);
   const heading = titleFromFilters(filters);
 
+  // Accent rouge doux sur le mot-clé selon la transaction (Acheter/Louer).
+  const accentWord =
+    filters.transaction === "RENT" ? "louer" : "acheter";
+  const headingWithAccent = heading.replace(
+    new RegExp(`\\b${accentWord}\\b`, "i"),
+    `__ACC__`,
+  );
+  const [beforeAcc, afterAcc] = headingWithAccent.split("__ACC__");
+
   return (
     <div className="container pb-10">
       <div className="mb-5 mt-5 md:mt-10">
-        <h1 className="display-lg">{heading}</h1>
+        <h1 className="display-xl text-3xl md:text-5xl">
+          {beforeAcc !== undefined && afterAcc !== undefined ? (
+            <>
+              {beforeAcc}
+              <span className="text-terracotta">{accentWord}</span>
+              {afterAcc}
+            </>
+          ) : (
+            heading
+          )}
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {total} annonce{total > 1 ? "s" : ""} correspond{total > 1 ? "ent" : ""} à vos critères.
+          {total} annonce{total > 1 ? "s" : ""} correspond
+          {total > 1 ? "ent" : ""} à vos critères.
         </p>
       </div>
 
@@ -67,35 +88,42 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <AppliedChips filters={filters} />
       </div>
 
-      <div className="mt-4 grid gap-6 lg:grid-cols-[320px_1fr]">
-        <SearchFiltersPanel
-          initial={filters}
-          className="lg:sticky lg:top-24 lg:self-start"
-        />
+      <SearchLayout
+        filters={
+          <SearchFiltersPanel
+            initial={filters}
+            className="lg:self-start"
+          />
+        }
+        results={
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <SearchToolbar filters={filters} total={total} />
+              {total > 0 && (
+                <SaveSearchButton filters={filters} heading={heading} />
+              )}
+            </div>
 
-        <div>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <SearchToolbar filters={filters} total={total} />
-            {total > 0 && <SaveSearchButton filters={filters} heading={heading} />}
-          </div>
+            <div className="mt-6">
+              {items.length === 0 ? (
+                <EmptyState transaction={filters.transaction} />
+              ) : (
+                /* Grille : mobile 1, tablette 2, desktop 3 (toujours 3
+                   une fois le panneau rétracté, sinon 2 sur lg, 3 sur xl). */
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                  {items.map((l, i) => (
+                    <ListingCard key={l.id} listing={l} priority={i < 3} />
+                  ))}
+                </div>
+              )}
+            </div>
 
-          <div className="mt-6">
-            {items.length === 0 ? (
-              <EmptyState transaction={filters.transaction} />
-            ) : (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {items.map((l, i) => (
-                  <ListingCard key={l.id} listing={l} priority={i < 3} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="mt-6">
-            <SearchPagination filters={filters} totalPages={totalPages} />
-          </div>
-        </div>
-      </div>
+            <div className="mt-6">
+              <SearchPagination filters={filters} totalPages={totalPages} />
+            </div>
+          </>
+        }
+      />
     </div>
   );
 }

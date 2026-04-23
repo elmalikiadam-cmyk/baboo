@@ -81,7 +81,10 @@ export default async function CityLandingPage({ params }: { params: Promise<{ sl
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-6 text-cream md:p-10">
             <p className="mono text-[10px] uppercase tracking-[0.14em] text-cream/75">{city.region}</p>
-            <h1 className="display-xl mt-2 text-5xl text-cream md:text-7xl">Immobilier à {city.name}.</h1>
+            <h1 className="display-xl mt-2 text-5xl text-cream md:text-7xl">
+              Immobilier à{" "}
+              <span className="text-terracotta">{city.name}</span>.
+            </h1>
             <p className="mt-3 max-w-2xl text-cream/85">{city.tagline}</p>
           </div>
         </div>

@@ -63,7 +63,8 @@ export default async function ArtisansDirectoryPage({
       <header className="border-b border-midnight/10 pb-6">
         <p className="eyebrow">Artisans & prestataires</p>
         <h1 className="display-xl mt-2 text-4xl md:text-5xl">
-          Les artisans qui comptent, près de chez vous.
+          Les <span className="text-terracotta">artisans</span> qui comptent,
+          près de chez vous.
         </h1>
         <p className="mt-4 max-w-xl text-lg text-muted-foreground">
           Plombiers, électriciens, peintres, menuisiers — des
