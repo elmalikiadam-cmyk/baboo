@@ -49,6 +49,11 @@ model User {
   sentMessages  Message[]                 @relation("MessageSender")
   roleGrants    UserRoleGrant[]           @relation("RoleGrantUser")
   rolesGranted  UserRoleGrant[]           @relation("RoleGrantedBy")
+
+  // KYC bailleur (Brique 2)
+  landlordVerification          LandlordVerification?  @relation("LandlordVerificationUser")
+  landlordVerificationsReviewed LandlordVerification[] @relation("LandlordVerificationReviewer")
+  documents                     DocumentVault[]        @relation("DocumentVaultOwner")
 }
 
 // Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
@@ -480,4 +485,113 @@ model AuthToken {
 
   @@index([userId, purpose])
   @@index([expiresAt])
+}
+
+// ---------- KYC bailleur ----------
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum KycOwnershipType {
+  TITRE_FONCIER
+  ACTE_NOTARIE
+  ATTESTATION_AYANTS_DROIT
+  MANDAT
+  AUTRE
+}
+
+enum KycIdType {
+  CIN
+  PASSPORT
+  RESIDENCE_PERMIT
+}
+
+// Dossier de vérification bailleur — un seul par user (cardinalité 1:1).
+// L'approbation déclenche grantRole(BAILLEUR). Le rejet peut être
+// corrigé par le user (re-soumission = reset du statut en PENDING).
+//
+// La table DocumentVault stocke les fichiers physiques ; on garde ici
+// uniquement les pointeurs + métadonnées légales.
+model LandlordVerification {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation("LandlordVerificationUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  status KycStatus @default(PENDING)
+
+  // Identité
+  idType       KycIdType
+  idNumber     String?
+  idFrontDocId String?
+  idFrontDoc   DocumentVault? @relation("KycIdFront", fields: [idFrontDocId], references: [id], onDelete: SetNull)
+  idBackDocId  String?
+  idBackDoc    DocumentVault? @relation("KycIdBack", fields: [idBackDocId], references: [id], onDelete: SetNull)
+
+  // Droit de louer
+  ownershipType  KycOwnershipType @default(ATTESTATION_AYANTS_DROIT)
+  ownershipDocId String?
+  ownershipDoc   DocumentVault?   @relation("KycOwnership", fields: [ownershipDocId], references: [id], onDelete: SetNull)
+  attestation    Boolean          @default(false) // case « j'atteste avoir le droit de louer ce bien »
+
+  // Paiement (optionnel pour publier, requis pour la gestion locative v1)
+  ribDocId  String?
+  ribDoc    DocumentVault? @relation("KycRib", fields: [ribDocId], references: [id], onDelete: SetNull)
+  ibanLast4 String? // on ne stocke pas l'IBAN complet ; juste les 4 derniers
+
+  // Audit
+  submittedAt     DateTime  @default(now())
+  reviewedAt      DateTime?
+  reviewedBy      String?
+  reviewer        User?     @relation("LandlordVerificationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  rejectionReason String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, submittedAt])
+  @@index([reviewedBy])
+}
+
+// Coffre-fort de documents — table unique pour tous les fichiers privés
+// liés à un user (KYC, RIB, titres, baux, EDL, quittances à venir).
+// Les fichiers sont stockés dans le bucket privé Supabase ; `path` est la
+// clé S3-like, `signedUrl` n'est JAMAIS persistée (re-générée à la demande).
+enum DocumentCategory {
+  KYC_ID
+  KYC_OWNERSHIP
+  KYC_RIB
+  LEASE // bail signé (Brique 5)
+  INVENTORY // EDL (Brique 6)
+  RECEIPT // quittance de loyer (Brique 7)
+  OTHER
+}
+
+model DocumentVault {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("DocumentVaultOwner", fields: [userId], references: [id], onDelete: Cascade)
+
+  category DocumentCategory
+  path     String           @unique // clé dans le bucket privé
+  filename String
+  mimeType String
+  size     Int // bytes
+
+  // Tag libre pour retrouver le contexte (« listing:xxx », « lease:yyy »)
+  relatedEntityId String?
+
+  uploadedAt DateTime  @default(now())
+  deletedAt  DateTime? // soft-delete pour audit / conformité loi 09-08
+
+  // Relations inverses vers LandlordVerification (pointeurs nommés)
+  kycIdFronts   LandlordVerification[] @relation("KycIdFront")
+  kycIdBacks    LandlordVerification[] @relation("KycIdBack")
+  kycOwnerships LandlordVerification[] @relation("KycOwnership")
+  kycRibs       LandlordVerification[] @relation("KycRib")
+
+  @@index([userId, category])
+  @@index([relatedEntityId])
 }

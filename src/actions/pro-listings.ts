@@ -101,10 +101,16 @@ function parseAdditionalImages(raw: string | null | undefined): string[] {
 export async function createListing(form: FormData): Promise<CrudResult> {
   const session = await auth();
   if (!session?.user) return { ok: false, error: "Non authentifié." };
-  const agencyId = session.user.agencyId;
-  const role = session.user.role;
-  if (role !== "AGENCY" || !agencyId) {
-    return { ok: false, error: "Seules les agences Pro peuvent créer des annonces." };
+  const agencyId = session.user.agencyId ?? null;
+  const roles = session.user.roles ?? [session.user.role];
+  const isAgency = roles.includes("AGENCY") && !!agencyId;
+  const isLandlord = roles.includes("BAILLEUR");
+  if (!isAgency && !isLandlord) {
+    return {
+      ok: false,
+      error:
+        "Vous devez être vérifié comme bailleur ou agence pour publier.",
+    };
   }
   if (!hasDb()) return { ok: false, error: "Base indisponible." };
 
@@ -151,7 +157,9 @@ export async function createListing(form: FormData): Promise<CrudResult> {
         citySlug: data.citySlug,
         neighborhoodId,
         ownerId: session.user.id,
-        agencyId,
+        // Les annonces particulières (BAILLEUR sans agence) n'ont pas
+        // d'agencyId — elles restent affichées sans le bandeau agence.
+        agencyId: isAgency ? agencyId : null,
         parking: data.parking,
         elevator: data.elevator,
         furnished: data.furnished,
@@ -181,14 +189,20 @@ export async function createListing(form: FormData): Promise<CrudResult> {
 
 export async function updateListing(id: string, form: FormData): Promise<CrudResult> {
   const session = await auth();
-  if (!session?.user?.agencyId) return { ok: false, error: "Non authentifié." };
+  if (!session?.user?.id) return { ok: false, error: "Non authentifié." };
   if (!hasDb()) return { ok: false, error: "Base indisponible." };
 
   const existing = await db.listing.findUnique({
     where: { id },
-    select: { id: true, agencyId: true, slug: true },
+    select: { id: true, agencyId: true, ownerId: true, slug: true },
   });
-  if (!existing || existing.agencyId !== session.user.agencyId) {
+  // Autorisé si l'utilisateur est l'agence propriétaire OU le owner
+  // direct (cas BAILLEUR particulier).
+  const canEdit =
+    !!existing &&
+    ((session.user.agencyId && existing.agencyId === session.user.agencyId) ||
+      existing.ownerId === session.user.id);
+  if (!canEdit) {
     return { ok: false, error: "Accès refusé." };
   }
 
@@ -259,14 +273,18 @@ export async function updateListing(id: string, form: FormData): Promise<CrudRes
 
 export async function toggleListingStatus(id: string): Promise<{ ok: boolean; status?: ListingStatus; error?: string }> {
   const session = await auth();
-  if (!session?.user?.agencyId) return { ok: false, error: "Non authentifié." };
+  if (!session?.user?.id) return { ok: false, error: "Non authentifié." };
   if (!hasDb()) return { ok: false, error: "Base indisponible." };
 
   const listing = await db.listing.findUnique({
     where: { id },
-    select: { agencyId: true, status: true },
+    select: { agencyId: true, ownerId: true, status: true },
   });
-  if (!listing || listing.agencyId !== session.user.agencyId) {
+  const canToggle =
+    !!listing &&
+    ((session.user.agencyId && listing.agencyId === session.user.agencyId) ||
+      listing.ownerId === session.user.id);
+  if (!canToggle) {
     return { ok: false, error: "Accès refusé." };
   }
 
@@ -289,14 +307,18 @@ export async function toggleListingStatus(id: string): Promise<{ ok: boolean; st
 
 export async function deleteListing(id: string): Promise<{ ok: boolean; error?: string }> {
   const session = await auth();
-  if (!session?.user?.agencyId) return { ok: false, error: "Non authentifié." };
+  if (!session?.user?.id) return { ok: false, error: "Non authentifié." };
   if (!hasDb()) return { ok: false, error: "Base indisponible." };
 
   const listing = await db.listing.findUnique({
     where: { id },
-    select: { agencyId: true },
+    select: { agencyId: true, ownerId: true },
   });
-  if (!listing || listing.agencyId !== session.user.agencyId) {
+  const canDelete =
+    !!listing &&
+    ((session.user.agencyId && listing.agencyId === session.user.agencyId) ||
+      listing.ownerId === session.user.id);
+  if (!canDelete) {
     return { ok: false, error: "Accès refusé." };
   }
 

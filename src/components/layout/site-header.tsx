@@ -77,7 +77,7 @@ export async function SiteHeader() {
           ) : (
             <>
               <Link
-                href="/pro/publier"
+                href="/publier"
                 className="text-sm font-medium text-midnight transition-colors hover:text-terracotta"
               >
                 Publier une annonce

@@ -10,8 +10,13 @@ export const dynamic = "force-dynamic";
 export default async function NewListingPage() {
   const session = await auth();
   if (!session?.user) redirect("/connexion?callbackUrl=/pro/listings/new");
-  if (session.user.role !== "AGENCY" || !session.user.agencyId) {
-    redirect("/pro");
+  const roles = session.user.roles ?? [session.user.role];
+  const isAgency = roles.includes("AGENCY") && !!session.user.agencyId;
+  const isLandlord = roles.includes("BAILLEUR");
+  // AGENCY → OK ; BAILLEUR → OK ; sinon on les renvoie vers le routeur
+  // contextuel qui décidera (onboarding, status, /pro).
+  if (!isAgency && !isLandlord) {
+    redirect("/publier");
   }
 
   return (

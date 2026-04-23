@@ -22,7 +22,7 @@ export function SiteFooter() {
             <ul className="space-y-2.5 text-sm">
               <li><Link className="text-muted-foreground hover:text-midnight" href={buildSearchHref({ transaction: "SALE" })}>Acheter</Link></li>
               <li><Link className="text-muted-foreground hover:text-midnight" href={buildSearchHref({ transaction: "RENT" })}>Louer</Link></li>
-              <li><Link className="text-muted-foreground hover:text-midnight" href="/pro/publier">Déposer une annonce</Link></li>
+              <li><Link className="text-muted-foreground hover:text-midnight" href="/publier">Déposer une annonce</Link></li>
             </ul>
           </nav>
 

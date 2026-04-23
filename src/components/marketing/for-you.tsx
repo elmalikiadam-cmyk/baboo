@@ -10,7 +10,7 @@ const BLOCKS = [
     title: "Vendez ou louez vous-même.",
     body: "Publiez votre annonce en quelques minutes. Photos, description, prix. Vous gardez la main sur vos échanges. Gratuit pour commencer.",
     cta: "Publier gratuitement",
-    href: "/pro/publier?as=individual",
+    href: "/publier",
     Illus: IndividualIllus,
   },
   {

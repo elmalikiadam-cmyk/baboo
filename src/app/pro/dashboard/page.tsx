@@ -103,7 +103,7 @@ export default async function ProDashboard() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Link href="/pro/publier">
+          <Link href="/publier">
             <Button>
               <PlusIcon className="h-4 w-4" /> Nouvelle annonce
             </Button>
@@ -222,7 +222,7 @@ export default async function ProDashboard() {
               <li className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted">
                 Aucune annonce publiée.{" "}
                 <Link
-                  href="/pro/publier"
+                  href="/publier"
                   className="font-medium text-midnight underline-offset-4 hover:underline"
                 >
                   Déposer la première

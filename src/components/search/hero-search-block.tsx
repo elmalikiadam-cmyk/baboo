@@ -24,7 +24,7 @@ export function HeroSearchBlock() {
   function onSearch(e?: React.FormEvent) {
     e?.preventDefault();
     if (mode === "VENDRE") {
-      startTransition(() => router.push("/pro/publier"));
+      startTransition(() => router.push("/publier"));
       return;
     }
     const params = new URLSearchParams();
