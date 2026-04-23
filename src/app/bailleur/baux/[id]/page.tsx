@@ -7,6 +7,8 @@ import { signedUrlForPrivate } from "@/lib/storage";
 import { LeaseEditForm } from "@/components/bailleur/lease-edit-form";
 import { LeaseWorkflowActions } from "@/components/bailleur/lease-workflow-actions";
 import { InventoryCta } from "@/components/inventory/inventory-cta";
+import { RentLedger } from "@/components/rent/rent-ledger";
+import { ensureRentPeriods } from "@/actions/rent";
 
 export const metadata: Metadata = {
   title: "Bail — Baboo",
@@ -56,14 +58,41 @@ export default async function LeaseDetailPage({
     (!!session.user.agencyId && lease.listing?.agencyId === session.user.agencyId);
   if (!canManage) redirect("/bailleur/baux");
 
-  const [generatedUrl, signedUrl] = await Promise.all([
+  // Génère les RentPeriod manquantes (idempotent, silencieux si bail
+  // pas encore ACTIVE).
+  await ensureRentPeriods(lease.id).catch(() => void 0);
+
+  const [generatedUrl, signedUrl, periods] = await Promise.all([
     lease.generatedDoc
       ? signedUrlForPrivate(lease.generatedDoc.path, 600).catch(() => null)
       : null,
     lease.signedDoc
       ? signedUrlForPrivate(lease.signedDoc.path, 600).catch(() => null)
       : null,
+    db.rentPeriod.findMany({
+      where: { leaseId: lease.id },
+      orderBy: { periodStart: "asc" },
+      include: {
+        payments: {
+          orderBy: { paidAt: "asc" },
+          include: {
+            declaredBy: { select: { name: true, email: true } },
+          },
+        },
+        receiptDoc: { select: { path: true, filename: true } },
+      },
+    }),
   ]);
+
+  // Signe les URLs des quittances en parallèle.
+  const periodsWithUrls = await Promise.all(
+    periods.map(async (p) => ({
+      ...p,
+      receiptUrl: p.receiptDoc
+        ? await signedUrlForPrivate(p.receiptDoc.path, 600).catch(() => null)
+        : null,
+    })),
+  );
 
   return (
     <div className="container py-10 md:py-16">
@@ -145,6 +174,45 @@ export default async function LeaseDetailPage({
                   }
                 />
               </dl>
+            </section>
+          )}
+
+          {/* Registre des loyers — visible dès que des périodes
+              existent (donc bail ACTIVE ou ultérieur). */}
+          {periodsWithUrls.length > 0 && (
+            <section>
+              <header className="border-b border-midnight/10 pb-3">
+                <p className="eyebrow">Registre des loyers</p>
+                <h2 className="display-lg mt-1 text-xl">
+                  Historique et quittances
+                </h2>
+              </header>
+              <div className="mt-4">
+                <RentLedger
+                  role="LANDLORD"
+                  periods={periodsWithUrls.map((p) => ({
+                    id: p.id,
+                    periodStart: p.periodStart.toISOString(),
+                    periodEnd: p.periodEnd.toISOString(),
+                    dueDate: p.dueDate.toISOString(),
+                    amountRent: p.amountRent,
+                    amountCharges: p.amountCharges,
+                    amountTotal: p.amountTotal,
+                    status: p.status,
+                    payments: p.payments.map((pay) => ({
+                      id: pay.id,
+                      amount: pay.amount,
+                      method: pay.method,
+                      reference: pay.reference,
+                      paidAt: pay.paidAt.toISOString(),
+                      declaredByRole: pay.declaredByRole,
+                      declaredByName: pay.declaredBy.name ?? null,
+                    })),
+                    receiptUrl: p.receiptUrl,
+                    receiptFilename: p.receiptDoc?.filename ?? null,
+                  }))}
+                />
+              </div>
             </section>
           )}
         </div>

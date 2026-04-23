@@ -72,6 +72,9 @@ model User {
 
   // EDL (Brique 6)
   inventoryReportsCreated InventoryReport[] @relation("InventoryReportCreator")
+
+  // Gestion locative (Brique 7)
+  paymentsDeclared Payment[] @relation("PaymentDeclarer")
 }
 
 // Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
@@ -620,6 +623,9 @@ model DocumentVault {
   leaseGenerated Lease[] @relation("LeaseGeneratedDoc")
   leaseSigned    Lease[] @relation("LeaseSignedDoc")
 
+  // Relations inverses vers RentPeriod (Brique 7)
+  rentReceipts RentPeriod[] @relation("RentReceiptDoc")
+
   @@index([userId, category])
   @@index([relatedEntityId])
 }
@@ -940,6 +946,10 @@ model Lease {
   // États des lieux (Brique 6) — entrée + sortie.
   inventoryReports InventoryReport[] @relation("LeaseInventoryReports")
 
+  // Gestion locative (Brique 7) — périodes mensuelles générées
+  // automatiquement à partir du bail ACTIVE.
+  rentPeriods RentPeriod[] @relation("LeaseRentPeriods")
+
   @@index([landlordUserId, status])
   @@index([tenantUserId, status])
   @@index([propertyId])
@@ -1024,4 +1034,88 @@ model InventoryRoom {
   updatedAt DateTime @updatedAt
 
   @@index([reportId, order])
+}
+
+// ---------- Gestion locative ----------
+
+enum RentPeriodStatus {
+  DUE // Non encore échue ou échue sans paiement
+  PARTIALLY_PAID // Paiement partiel reçu
+  PAID // Intégralement payée
+  LATE // Échue depuis > 5 jours sans paiement intégral
+  WAIVED // Loyer abandonné par le bailleur (mois offert, négociation)
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CASH
+  CHECK
+  STANDING_ORDER // prélèvement / virement permanent
+  OTHER
+}
+
+// Une période de loyer = un mois de location. Générée
+// automatiquement par `generateRentPeriods()` à partir du bail
+// (startDate, endDate, monthlyRent, monthlyCharges, paymentDay).
+// Les montants sont snapshot pour ne pas bouger si le bail est modifié
+// rétroactivement (cas improbable mais sécurise l'historique légal).
+model RentPeriod {
+  id String @id @default(cuid())
+
+  leaseId String
+  lease   Lease  @relation("LeaseRentPeriods", fields: [leaseId], references: [id], onDelete: Cascade)
+
+  periodStart DateTime // début de période (premier du mois dans le cas standard)
+  periodEnd   DateTime // fin de période (dernier du mois)
+  dueDate     DateTime // échéance de paiement (paymentDay)
+
+  amountRent    Int // snapshot depuis Lease.monthlyRent
+  amountCharges Int // snapshot depuis Lease.monthlyCharges
+  amountTotal   Int // rent + charges
+
+  status RentPeriodStatus @default(DUE)
+
+  // Quittance PDF générée — un seul doc par période, replace-safe.
+  receiptDocId       String?
+  receiptDoc         DocumentVault? @relation("RentReceiptDoc", fields: [receiptDocId], references: [id], onDelete: SetNull)
+  receiptGeneratedAt DateTime?
+
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([leaseId, periodStart])
+  @@index([leaseId, dueDate])
+  @@index([status])
+  @@index([leaseId, status])
+}
+
+// Déclaration de paiement. Peut être créée par le bailleur (« je
+// confirme avoir reçu ») ou par le locataire (« j'ai payé tel jour »).
+// Plusieurs paiements possibles sur une même période (ex: arrhes +
+// solde). Le status de la période est recalculé à chaque modification.
+model Payment {
+  id String @id @default(cuid())
+
+  rentPeriodId String
+  rentPeriod   RentPeriod @relation(fields: [rentPeriodId], references: [id], onDelete: Cascade)
+
+  declaredById   String
+  declaredBy     User   @relation("PaymentDeclarer", fields: [declaredById], references: [id], onDelete: Restrict)
+  // Rôle sous lequel la personne a déclaré le paiement. Permet de
+  // distinguer les déclarations du bailleur (qui valent preuve de
+  // réception) de celles du locataire (qui demandent confirmation).
+  declaredByRole String // "LANDLORD" ou "TENANT"
+
+  amount    Int // MAD, toujours positif
+  method    PaymentMethod @default(BANK_TRANSFER)
+  reference String? // N° de virement, N° de chèque, etc.
+  paidAt    DateTime // date effective du paiement (pas du déclarant)
+  notes     String?       @db.Text
+
+  createdAt DateTime @default(now())
+
+  @@index([rentPeriodId])
+  @@index([declaredById])
 }

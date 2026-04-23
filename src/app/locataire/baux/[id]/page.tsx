@@ -6,6 +6,8 @@ import { db, hasDb } from "@/lib/db";
 import { signedUrlForPrivate } from "@/lib/storage";
 import { TenantLeaseActions } from "@/components/locataire/tenant-lease-actions";
 import { InventoryCta } from "@/components/inventory/inventory-cta";
+import { RentLedger } from "@/components/rent/rent-ledger";
+import { ensureRentPeriods } from "@/actions/rent";
 
 export const metadata: Metadata = {
   title: "Mon bail — Baboo",
@@ -46,14 +48,38 @@ export default async function TenantLeaseDetailPage({
     redirect("/locataire/baux");
   }
 
-  const [generatedUrl, signedUrl] = await Promise.all([
+  await ensureRentPeriods(lease.id).catch(() => void 0);
+
+  const [generatedUrl, signedUrl, periods] = await Promise.all([
     lease.generatedDoc
       ? signedUrlForPrivate(lease.generatedDoc.path, 600).catch(() => null)
       : null,
     lease.signedDoc
       ? signedUrlForPrivate(lease.signedDoc.path, 600).catch(() => null)
       : null,
+    db.rentPeriod.findMany({
+      where: { leaseId: lease.id },
+      orderBy: { periodStart: "asc" },
+      include: {
+        payments: {
+          orderBy: { paidAt: "asc" },
+          include: {
+            declaredBy: { select: { name: true, email: true } },
+          },
+        },
+        receiptDoc: { select: { path: true, filename: true } },
+      },
+    }),
   ]);
+
+  const periodsWithUrls = await Promise.all(
+    periods.map(async (p) => ({
+      ...p,
+      receiptUrl: p.receiptDoc
+        ? await signedUrlForPrivate(p.receiptDoc.path, 600).catch(() => null)
+        : null,
+    })),
+  );
 
   return (
     <div className="container py-10 md:py-16">
@@ -150,6 +176,49 @@ export default async function TenantLeaseDetailPage({
           </section>
         </aside>
       </div>
+
+      {/* Registre des loyers — consultation seule côté locataire */}
+      {periodsWithUrls.length > 0 && (
+        <section className="mt-12">
+          <header className="border-b border-midnight/10 pb-3">
+            <p className="eyebrow">Historique des loyers</p>
+            <h2 className="display-lg mt-1 text-xl">
+              Paiements et quittances
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Vous pouvez déclarer un paiement envoyé — le bailleur
+              confirmera de son côté. Les quittances générées sont
+              téléchargeables en PDF.
+            </p>
+          </header>
+          <div className="mt-4">
+            <RentLedger
+              role="TENANT"
+              periods={periodsWithUrls.map((p) => ({
+                id: p.id,
+                periodStart: p.periodStart.toISOString(),
+                periodEnd: p.periodEnd.toISOString(),
+                dueDate: p.dueDate.toISOString(),
+                amountRent: p.amountRent,
+                amountCharges: p.amountCharges,
+                amountTotal: p.amountTotal,
+                status: p.status,
+                payments: p.payments.map((pay) => ({
+                  id: pay.id,
+                  amount: pay.amount,
+                  method: pay.method,
+                  reference: pay.reference,
+                  paidAt: pay.paidAt.toISOString(),
+                  declaredByRole: pay.declaredByRole,
+                  declaredByName: pay.declaredBy.name ?? null,
+                })),
+                receiptUrl: p.receiptUrl,
+                receiptFilename: p.receiptDoc?.filename ?? null,
+              }))}
+            />
+          </div>
+        </section>
+      )}
     </div>
   );
 }
