@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
 import { signedUrlForPrivate } from "@/lib/storage";
 import { TenantLeaseActions } from "@/components/locataire/tenant-lease-actions";
+import { InventoryCta } from "@/components/inventory/inventory-cta";
 
 export const metadata: Metadata = {
   title: "Mon bail — Baboo",
@@ -37,6 +38,7 @@ export default async function TenantLeaseDetailPage({
       landlordUser: { select: { name: true, email: true, phone: true } },
       generatedDoc: { select: { path: true, filename: true } },
       signedDoc: { select: { path: true, filename: true } },
+      inventoryReports: { select: { id: true, type: true, status: true } },
     },
   });
   if (!lease) notFound();
@@ -105,7 +107,7 @@ export default async function TenantLeaseDetailPage({
           )}
         </section>
 
-        <aside>
+        <aside className="space-y-4">
           <TenantLeaseActions
             leaseId={lease.id}
             status={lease.status}
@@ -114,6 +116,38 @@ export default async function TenantLeaseDetailPage({
             generatedFilename={lease.generatedDoc?.filename ?? null}
             signedFilename={lease.signedDoc?.filename ?? null}
           />
+
+          <section className="space-y-2 rounded-2xl border border-midnight/10 bg-cream p-5">
+            <p className="eyebrow">États des lieux</p>
+            <InventoryCta
+              leaseId={lease.id}
+              type="ENTRY"
+              existingReportId={
+                lease.inventoryReports.find((r) => r.type === "ENTRY")?.id ?? null
+              }
+              existingStatus={
+                lease.inventoryReports.find((r) => r.type === "ENTRY")?.status ?? null
+              }
+              label="EDL d'entrée"
+              disabled={
+                lease.status !== "SIGNED_UPLOADED" && lease.status !== "ACTIVE"
+              }
+              disabledReason="EDL d'entrée disponible une fois le bail signé"
+            />
+            <InventoryCta
+              leaseId={lease.id}
+              type="EXIT"
+              existingReportId={
+                lease.inventoryReports.find((r) => r.type === "EXIT")?.id ?? null
+              }
+              existingStatus={
+                lease.inventoryReports.find((r) => r.type === "EXIT")?.status ?? null
+              }
+              label="EDL de sortie"
+              disabled={lease.status !== "ACTIVE" && lease.status !== "TERMINATED"}
+              disabledReason="EDL de sortie au départ du bail"
+            />
+          </section>
         </aside>
       </div>
     </div>

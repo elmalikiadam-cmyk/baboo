@@ -69,6 +69,9 @@ model User {
   leasesAsLandlord Lease[] @relation("LeaseLandlord")
   leasesAsTenant   Lease[] @relation("LeaseTenant")
   leasesActivated  Lease[] @relation("LeaseActivator")
+
+  // EDL (Brique 6)
+  inventoryReportsCreated InventoryReport[] @relation("InventoryReportCreator")
 }
 
 // Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
@@ -934,8 +937,91 @@ model Lease {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // États des lieux (Brique 6) — entrée + sortie.
+  inventoryReports InventoryReport[] @relation("LeaseInventoryReports")
+
   @@index([landlordUserId, status])
   @@index([tenantUserId, status])
   @@index([propertyId])
   @@index([status])
+}
+
+// ---------- État des lieux (EDL) ----------
+
+enum InventoryType {
+  ENTRY // EDL d'entrée (à la remise des clés)
+  EXIT // EDL de sortie (au départ du locataire)
+}
+
+enum InventoryStatus {
+  DRAFT // En cours d'édition
+  VALIDATED // Validé par les deux parties (figé)
+}
+
+enum RoomCondition {
+  EXCELLENT
+  GOOD
+  AVERAGE
+  POOR
+}
+
+// État des lieux rattaché à un bail. Deux rapports par bail au max :
+// un EDL d'entrée (obligatoire à la remise des clés) et un EDL de
+// sortie (au départ). Les deux parties valident par une checkbox
+// (pas de signature électronique en V1). Le PDF d'archive pourra
+// être généré ultérieurement.
+//
+// Référence légale : article 6 de la loi 67-12 — l'EDL doit être
+// établi contradictoirement et contresigné par les deux parties,
+// sous peine de présumer que le locataire a reçu le bien en bon état.
+model InventoryReport {
+  id String @id @default(cuid())
+
+  leaseId String
+  lease   Lease  @relation("LeaseInventoryReports", fields: [leaseId], references: [id], onDelete: Cascade)
+
+  type   InventoryType
+  status InventoryStatus @default(DRAFT)
+
+  // Notes générales du rapport (clés, compteurs, remarques globales).
+  generalNotes String? @db.Text
+
+  // Validations contradictoires — un booléen par partie + un timestamp.
+  // Lorsque les deux sont true, le statut passe à VALIDATED
+  // automatiquement côté action.
+  landlordValidated   Boolean   @default(false)
+  landlordValidatedAt DateTime?
+  tenantValidated     Boolean   @default(false)
+  tenantValidatedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  creator   User     @relation("InventoryReportCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+
+  rooms InventoryRoom[]
+
+  @@unique([leaseId, type])
+  @@index([status])
+  @@index([leaseId, status])
+}
+
+// Pièce ou zone de l'EDL (« Salon », « Cuisine », « Chambre 1 »,
+// « Extérieur »…). Ordre personnalisable. Condition globale par pièce
+// + notes libres. Les photos sont stockées dans DocumentVault avec
+// category=INVENTORY et relatedEntityId pointant sur l'id de la pièce.
+model InventoryRoom {
+  id       String          @id @default(cuid())
+  reportId String
+  report   InventoryReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  name      String
+  condition RoomCondition @default(GOOD)
+  notes     String?       @db.Text
+  order     Int           @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reportId, order])
 }
