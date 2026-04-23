@@ -59,6 +59,11 @@ model User {
   tenantProfile              TenantProfile?      @relation("TenantProfileUser")
   tenantApplications         TenantApplication[] @relation("TenantApplicationUser")
   tenantApplicationsReviewed TenantApplication[] @relation("TenantApplicationReviewer")
+
+  // Planificateur visites (Brique 4)
+  visitSlotsCreated      VisitSlot[]    @relation("VisitSlotCreator")
+  visitBookings          VisitBooking[] @relation("VisitBookingVisitor")
+  visitBookingsConfirmed VisitBooking[] @relation("VisitBookingConfirmer")
 }
 
 // Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
@@ -306,6 +311,8 @@ model Listing {
   leads         Lead[]
   conversations Conversation[]
   applications  TenantApplication[] @relation("ListingApplications")
+  visitSlots    VisitSlot[]         @relation("ListingVisitSlots")
+  visitBookings VisitBooking[]      @relation("ListingVisitBookings")
 
   @@index([citySlug, transaction, propertyType])
   @@index([status, publishedAt])
@@ -746,4 +753,87 @@ model TenantApplication {
   @@index([listingId, status])
   @@index([tenantUserId])
   @@index([status, submittedAt])
+}
+
+// ---------- Planificateur visites ----------
+
+enum VisitBookingStatus {
+  BOOKED // Réservé par le candidat, pas encore confirmé
+  CONFIRMED // Confirmé par le bailleur (après pré-sélection)
+  CANCELLED // Annulé par l'une ou l'autre partie
+  NO_SHOW // Candidat absent le jour J
+  COMPLETED // Visite réalisée
+}
+
+// Créneau de visite défini par le bailleur / l'agence pour une annonce.
+// Un créneau peut accepter plusieurs bookings (visite groupée) si
+// maxBookings > 1, sinon il se ferme automatiquement au premier.
+model VisitSlot {
+  id String @id @default(cuid())
+
+  listingId String
+  listing   Listing @relation("ListingVisitSlots", fields: [listingId], references: [id], onDelete: Cascade)
+
+  // Créneau temporel. startsAt et endsAt sont stockés en UTC ; la vue
+  // utilise la timezone Africa/Casablanca pour l'affichage.
+  startsAt DateTime
+  endsAt   DateTime
+
+  // Nb max de réservations pour ce créneau. 1 = visite privée. >1 =
+  // visite groupée (open house).
+  maxBookings Int @default(1)
+
+  // Note interne visible uniquement par le bailleur (« prévoir 15min
+  // de tampon », « code porte 4567 », etc.).
+  internalNote String? @db.Text
+
+  createdAt DateTime @default(now())
+  createdBy String
+  creator   User     @relation("VisitSlotCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  bookings VisitBooking[]
+
+  @@index([listingId, startsAt])
+  @@index([startsAt])
+}
+
+// Réservation d'un créneau par un candidat.
+model VisitBooking {
+  id String @id @default(cuid())
+
+  slotId String
+  slot   VisitSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+
+  // Dénormalisé pour filtrer rapidement par annonce / user sans join.
+  listingId String
+  listing   Listing @relation("ListingVisitBookings", fields: [listingId], references: [id], onDelete: Cascade)
+
+  visitorUserId String
+  visitorUser   User   @relation("VisitBookingVisitor", fields: [visitorUserId], references: [id], onDelete: Cascade)
+
+  status  VisitBookingStatus @default(BOOKED)
+  message String?            @db.Text
+
+  // Audit
+  confirmedAt DateTime?
+  confirmedBy String?
+  confirmer   User?     @relation("VisitBookingConfirmer", fields: [confirmedBy], references: [id], onDelete: SetNull)
+
+  cancelledAt        DateTime?
+  cancelledBy        String? // soit visitor, soit bailleur
+  cancellationReason String?   @db.Text
+
+  // Suivi rappels (QStash). reminderScheduledId = id du job QStash
+  // stocké pour pouvoir l'annuler si le booking est annulé avant
+  // envoi.
+  reminderScheduledId String?
+  reminderSentAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([slotId, visitorUserId])
+  @@index([listingId, status])
+  @@index([visitorUserId])
+  @@index([status])
 }
