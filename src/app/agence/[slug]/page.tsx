@@ -192,7 +192,7 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
             <h3 className="display-lg mt-3 text-xl">Aucune annonce publiée pour l'instant.</h3>
           </div>
         ) : (
-          <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {agency.listings.map((l) => (
               <ListingCard key={l.id} listing={l} />
             ))}

@@ -152,22 +152,19 @@ export default async function ListingPage({ params }: Props) {
           <span className="text-midnight">{listing.city.name}</span>
         </nav>
 
-        {/* Hero cover 21:9 (desktop) / 4:3 (mobile) */}
+        {/* Hero gallery — grille 5 photos desktop, hero + strip mobile,
+            lightbox au click. Remplace l'ancien hero coverImage unique. */}
         <section className="container">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-midnight/10 bg-cream-2 md:aspect-[21/9]">
-            <Image
-              src={listing.coverImage}
-              alt={listing.title}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover"
+          <div className="relative">
+            <ListingGallery
+              cover={listing.coverImage}
+              images={listing.images.map((i) => ({ url: i.url, alt: i.alt }))}
+              title={listing.title}
+              transactionLabel={transactionLabel}
+              propertyTypeLabel={PROPERTY_TYPE_LABEL[listing.propertyType]}
             />
-            <span className="absolute left-4 top-4 mono rounded-sm bg-cream/95 px-2.5 py-1 text-[10px] font-medium tracking-[0.14em]">
-              ◉ {transactionLabel.toUpperCase()}
-            </span>
             {listing.condition === "NEW" && (
-              <span className="absolute right-4 top-4 mono rounded-sm bg-terracotta px-2.5 py-1 text-[10px] font-semibold tracking-[0.16em] text-cream">
+              <span className="absolute right-4 top-4 z-10 mono rounded-sm bg-terracotta px-2.5 py-1 text-[10px] font-semibold tracking-[0.16em] text-cream">
                 NEUF
               </span>
             )}
@@ -257,24 +254,6 @@ export default async function ListingPage({ params }: Props) {
                 >
                   Réserver une visite
                 </Link>
-              </div>
-            )}
-
-            {/* Galerie photos supplémentaires */}
-            {listing.images.length > 0 && (
-              <div className="py-8">
-                <h2 className="display-xl text-2xl md:text-3xl">
-                  La <span className="text-terracotta">galerie</span>.
-                </h2>
-                <div className="mt-5">
-                  <ListingGallery
-                    cover={listing.coverImage}
-                    images={listing.images.map((i) => ({ url: i.url, alt: i.alt }))}
-                    title={listing.title}
-                    transactionLabel={transactionLabel}
-                    propertyTypeLabel={PROPERTY_TYPE_LABEL[listing.propertyType]}
-                  />
-                </div>
               </div>
             )}
 

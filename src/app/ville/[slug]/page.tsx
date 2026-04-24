@@ -167,9 +167,9 @@ export default async function CityLandingPage({ params }: { params: Promise<{ sl
               Voir toutes les annonces →
             </Link>
           </div>
-          <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {latest.map((l, i) => (
-              <ListingCard key={l.id} listing={l} priority={i < 4} />
+              <ListingCard key={l.id} listing={l} priority={i < 3} />
             ))}
           </div>
         </section>
