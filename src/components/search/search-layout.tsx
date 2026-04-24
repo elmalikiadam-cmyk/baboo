@@ -1,20 +1,16 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 /**
- * Layout rétractable pour la page /recherche.
+ * Layout horizontal avec barre de filtres rétractable en haut.
  *
- * Mobile : filtres déjà gérés via un drawer au-dessus. Ce wrapper est
- * désactivé (retourne `filters` + `results` empilés).
+ * État stocké en localStorage `baboo:search:filters-open` (défaut true).
+ * Barre toujours visible avec l'applied chips ; l'expand/collapse
+ * montre/cache le panneau complet.
  *
- * Desktop (lg+) : deux états
- *   - Ouvert     : grille [340px | 1fr], panneau visible
- *   - Rabattu    : grille [56px | 1fr], barre verticale affichant « FILTRES »
- *
- * Un clic sur la barre (ou sur « Masquer » du header) bascule. État
- * persisté en localStorage sous `baboo:search:filters-open`.
+ * Résultats affichés en grille 3 colonnes desktop, 2 tablette, 1 mobile.
  */
 export function SearchLayout({
   filters,
@@ -25,102 +21,90 @@ export function SearchLayout({
   results: ReactNode;
   initialOpen?: boolean;
 }) {
-  const [open, setOpen] = useState<boolean>(() => {
-    if (typeof window === "undefined") return initialOpen ?? true;
+  const [open, setOpen] = useState<boolean>(initialOpen ?? false);
+
+  // Lecture localStorage côté client après mount (évite mismatch SSR).
+  useEffect(() => {
     try {
       const stored = window.localStorage.getItem("baboo:search:filters-open");
-      if (stored === null) return initialOpen ?? true;
-      return stored === "1";
+      if (stored !== null) setOpen(stored === "1");
     } catch {
-      return initialOpen ?? true;
+      /* silencieux */
     }
-  });
+  }, []);
 
   function toggle() {
     setOpen((prev) => {
       const next = !prev;
       try {
-        window.localStorage.setItem("baboo:search:filters-open", next ? "1" : "0");
+        window.localStorage.setItem(
+          "baboo:search:filters-open",
+          next ? "1" : "0",
+        );
       } catch {
-        /* silencieux — localStorage bloqué */
+        /* silencieux */
       }
       return next;
     });
   }
 
   return (
-    <div
-      className={cn(
-        "mt-4 grid gap-6 transition-[grid-template-columns] duration-300 ease-out",
-        open
-          ? "lg:grid-cols-[340px_1fr]"
-          : "lg:grid-cols-[56px_1fr]",
-      )}
-    >
-      {/* Colonne filtres — visible sur mobile (open implicite), rétractable desktop */}
-      <aside
-        aria-label="Filtres de recherche"
-        className={cn(
-          "relative self-start lg:sticky lg:top-24",
-          !open && "hidden lg:block",
-        )}
-      >
-        {open ? (
-          <div className="space-y-3">
-            <div className="hidden items-center justify-between lg:flex">
-              <p className="mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                Filtres
-              </p>
-              <button
-                type="button"
-                onClick={toggle}
-                className="rounded-full border border-midnight/20 px-3 py-1 text-[11px] font-medium text-midnight hover:border-midnight"
+    <div>
+      {/* Barre rétractable */}
+      <div className="mb-6 rounded-2xl border border-midnight/10 bg-cream overflow-hidden">
+        <button
+          type="button"
+          onClick={toggle}
+          aria-expanded={open}
+          aria-controls="search-filters-panel"
+          className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-cream-2"
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-midnight text-cream">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="h-4 w-4"
               >
-                ← Masquer
-              </button>
-            </div>
-            {filters}
+                <path d="M3 6h18M6 12h12M10 18h4" strokeLinecap="round" />
+              </svg>
+            </span>
+            <span className="display-md text-[15px]">Filtres</span>
+            <span className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground hidden sm:inline">
+              {open ? "Replier" : "Déplier"}
+            </span>
           </div>
-        ) : (
-          <CollapsedRail onExpand={toggle} />
-        )}
-      </aside>
-
-      {/* Colonne résultats */}
-      <div className="min-w-0">
-        {!open && (
-          <button
-            type="button"
-            onClick={toggle}
-            className="mb-4 hidden items-center gap-2 rounded-full border border-midnight/20 px-4 py-1.5 text-[11px] font-medium text-midnight hover:border-midnight lg:inline-flex"
+          <span
+            className={cn(
+              "mono text-[14px] text-midnight transition-transform",
+              open ? "rotate-180" : "rotate-0",
+            )}
+            aria-hidden
           >
-            <span>☰</span>
-            Afficher les filtres
-          </button>
-        )}
-        {results}
+            ▾
+          </span>
+        </button>
+        <div
+          id="search-filters-panel"
+          className={cn(
+            "grid transition-[grid-template-rows,opacity] duration-300 ease-out",
+            open
+              ? "grid-rows-[1fr] opacity-100"
+              : "grid-rows-[0fr] opacity-0",
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="border-t border-midnight/10 bg-cream p-4 md:p-5">
+              {filters}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  );
-}
 
-function CollapsedRail({ onExpand }: { onExpand: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onExpand}
-      aria-label="Afficher les filtres"
-      className="hidden h-64 w-14 flex-col items-center justify-center gap-3 rounded-md border border-midnight/10 bg-cream-2 transition-colors hover:border-midnight hover:bg-cream lg:flex"
-    >
-      <span className="grid h-9 w-9 place-items-center rounded-full bg-midnight text-cream">
-        ☰
-      </span>
-      <span
-        className="mono text-[10px] font-semibold uppercase tracking-[0.22em] text-midnight"
-        style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-      >
-        Filtres
-      </span>
-    </button>
+      {/* Résultats plein largeur */}
+      <div className="min-w-0">{results}</div>
+    </div>
   );
 }

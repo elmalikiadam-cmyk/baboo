@@ -108,9 +108,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               {items.length === 0 ? (
                 <EmptyState transaction={filters.transaction} />
               ) : (
-                /* Grille : mobile 1, tablette 2, desktop 3 (toujours 3
-                   une fois le panneau rétracté, sinon 2 sur lg, 3 sur xl). */
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                /* Grille plein largeur comme /projets : mobile 1, md 2,
+                   lg 3 — cards uniformes au style éditorial. */
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {items.map((l, i) => (
                     <ListingCard key={l.id} listing={l} priority={i < 3} />
                   ))}

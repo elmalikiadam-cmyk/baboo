@@ -82,15 +82,10 @@ export function SearchFiltersPanel({ initial, className }: Props) {
 
   return (
     <aside
-      className={cn(
-        "rounded-2xl border border-border bg-cream p-5",
-        className,
-      )}
+      className={cn("space-y-4", className)}
       aria-busy={isPending}
       aria-label="Filtres"
     >
-      <p className="eyebrow-muted mb-3">Affiner</p>
-
       <PillToggle
         ariaLabel="Type de transaction"
         value={draft.transaction}

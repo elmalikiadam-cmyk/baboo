@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatPrice, formatSurface } from "@/lib/format";
+import { formatPrice } from "@/lib/format";
 import type { ListingWithRelations } from "@/lib/listings-query";
 import { FavoriteButton } from "@/components/listing/favorite-button";
+import { BedIcon, BathIcon, RulerIcon } from "@/components/ui/icons";
 
 type Variant = "default" | "featured" | "compact";
 
@@ -91,14 +92,37 @@ export function ListingCard({ listing, variant = "default", priority }: Props) {
           )}
         </p>
 
-        {/* Méta en mono — surface, pièces, équipements clés */}
-        <p className="mono mt-4 text-[11px] tracking-[0.08em] text-muted-foreground">
-          {formatSurface(listing.surface).toUpperCase()}
-          {listing.bedrooms != null && ` · ${listing.bedrooms} CH`}
-          {listing.bathrooms != null && ` · ${listing.bathrooms} SDB`}
-          {listing.pool && ` · PISCINE`}
-          {listing.seaView && ` · VUE MER`}
-        </p>
+        {/* Méta avec icônes — plus lisible, plus « produit » */}
+        <ul className="mt-4 flex flex-wrap items-center gap-3 text-[11px] text-midnight">
+          <li className="flex items-center gap-1">
+            <RulerIcon className="h-3.5 w-3.5 text-terracotta" aria-hidden />
+            <span className="font-medium">{listing.surface} m²</span>
+          </li>
+          {listing.bedrooms != null && (
+            <li className="flex items-center gap-1">
+              <BedIcon className="h-3.5 w-3.5 text-terracotta" aria-hidden />
+              <span className="font-medium">{listing.bedrooms}</span>
+              <span className="text-muted-foreground">ch.</span>
+            </li>
+          )}
+          {listing.bathrooms != null && (
+            <li className="flex items-center gap-1">
+              <BathIcon className="h-3.5 w-3.5 text-terracotta" aria-hidden />
+              <span className="font-medium">{listing.bathrooms}</span>
+              <span className="text-muted-foreground">sdb</span>
+            </li>
+          )}
+          {listing.pool && (
+            <li className="rounded-full bg-midnight/5 px-2 py-0.5 mono text-[9px] uppercase tracking-[0.12em]">
+              Piscine
+            </li>
+          )}
+          {listing.seaView && (
+            <li className="rounded-full bg-midnight/5 px-2 py-0.5 mono text-[9px] uppercase tracking-[0.12em]">
+              Vue mer
+            </li>
+          )}
+        </ul>
 
         <div className="mt-auto flex items-baseline justify-between border-t border-midnight/10 pt-4">
           <span className="mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">

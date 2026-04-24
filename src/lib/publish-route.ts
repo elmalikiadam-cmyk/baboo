@@ -1,25 +1,29 @@
 // Routage contextuel du CTA « Publier une annonce ».
-// Un seul point d'entrée public (`/publier`) qui redirige selon l'état
-// du user. Objectif : garder la surface publique simple (un seul lien,
-// un seul intitulé) et absorber toute la complexité côté serveur.
 //
-// Matrice de décision :
-//   - Non connecté                      → /connexion?callbackUrl=/publier
-//   - AGENCY + agencyId                 → /pro/listings/new  (flux pro existant)
-//   - DEVELOPER                         → /developer/projets/nouveau (flux promoteur)
-//   - BAILLEUR (grant actif)            → /pro/listings/new
-//   - Sans KYC (pas de LandlordVerification, ou REJECTED) → /bailleur/onboarding
-//   - KYC PENDING                       → /bailleur/onboarding/status
+// Au Maroc la pratique n'est pas au KYC pour publier une annonce
+// particulier — on laisse le bailleur publier immédiatement et la
+// modération humaine (admin) s'occupe des cas frauduleux.
+//
+// Le rôle BAILLEUR est auto-accordé au premier clic « Publier » pour
+// éliminer toute friction. Le KYC (upload pièce, titre) reste
+// accessible via /bailleur/onboarding mais uniquement comme upgrade
+// volontaire pour obtenir le badge « Vérifié Baboo ».
+//
+// Matrice :
+//   - Non connecté            → /connexion?callbackUrl=/publier
+//   - AGENCY + agencyId       → /pro/listings/new
+//   - DEVELOPER               → /developer/projets/nouveau
+//   - BAILLEUR                → /pro/listings/new
+//   - Sinon (USER simple)     → auto-grant BAILLEUR + /pro/listings/new
 
 import { auth } from "@/auth";
-import { db, hasDb } from "@/lib/db";
+import { grantRole } from "@/lib/roles";
+import { UserRole } from "@prisma/client";
 
 export type PublishTarget =
   | { route: "/connexion"; callbackUrl: string }
   | { route: "/pro/listings/new" }
-  | { route: "/developer/projets/nouveau" }
-  | { route: "/bailleur/onboarding" }
-  | { route: "/bailleur/onboarding/status" };
+  | { route: "/developer/projets/nouveau" };
 
 export async function resolvePublishTarget(): Promise<PublishTarget> {
   const session = await auth();
@@ -36,24 +40,18 @@ export async function resolvePublishTarget(): Promise<PublishTarget> {
   if (roles.includes("DEVELOPER") && session.user.developerId) {
     return { route: "/developer/projets/nouveau" };
   }
-  if (roles.includes("BAILLEUR")) {
-    return { route: "/pro/listings/new" };
+
+  // Auto-grant BAILLEUR si pas déjà — zéro friction, la modération se
+  // fait au niveau de l'annonce (admin valide PUBLISHED ou rejette).
+  if (!roles.includes("BAILLEUR")) {
+    try {
+      await grantRole(userId, UserRole.BAILLEUR, {
+        reason: "Auto-grant via clic CTA Publier",
+      });
+    } catch {
+      // silencieux — en cas d'échec DB on redirige quand même
+    }
   }
 
-  // Pas encore bailleur — on regarde s'il y a un dossier en cours.
-  if (!hasDb()) {
-    return { route: "/bailleur/onboarding" };
-  }
-  try {
-    const v = await db.landlordVerification.findUnique({
-      where: { userId },
-      select: { status: true },
-    });
-    if (v?.status === "PENDING") {
-      return { route: "/bailleur/onboarding/status" };
-    }
-  } catch {
-    // silencieux — on tombe sur onboarding si la lecture échoue
-  }
-  return { route: "/bailleur/onboarding" };
+  return { route: "/pro/listings/new" };
 }
