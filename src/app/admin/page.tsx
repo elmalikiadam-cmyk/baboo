@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { auth } from "@/auth";
@@ -104,6 +105,18 @@ export default async function AdminDashboard() {
         <Stat label="Leads" value={String(stats.leads)} />
       </dl>
 
+      <nav
+        aria-label="Raccourcis admin"
+        className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6"
+      >
+        <AdminShortcut href="/admin/metriques" label="Métriques" />
+        <AdminShortcut href="/admin/agents" label="Agents visites" />
+        <AdminShortcut href="/admin/visit-packs" label="Packs visites" />
+        <AdminShortcut href="/admin/partners" label="Partenaires" />
+        <AdminShortcut href="/admin/kyc" label="KYC" />
+        <AdminShortcut href="/admin/business" label="Business" />
+      </nav>
+
       <div className="mt-14 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
         <section>
           <div className="mb-6 flex items-end justify-between border-b border-border pb-4">
@@ -205,6 +218,20 @@ export default async function AdminDashboard() {
         </aside>
       </div>
     </div>
+  );
+}
+
+function AdminShortcut({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="group rounded-xl border border-midnight/10 bg-cream p-4 transition-colors hover:border-terracotta hover:bg-terracotta/5"
+    >
+      <p className="mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground group-hover:text-terracotta">
+        Espace
+      </p>
+      <p className="display-md mt-1.5 text-sm text-midnight">{label}</p>
+    </Link>
   );
 }
 

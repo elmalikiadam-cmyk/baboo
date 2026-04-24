@@ -4,7 +4,14 @@ import { SearchRequestWizard } from "@/components/marketing/search-request-wizar
 export const metadata: Metadata = {
   title: "Dites-nous ce que vous cherchez — Baboo",
   description:
-    "Décrivez votre recherche idéale, nous vous trouvons les annonces qui correspondent parmi des milliers de biens au Maroc.",
+    "Décrivez votre recherche idéale. Nous vous envoyons immédiatement les annonces qui correspondent et on vous écrit dès qu'un nouveau bien arrive au Maroc.",
+  openGraph: {
+    title: "Je cherche un bien — Baboo",
+    description:
+      "Budget, ville, quartier, délai. On vous trouve les annonces qui correspondent en quelques clics.",
+    type: "website",
+  },
+  alternates: { canonical: "/je-cherche" },
 };
 
 /**

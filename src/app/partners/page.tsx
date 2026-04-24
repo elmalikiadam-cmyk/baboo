@@ -5,8 +5,16 @@ import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
 
 export const metadata: Metadata = {
-  title: "Partenaires Baboo",
-  robots: { index: false, follow: false },
+  title: "Partenaires Baboo — leads qualifiés à l'unité",
+  description:
+    "Agences immobilières : recevez des demandes d'acheteurs et locataires qualifiés, payez à l'unité (500 MAD/lead), sans abonnement.",
+  openGraph: {
+    title: "Baboo Partners",
+    description:
+      "Leads particuliers qualifiés, payés à l'unité — pas d'abonnement, pas de commission au pourcentage.",
+    type: "website",
+  },
+  alternates: { canonical: "/partners" },
 };
 export const dynamic = "force-dynamic";
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
+import { RunWeeklyReportsButton } from "@/components/admin/run-weekly-reports-button";
 
 export const metadata: Metadata = {
   title: "Métriques — Admin Baboo",
@@ -154,6 +155,8 @@ export default async function AdminMetricsPage() {
           <Stat label="Packs actifs" value={String(packsActive)} />
         </dl>
       </section>
+
+      <RunWeeklyReportsButton />
 
       <section className="mt-10">
         <h2 className="display-md text-xl">Lead routing</h2>

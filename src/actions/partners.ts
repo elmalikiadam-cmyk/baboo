@@ -12,6 +12,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
+import { rateLimit } from "@/lib/rate-limit";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -99,6 +100,20 @@ export async function unlockSearchRequest(
   // V1 : simple vérif email du user connecté = email partenaire.
   const session = await auth();
   if (!session?.user?.email) return { ok: false, error: "Connectez-vous." };
+
+  // Rate-limit : un partenaire ne peut débloquer plus de 30 leads/h,
+  // évite les cas d'abus si leur session est compromise.
+  const rl = await rateLimit({
+    key: `partner-unlock:${partnerId}`,
+    limit: 30,
+    windowSec: 3600,
+  });
+  if (!rl.success) {
+    return {
+      ok: false,
+      error: "Trop de déblocages récents. Réessayez dans 1 heure.",
+    };
+  }
 
   const partner = await db.partnerAgency.findUnique({
     where: { id: partnerId },

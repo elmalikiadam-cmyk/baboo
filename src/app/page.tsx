@@ -4,6 +4,7 @@ import { ListingCard } from "@/components/listing/listing-card";
 import { HeroSearchBlock } from "@/components/search/hero-search-block";
 import { CostCalculator } from "@/components/marketing/cost-calculator";
 import { FaqAccordion } from "@/components/marketing/faq-accordion";
+import { OwnerServiceRequestTrigger } from "@/components/marketing/owner-service-request";
 import { getLatestListings } from "@/lib/listings-query";
 
 export const metadata: Metadata = {
@@ -201,10 +202,12 @@ export default async function HomePage() {
           <OptionCard
             title="Pack photos"
             body="Un photographe pro passe chez vous, livre 15 clichés retouchés HD et un plan d'étage. Les annonces avec photos pro reçoivent en moyenne 3× plus de contacts."
+            kind="PHOTOS"
           />
           <OptionCard
             title="Pack ménage avant visite"
             body="Équipe de ménage entre candidats ou avant une vague de visites. Un bien bien présenté, c'est un candidat qui se projette et une location qui se conclut plus vite."
+            kind="CLEANING"
           />
         </div>
       </section>
@@ -379,9 +382,17 @@ function Step({
   );
 }
 
-function OptionCard({ title, body }: { title: string; body: string }) {
+function OptionCard({
+  title,
+  body,
+  kind,
+}: {
+  title: string;
+  body: string;
+  kind: "PHOTOS" | "CLEANING";
+}) {
   return (
-    <div className="rounded-2xl border border-terracotta/30 bg-terracotta/5 p-6 md:p-7">
+    <div className="flex flex-col rounded-2xl border border-terracotta/30 bg-terracotta/5 p-6 md:p-7">
       <p className="mono text-[10px] uppercase tracking-[0.14em] text-terracotta">
         Option
       </p>
@@ -389,6 +400,9 @@ function OptionCard({ title, body }: { title: string; body: string }) {
       <p className="mt-3 text-sm leading-relaxed text-midnight/80">
         {body}
       </p>
+      <div className="mt-auto">
+        <OwnerServiceRequestTrigger kind={kind} />
+      </div>
     </div>
   );
 }
