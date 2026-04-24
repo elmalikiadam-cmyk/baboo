@@ -6,6 +6,8 @@ import {
   generateLeasePdf,
   uploadSignedLease,
   activateLease,
+  sendLeaseForSignature,
+  cancelLeaseSignature,
 } from "@/actions/leases";
 
 type Props = {
@@ -15,6 +17,8 @@ type Props = {
   signedUrl: string | null;
   generatedFilename: string | null;
   signedFilename: string | null;
+  signatureStatus?: string | null;
+  yousignEnabled?: boolean;
 };
 
 export function LeaseWorkflowActions({
@@ -24,12 +28,31 @@ export function LeaseWorkflowActions({
   signedUrl,
   generatedFilename,
   signedFilename,
+  signatureStatus,
+  yousignEnabled,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [uploadingName, setUploadingName] = useState<string>("");
+
+  function sendForSignature() {
+    setError(null);
+    startTransition(async () => {
+      const res = await sendLeaseForSignature(leaseId);
+      if (res.ok) router.refresh();
+      else setError(res.error);
+    });
+  }
+
+  function cancelSignature() {
+    if (!confirm("Annuler la procédure de signature en cours ?")) return;
+    startTransition(async () => {
+      await cancelLeaseSignature(leaseId);
+      router.refresh();
+    });
+  }
 
   function runGenerate() {
     setError(null);
@@ -107,9 +130,38 @@ export function LeaseWorkflowActions({
           n={2}
           done={status === "SIGNED_UPLOADED" || status === "ACTIVE" || status === "TERMINATED"}
           active={status === "GENERATED"}
-          label="Imprimer, signer, uploader"
+          label={yousignEnabled ? "Signer électroniquement" : "Imprimer, signer, uploader"}
         >
-          {(status === "GENERATED" || status === "SIGNED_UPLOADED") && (
+          {/* Bouton e-sign Yousign — visible si provider configuré et
+              bail en statut GENERATED sans signature en cours. */}
+          {yousignEnabled &&
+            status === "GENERATED" &&
+            signatureStatus !== "PENDING" && (
+              <button
+                type="button"
+                onClick={sendForSignature}
+                disabled={isPending}
+                className="mt-2 block rounded-full bg-forest px-4 py-2 text-xs font-semibold text-cream disabled:opacity-50"
+              >
+                {isPending ? "Envoi…" : "Envoyer pour signature électronique →"}
+              </button>
+            )}
+          {signatureStatus === "PENDING" && (
+            <div className="mt-2">
+              <p className="mono text-[10px] uppercase tracking-[0.12em] text-terracotta">
+                ⏳ Signature en cours (Yousign)
+              </p>
+              <button
+                type="button"
+                onClick={cancelSignature}
+                disabled={isPending}
+                className="mt-1 mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground hover:text-danger"
+              >
+                Annuler la signature
+              </button>
+            </div>
+          )}
+          {(status === "GENERATED" || status === "SIGNED_UPLOADED") && signatureStatus !== "PENDING" && (
             <>
               <label className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-full border-2 border-midnight px-4 py-2 text-xs font-semibold text-midnight hover:bg-midnight hover:text-cream">
                 <input

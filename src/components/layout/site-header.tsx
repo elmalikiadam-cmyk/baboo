@@ -68,9 +68,11 @@ export async function SiteHeader() {
                 email={user.email ?? ""}
                 agencySlug={user.agencySlug ?? null}
                 agencyName={user.agencyName ?? null}
-                isAgency={user.role === "AGENCY"}
-                isDeveloper={user.role === "DEVELOPER"}
-                isAdmin={user.role === "ADMIN"}
+                isAgency={(user.roles ?? []).includes("AGENCY") || user.role === "AGENCY"}
+                isDeveloper={(user.roles ?? []).includes("DEVELOPER") || user.role === "DEVELOPER"}
+                isAdmin={(user.roles ?? []).includes("ADMIN") || user.role === "ADMIN"}
+                isLandlord={(user.roles ?? []).includes("BAILLEUR")}
+                isTenant={(user.roles ?? []).includes("LOCATAIRE")}
                 unreadMessages={unread}
               />
             </>

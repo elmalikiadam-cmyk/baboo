@@ -25,6 +25,19 @@ import {
   uploadToPrivateStorage,
 } from "@/lib/storage";
 import { LeasePdfDocument, type LeasePdfData } from "@/lib/lease-pdf";
+import {
+  isYousignEnabled,
+  createSignatureProcedure,
+  cancelSignatureProcedure,
+} from "@/lib/yousign";
+import {
+  sendEmail,
+} from "@/lib/resend";
+import {
+  leaseReadyForSignatureEmail,
+  leaseActivatedEmail,
+} from "@/lib/email-templates";
+import { createNotification } from "@/lib/notifications";
 
 type Result =
   | { ok: true; id?: string }
@@ -527,10 +540,222 @@ export async function activateLease(leaseId: string): Promise<Result> {
     },
   });
 
+  // Email + notif locataire — best-effort, non bloquant.
+  try {
+    const full = await db.lease.findUnique({
+      where: { id: lease.id },
+      select: {
+        propertyAddress: true,
+        propertyCity: true,
+        startDate: true,
+        tenantUserId: true,
+        tenantUser: { select: { name: true, email: true } },
+      },
+    });
+    if (full) {
+      const tpl = leaseActivatedEmail({
+        tenantName: full.tenantUser.name ?? full.tenantUser.email.split("@")[0],
+        listingTitle: `${full.propertyAddress}, ${full.propertyCity}`,
+        leaseId: lease.id,
+        startDate: full.startDate.toLocaleDateString("fr-FR", { dateStyle: "long" }),
+      });
+      await sendEmail({
+        to: full.tenantUser.email,
+        subject: tpl.subject,
+        html: tpl.html,
+      });
+      await createNotification({
+        userId: full.tenantUserId,
+        type: "LEASE_ACTIVATED",
+        title: "Votre bail est activé",
+        body: `${full.propertyAddress} — le bail démarre le ${full.startDate.toLocaleDateString("fr-FR")}`,
+        linkUrl: `/locataire/baux/${lease.id}`,
+        entityType: "Lease",
+        entityId: lease.id,
+      });
+    }
+  } catch {
+    /* best-effort */
+  }
+
   revalidatePath(`/bailleur/baux/${lease.id}`);
   revalidatePath(`/locataire/baux/${lease.id}`);
   revalidatePath("/bailleur/baux");
   revalidatePath("/locataire/baux");
+  return { ok: true };
+}
+
+/**
+ * Envoie le PDF généré pour signature électronique via Yousign.
+ * Si Yousign n'est pas configuré, renvoie un message explicite et le
+ * bailleur garde l'option d'upload manuel. Si envoi OK, lease passe
+ * à signatureStatus=PENDING, lease.status reste GENERATED jusqu'au
+ * callback.
+ */
+export async function sendLeaseForSignature(
+  leaseId: string,
+): Promise<Result> {
+  const session = await auth();
+  if (!session?.user?.id) return { ok: false, error: "Non connecté." };
+  if (!hasDb()) return { ok: false, error: "Base indisponible." };
+  if (!isYousignEnabled()) {
+    return {
+      ok: false,
+      error:
+        "Signature électronique non configurée. Utilisez l'upload manuel.",
+    };
+  }
+
+  const lease = await db.lease.findUnique({
+    where: { id: leaseId },
+    include: {
+      landlordUser: { select: { id: true, name: true, email: true, phone: true } },
+      tenantUser: { select: { id: true, name: true, email: true, phone: true } },
+      listing: { select: { agencyId: true } },
+      generatedDoc: { select: { path: true, filename: true } },
+    },
+  });
+  if (!lease) return { ok: false, error: "Bail introuvable." };
+  const canSend = await assertLandlord(
+    session.user.id,
+    session.user.agencyId,
+    lease.landlordUserId,
+    lease.listing?.agencyId ?? null,
+  );
+  if (!canSend) return { ok: false, error: "Accès refusé." };
+  if (lease.status !== LeaseStatus.GENERATED) {
+    return {
+      ok: false,
+      error: "Générez d'abord le PDF avant l'envoi en signature.",
+    };
+  }
+  if (!lease.generatedDoc) {
+    return { ok: false, error: "PDF source introuvable." };
+  }
+
+  // On récupère le PDF depuis Supabase Storage pour le re-uploader à
+  // Yousign. On utilise signedUrl + fetch binaire.
+  const { signedUrlForPrivate } = await import("@/lib/storage");
+  const signedUrl = await signedUrlForPrivate(
+    lease.generatedDoc.path,
+    300,
+  ).catch(() => null);
+  if (!signedUrl) {
+    return { ok: false, error: "Impossible de lire le PDF généré." };
+  }
+  const resPdf = await fetch(signedUrl);
+  if (!resPdf.ok) return { ok: false, error: "Lecture PDF échouée." };
+  const pdfBuffer = Buffer.from(await resPdf.arrayBuffer());
+
+  const [llFirst, ...llRest] = (lease.landlordUser.name ?? "Bailleur")
+    .split(" ");
+  const [tnFirst, ...tnRest] = (lease.tenantUser.name ?? "Locataire")
+    .split(" ");
+
+  const result = await createSignatureProcedure({
+    name: `Bail ${lease.id.slice(-8).toUpperCase()}`,
+    pdfBuffer,
+    signers: [
+      {
+        firstName: llFirst,
+        lastName: llRest.join(" ") || llFirst,
+        email: lease.landlordUser.email,
+        phone: lease.landlordUser.phone ?? undefined,
+        role: "landlord",
+      },
+      {
+        firstName: tnFirst,
+        lastName: tnRest.join(" ") || tnFirst,
+        email: lease.tenantUser.email,
+        phone: lease.tenantUser.phone ?? undefined,
+        role: "tenant",
+      },
+    ],
+    metadata: { leaseId: lease.id },
+  });
+
+  if (!result.ok) {
+    if ("skipped" in result) {
+      return { ok: false, error: result.reason };
+    }
+    return { ok: false, error: result.error };
+  }
+
+  await db.lease.update({
+    where: { id: lease.id },
+    data: {
+      signatureProvider: "yousign",
+      signatureProviderId: result.signatureRequestId,
+      signatureStatus: "PENDING",
+      signatureRequestedAt: new Date(),
+    },
+  });
+
+  // Email + notif locataire
+  const tpl = leaseReadyForSignatureEmail({
+    tenantName: lease.tenantUser.name ?? lease.tenantUser.email.split("@")[0],
+    listingTitle: `${lease.propertyAddress}, ${lease.propertyCity}`,
+    leaseId: lease.id,
+    hasESignature: true,
+  });
+  await sendEmail({
+    to: lease.tenantUser.email,
+    subject: tpl.subject,
+    html: tpl.html,
+  });
+  await createNotification({
+    userId: lease.tenantUserId,
+    type: "LEASE_GENERATED",
+    title: "Votre bail est à signer",
+    body: "Cliquez pour signer électroniquement votre bail.",
+    linkUrl: `/locataire/baux/${lease.id}`,
+    entityType: "Lease",
+    entityId: lease.id,
+  });
+
+  revalidatePath(`/bailleur/baux/${lease.id}`);
+  revalidatePath(`/locataire/baux/${lease.id}`);
+  return { ok: true };
+}
+
+export async function cancelLeaseSignature(
+  leaseId: string,
+): Promise<Result> {
+  const session = await auth();
+  if (!session?.user?.id) return { ok: false, error: "Non connecté." };
+  if (!hasDb()) return { ok: false, error: "Base indisponible." };
+
+  const lease = await db.lease.findUnique({
+    where: { id: leaseId },
+    select: {
+      id: true,
+      signatureProviderId: true,
+      landlordUserId: true,
+      listing: { select: { agencyId: true } },
+    },
+  });
+  if (!lease) return { ok: false, error: "Bail introuvable." };
+  const canCancel = await assertLandlord(
+    session.user.id,
+    session.user.agencyId,
+    lease.landlordUserId,
+    lease.listing?.agencyId ?? null,
+  );
+  if (!canCancel) return { ok: false, error: "Accès refusé." };
+
+  if (lease.signatureProviderId) {
+    await cancelSignatureProcedure(lease.signatureProviderId);
+  }
+  await db.lease.update({
+    where: { id: lease.id },
+    data: {
+      signatureStatus: "NONE",
+      signatureProviderId: null,
+      signatureProvider: null,
+      signatureRequestedAt: null,
+    },
+  });
+  revalidatePath(`/bailleur/baux/${lease.id}`);
   return { ok: true };
 }
 

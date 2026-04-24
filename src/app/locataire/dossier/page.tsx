@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
 import { TenantProfileForm } from "@/components/locataire/tenant-profile-form";
 import { GuarantorsManager } from "@/components/locataire/guarantors-manager";
+import { TenantDocsUploader } from "@/components/locataire/tenant-docs-uploader";
 
 export const metadata: Metadata = {
   title: "Mon dossier locataire — Baboo",
@@ -29,6 +30,29 @@ export default async function TenantProfilePage({
         })
         .catch(() => null)
     : null;
+
+  // Documents uploadés du dossier (fiches de paie, avis imposition…)
+  const tenantDocs =
+    hasDb() && profile
+      ? await db.documentVault
+          .findMany({
+            where: {
+              userId: session.user.id,
+              category: "TENANT_DOSSIER",
+              relatedEntityId: profile.id,
+              deletedAt: null,
+            },
+            orderBy: { uploadedAt: "desc" },
+            select: {
+              id: true,
+              filename: true,
+              mimeType: true,
+              size: true,
+              uploadedAt: true,
+            },
+          })
+          .catch(() => [])
+      : [];
 
   return (
     <div className="container py-10 md:py-16">
@@ -83,19 +107,31 @@ export default async function TenantProfilePage({
           />
 
           {profile?.completed && (
-            <GuarantorsManager
-              guarantors={profile.guarantors.map((g) => ({
-                id: g.id,
-                type: g.type,
-                fullName: g.fullName,
-                email: g.email,
-                phone: g.phone,
-                relationship: g.relationship,
-                monthlyIncome: g.monthlyIncome,
-                employment: g.employment,
-                employer: g.employer,
-              }))}
-            />
+            <>
+              <GuarantorsManager
+                guarantors={profile.guarantors.map((g) => ({
+                  id: g.id,
+                  type: g.type,
+                  fullName: g.fullName,
+                  email: g.email,
+                  phone: g.phone,
+                  relationship: g.relationship,
+                  monthlyIncome: g.monthlyIncome,
+                  employment: g.employment,
+                  employer: g.employer,
+                }))}
+              />
+
+              <TenantDocsUploader
+                docs={tenantDocs.map((d) => ({
+                  id: d.id,
+                  filename: d.filename,
+                  mimeType: d.mimeType,
+                  size: d.size,
+                  uploadedAt: d.uploadedAt.toISOString(),
+                }))}
+              />
+            </>
           )}
         </div>
 

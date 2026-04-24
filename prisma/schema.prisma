@@ -81,6 +81,15 @@ model User {
   agencyMemberInvitations AgencyMember[]   @relation("AgencyMemberInviter")
   craftsman               Craftsman?       @relation("CraftsmanUser")
   serviceRequests         ServiceRequest[] @relation("ServiceRequestRequester")
+
+  // Phase 2 — platform upgrades
+  notifications                   Notification[]            @relation("NotificationUser")
+  auditLogs                       AuditLog[]                @relation("AuditActor")
+  reviewsAuthored                 Review[]                  @relation("ReviewAuthor")
+  leaseTerminationRequests        LeaseTerminationRequest[] @relation("TerminationRequester")
+  leaseTerminationResponses       LeaseTerminationRequest[] @relation("TerminationResponder")
+  securityDepositReturnsProcessed SecurityDepositReturn[]   @relation("DepositProcessor")
+  incidentsReported               Incident[]                @relation("IncidentReporter")
 }
 
 // Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
@@ -368,16 +377,19 @@ model Favorite {
 }
 
 model SavedSearch {
-  id        String    @id @default(cuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String
-  query     String    @db.Text
-  frequency String    @default("daily") // instant | daily | weekly
-  lastRunAt DateTime?
-  createdAt DateTime  @default(now())
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  query        String    @db.Text
+  frequency    String    @default("daily") // instant | daily | weekly
+  lastRunAt    DateTime?
+  matchesCount Int       @default(0) // cumul total matches envoyés
+  paused       Boolean   @default(false)
+  createdAt    DateTime  @default(now())
 
   @@index([userId])
+  @@index([frequency, paused, lastRunAt])
 }
 
 enum LeadStatus {
@@ -601,6 +613,13 @@ enum DocumentCategory {
   LEASE // bail signé (Brique 5)
   INVENTORY // EDL (Brique 6)
   RECEIPT // quittance de loyer (Brique 7)
+  // Phase 2
+  TENANT_DOSSIER // fiches de paie, avis d'imposition, pièce ID candidat
+  MISE_EN_DEMEURE // PDF relance loyer formelle J+30
+  DEPOSIT_ATTESTATION // restitution dépôt de garantie
+  INCIDENT // photos / pièces d'un sinistre
+  PROPERTY_DEED // titre foncier, acte notarié
+  TAX_DECLARATION // déclaration IR foncier
   OTHER
 }
 
@@ -633,6 +652,9 @@ model DocumentVault {
 
   // Relations inverses vers RentPeriod (Brique 7)
   rentReceipts RentPeriod[] @relation("RentReceiptDoc")
+
+  // Phase 2 — attestation restitution dépôt de garantie
+  depositAttestations SecurityDepositReturn[] @relation("DepositAttestation")
 
   @@index([userId, category])
   @@index([relatedEntityId])
@@ -962,6 +984,22 @@ model Lease {
   // peut créer une ServiceRequest rattachée au bail.
   serviceRequests ServiceRequest[] @relation("LeaseServiceRequests")
 
+  // Phase 2 — platform upgrades
+  // Signature électronique (Yousign / DocuSign) — optionnel, fallback
+  // sur le flow manuel « imprime-signe-scan-upload » si provider non
+  // configuré.
+  signatureProvider         String? // "yousign" | "docusign" | null
+  signatureProviderId       String? // id procédure chez le provider
+  signatureStatus           String? // NONE | PENDING | SIGNED | REFUSED | EXPIRED
+  signatureLandlordSignedAt DateTime?
+  signatureTenantSignedAt   DateTime?
+  signatureRequestedAt      DateTime?
+
+  // Liens vers les workflows avancés
+  terminationRequest LeaseTerminationRequest? @relation("LeaseTerminationRequest")
+  depositReturn      SecurityDepositReturn?   @relation("LeaseDepositReturn")
+  incidents          Incident[]               @relation("LeaseIncidents")
+
   @@index([landlordUserId, status])
   @@index([tenantUserId, status])
   @@index([propertyId])
@@ -1126,10 +1164,17 @@ model Payment {
   paidAt    DateTime // date effective du paiement (pas du déclarant)
   notes     String?       @db.Text
 
+  // Phase 2 — paiement en ligne intermédié par Baboo (CMI, Youcan Pay…)
+  gateway              String? // "cmi" | "youcan" | null
+  gatewayTransactionId String?
+  gatewayFeePct        Float? // commission en pourcentage appliquée
+  netAmount            Int? // amount - frais, versé au bailleur
+
   createdAt DateTime @default(now())
 
   @@index([rentPeriodId])
   @@index([declaredById])
+  @@index([gatewayTransactionId])
 }
 
 // ---------- Multi-utilisateurs agence ----------
@@ -1278,4 +1323,221 @@ model ServiceRequest {
   @@index([assignedCraftsmanId, status])
   @@index([speciality, status])
   @@index([status])
+}
+
+// ========== PHASE 2 — platform upgrades ==========
+
+// Notifications in-app (le user voit un badge compte non lus dans le
+// header, clique pour dérouler l'inbox). Type utilisé pour l'icône +
+// entité pour deep-link. Un cron optionnel purge les > 90 jours.
+enum NotificationType {
+  APPLICATION_RECEIVED // bailleur reçoit candidature
+  APPLICATION_ACCEPTED // locataire voit sa candidature acceptée
+  APPLICATION_REJECTED // idem rejet
+  VISIT_BOOKED // bailleur reçoit réservation visite
+  VISIT_CONFIRMED // locataire confirmation bailleur
+  VISIT_REMINDER // T-24h (déjà via WhatsApp, doublé in-app)
+  LEASE_GENERATED // locataire : bail dispo
+  LEASE_SIGNED // bailleur : les 2 ont signé
+  LEASE_ACTIVATED // locataire : bail actif
+  RENT_DUE // locataire : échéance J-3
+  RENT_LATE // bailleur : locataire en retard
+  RENT_RECEIVED // locataire : paiement bien reçu
+  RECEIPT_GENERATED // locataire : quittance dispo
+  KYC_APPROVED // bailleur : KYC validé
+  KYC_REJECTED // bailleur : KYC refusé
+  MESSAGE_RECEIVED // user : nouveau message
+  SAVED_SEARCH_MATCH // user : nouvelles annonces matchent alerte
+  INTERVENTION_ASSIGNED // artisan : demande assignée
+  INTERVENTION_ACCEPTED // bailleur : artisan a accepté
+  INTERVENTION_COMPLETED // bailleur : intervention terminée
+  REVIEW_REQUESTED // user : laisser un avis post-intervention
+  SYSTEM // annonce plateforme
+}
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("NotificationUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  type    NotificationType
+  title   String
+  body    String?          @db.Text
+  // URL interne ou externe pour deep-link sur clic.
+  linkUrl String?
+
+  // Référence optionnelle à l'entité source (applicationId, leaseId, etc.).
+  // Pas de FK stricte — polymorphe sans contrainte pour V1.
+  entityType String?
+  entityId   String?
+
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+}
+
+// Log générique pour toutes les actions sensibles (modification bail,
+// approbation KYC, ban user). À requêter dans un panneau admin.
+model AuditLog {
+  id      String  @id @default(cuid())
+  actorId String?
+  actor   User?   @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  action     String // ex: "kyc.approved", "lease.activated"
+  entityType String // ex: "LandlordVerification", "Lease"
+  entityId   String
+  meta       Json? // payload libre
+
+  createdAt DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([entityType, entityId])
+  @@index([action, createdAt])
+}
+
+// Avis sur une agence ou un artisan. 1 avis par couple (author, target).
+enum ReviewTargetType {
+  AGENCY
+  CRAFTSMAN
+}
+
+model Review {
+  id           String @id @default(cuid())
+  authorUserId String
+  author       User   @relation("ReviewAuthor", fields: [authorUserId], references: [id], onDelete: Cascade)
+
+  targetType ReviewTargetType
+  targetId   String // Agency.id ou Craftsman.id
+
+  rating  Int // 1-5
+  comment String? @db.Text
+
+  // Modération. Par défaut publié, admin peut cacher.
+  hidden       Boolean @default(false)
+  hiddenReason String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([authorUserId, targetType, targetId])
+  @@index([targetType, targetId, hidden])
+  @@index([hidden, createdAt])
+}
+
+// Workflow de résiliation d'un bail (initié bailleur OU locataire).
+// Préavis calculé automatiquement selon loi 67-12 : 3 mois bailleur,
+// 1 mois locataire (30 jours déclencheur pour habitation).
+enum TerminationInitiator {
+  LANDLORD
+  TENANT
+}
+
+enum TerminationStatus {
+  REQUESTED
+  ACCEPTED
+  REJECTED
+  COMPLETED // bail effectivement résilié, EDL sortie programmé
+}
+
+model LeaseTerminationRequest {
+  id      String @id @default(cuid())
+  leaseId String @unique
+  lease   Lease  @relation("LeaseTerminationRequest", fields: [leaseId], references: [id], onDelete: Cascade)
+
+  initiator     TerminationInitiator
+  requestedById String
+  requester     User                 @relation("TerminationRequester", fields: [requestedById], references: [id], onDelete: Restrict)
+
+  reason        String   @db.Text
+  // Date d'effet calculée = requestedAt + préavis selon initiator.
+  effectiveDate DateTime
+
+  status        TerminationStatus @default(REQUESTED)
+  respondedById String?
+  responder     User?             @relation("TerminationResponder", fields: [respondedById], references: [id], onDelete: SetNull)
+  respondedAt   DateTime?
+  responseNotes String?           @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, effectiveDate])
+}
+
+// Restitution du dépôt de garantie en fin de bail. Calcul retenues =
+// cautionTotal - somme retentions. Une fois statut SENT, attestation
+// PDF générée dans DocumentVault.
+enum DepositReturnStatus {
+  DRAFT
+  FINALIZED // attestation générée
+  SENT // versé au locataire
+  DISPUTED // locataire conteste
+}
+
+model SecurityDepositReturn {
+  id      String @id @default(cuid())
+  leaseId String @unique
+  lease   Lease  @relation("LeaseDepositReturn", fields: [leaseId], references: [id], onDelete: Cascade)
+
+  depositTotal   Int // snapshot depuis Lease.depositAmount
+  // Retenues = JSON array [{label, amount, receiptUrl?}]
+  retentions     Json   @default("[]")
+  amountReturned Int // depositTotal - somme retentions
+  currency       String @default("MAD")
+
+  attestationDocId String?
+  attestationDoc   DocumentVault? @relation("DepositAttestation", fields: [attestationDocId], references: [id], onDelete: SetNull)
+
+  status        DepositReturnStatus @default(DRAFT)
+  processedById String
+  processor     User                @relation("DepositProcessor", fields: [processedById], references: [id], onDelete: Restrict)
+  processedAt   DateTime            @default(now())
+  sentAt        DateTime?
+
+  tenantAckedAt DateTime? // acquittement locataire
+  disputeReason String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Incident / sinistre déclaré sur un bail actif (fuite majeure, vol,
+// dégâts, voisinage). Distinct de ServiceRequest qui est une demande
+// d'intervention planifiée.
+enum IncidentStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  CLOSED
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Incident {
+  id      String @id @default(cuid())
+  leaseId String
+  lease   Lease  @relation("LeaseIncidents", fields: [leaseId], references: [id], onDelete: Cascade)
+
+  reportedById String
+  reporter     User   @relation("IncidentReporter", fields: [reportedById], references: [id], onDelete: Restrict)
+
+  title       String
+  description String           @db.Text
+  severity    IncidentSeverity @default(MEDIUM)
+  status      IncidentStatus   @default(OPEN)
+
+  resolvedAt      DateTime?
+  resolutionNotes String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([leaseId, status])
+  @@index([status, severity])
 }

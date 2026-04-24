@@ -8,7 +8,7 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { CITIES } from "@/data/cities";
 import { PROPERTY_TYPE_LABEL, PROPERTY_TYPES, AMENITIES, CONDITION_LABEL } from "@/data/taxonomy";
 import { createListing, updateListing, type CrudResult } from "@/actions/pro-listings";
-import { ImageUploader } from "@/components/pro/image-uploader";
+import { ListingPhotosManager } from "@/components/pro/listing-photos-manager";
 
 export interface ListingFormInitial {
   id?: string;
@@ -217,74 +217,25 @@ export function ListingForm({ initial = {}, editId }: Props) {
         </div>
       </Section>
 
-      {/* Photos */}
+      {/* Photos — gestionnaire multi-photos drag & drop */}
       <Section n="06" title="Photos">
         <Field
-          label="Photo principale"
-          error={fieldErrors.coverImage}
-          hint="Uploadez une image ou collez une URL publique."
+          label="Photos du bien"
+          error={fieldErrors.coverImage ?? fieldErrors.additionalImages}
+          hint="Glissez vos photos ou cliquez. La 1ère photo est la couverture. Glissez pour réordonner."
         >
-          <ImageUploader value={coverImage} onChange={setCoverImage} />
-          <div className="mt-2">
-            <Input
-              type="url"
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
-              placeholder="…ou collez une URL : https://images.unsplash.com/photo-…"
-              aria-label="URL de la photo principale"
-            />
-          </div>
-          <input type="hidden" name="coverImage" value={coverImage} />
+          <ListingPhotosManager
+            initial={[
+              ...(coverImage ? [coverImage] : []),
+              ...extraImages,
+            ]}
+            onChange={(urls) => {
+              setCoverImage(urls[0] ?? "");
+              setExtraImages(urls.slice(1));
+            }}
+            maxPhotos={15}
+          />
         </Field>
-
-        <div className="mt-6">
-          <Field
-            label="Photos supplémentaires (optionnel)"
-            error={fieldErrors.additionalImages}
-            hint={`${extraImages.length}/12 images · ajoutez-en en uploadant ou en collant une URL.`}
-          >
-            <div className="space-y-2">
-              {extraImages.map((url, i) => (
-                <div
-                  key={`${url}-${i}`}
-                  className="flex items-center gap-3 rounded-md border border-midnight/10 bg-cream p-2"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt="" className="h-12 w-12 shrink-0 rounded-md object-cover" />
-                  <p className="mono truncate text-[10px] uppercase tracking-[0.12em] text-muted">
-                    {url.replace(/^https?:\/\//, "")}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setExtraImages((p) => p.filter((_, j) => j !== i))}
-                    className="mono ml-auto shrink-0 rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] hover:border-danger hover:text-danger"
-                  >
-                    Retirer
-                  </button>
-                </div>
-              ))}
-              {extraImages.length < 12 && (
-                <ImageUploader
-                  value=""
-                  onChange={(url) => {
-                    if (url) setExtraImages((p) => (p.includes(url) ? p : [...p, url]));
-                  }}
-                />
-              )}
-              <ExtraUrlInput
-                disabled={extraImages.length >= 12}
-                onAdd={(url) =>
-                  setExtraImages((p) => (p.includes(url) ? p : [...p, url]))
-                }
-              />
-            </div>
-            <input
-              type="hidden"
-              name="additionalImages"
-              value={extraImages.join("\n")}
-            />
-          </Field>
-        </div>
       </Section>
 
       {error && (

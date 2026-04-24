@@ -13,6 +13,8 @@ interface Props {
   isAgency: boolean;
   isDeveloper: boolean;
   isAdmin: boolean;
+  isLandlord?: boolean;
+  isTenant?: boolean;
   unreadMessages?: number;
 }
 
@@ -23,6 +25,8 @@ export function UserMenu({
   isAgency,
   isDeveloper,
   isAdmin,
+  isLandlord = false,
+  isTenant = false,
   unreadMessages = 0,
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -105,20 +109,98 @@ export function UserMenu({
             <MenuLink href="/favoris" onSelect={() => setOpen(false)}>
               Favoris
             </MenuLink>
-            <MenuLink href="/recherches" onSelect={() => setOpen(false)}>
+            <MenuLink href="/compte/alertes" onSelect={() => setOpen(false)}>
               Mes alertes
             </MenuLink>
+            <MenuLink href="/compte/notifications" onSelect={() => setOpen(false)}>
+              Notifications
+            </MenuLink>
+
+            {/* Section Locataire */}
+            {isTenant && (
+              <>
+                <div className="border-t border-midnight/10" />
+                <p className="mono px-4 pt-3 text-[9px] uppercase tracking-[0.14em] text-terracotta">
+                  Locataire
+                </p>
+                <MenuLink href="/locataire/dossier" onSelect={() => setOpen(false)}>
+                  Mon dossier
+                </MenuLink>
+                <MenuLink href="/locataire/candidatures" onSelect={() => setOpen(false)}>
+                  Mes candidatures
+                </MenuLink>
+                <MenuLink href="/locataire/visites" onSelect={() => setOpen(false)}>
+                  Mes visites
+                </MenuLink>
+                <MenuLink href="/locataire/baux" onSelect={() => setOpen(false)}>
+                  Mes baux
+                </MenuLink>
+              </>
+            )}
+
+            {/* Section Bailleur particulier */}
+            {isLandlord && !isAgency && (
+              <>
+                <div className="border-t border-midnight/10" />
+                <p className="mono px-4 pt-3 text-[9px] uppercase tracking-[0.14em] text-terracotta">
+                  Bailleur — Mise en location
+                </p>
+                <MenuLink href="/bailleur/dashboard" onSelect={() => setOpen(false)}>
+                  Tableau de bord
+                </MenuLink>
+                <MenuLink href="/bailleur/candidatures" onSelect={() => setOpen(false)}>
+                  Candidatures
+                </MenuLink>
+                <MenuLink href="/bailleur/visites" onSelect={() => setOpen(false)}>
+                  Visites
+                </MenuLink>
+                <p className="mono px-4 pt-3 text-[9px] uppercase tracking-[0.14em] text-terracotta">
+                  Bailleur — Gestion locative
+                </p>
+                <MenuLink href="/bailleur/portefeuille" onSelect={() => setOpen(false)}>
+                  Mon portefeuille
+                </MenuLink>
+                <MenuLink href="/bailleur/baux" onSelect={() => setOpen(false)}>
+                  Mes baux
+                </MenuLink>
+                <MenuLink href="/bailleur/finances" onSelect={() => setOpen(false)}>
+                  Finances
+                </MenuLink>
+                <MenuLink href="/bailleur/interventions" onSelect={() => setOpen(false)}>
+                  Interventions
+                </MenuLink>
+              </>
+            )}
+
             {isAgency && (
               <>
                 <div className="border-t border-midnight/10" />
+                <p className="mono px-4 pt-3 text-[9px] uppercase tracking-[0.14em] text-terracotta">
+                  Agence
+                </p>
                 <MenuLink href="/pro/dashboard" onSelect={() => setOpen(false)}>
                   Tableau de bord
+                </MenuLink>
+                <MenuLink href="/pro/listings" onSelect={() => setOpen(false)}>
+                  Annonces
                 </MenuLink>
                 <MenuLink href="/pro/leads" onSelect={() => setOpen(false)}>
                   Leads
                 </MenuLink>
+                <MenuLink href="/bailleur/candidatures" onSelect={() => setOpen(false)}>
+                  Candidatures
+                </MenuLink>
+                <MenuLink href="/bailleur/baux" onSelect={() => setOpen(false)}>
+                  Baux
+                </MenuLink>
+                <MenuLink href="/bailleur/finances" onSelect={() => setOpen(false)}>
+                  Finances
+                </MenuLink>
                 <MenuLink href="/pro/agence" onSelect={() => setOpen(false)}>
                   Profil agence
+                </MenuLink>
+                <MenuLink href="/pro/agence/equipe" onSelect={() => setOpen(false)}>
+                  Équipe
                 </MenuLink>
               </>
             )}
@@ -136,8 +218,20 @@ export function UserMenu({
             {isAdmin && (
               <>
                 <div className="border-t border-midnight/10" />
-                <MenuLink href="/admin" onSelect={() => setOpen(false)}>
+                <p className="mono px-4 pt-3 text-[9px] uppercase tracking-[0.14em] text-terracotta">
                   Admin
+                </p>
+                <MenuLink href="/admin" onSelect={() => setOpen(false)}>
+                  Modération
+                </MenuLink>
+                <MenuLink href="/admin/business" onSelect={() => setOpen(false)}>
+                  Business
+                </MenuLink>
+                <MenuLink href="/admin/kyc" onSelect={() => setOpen(false)}>
+                  KYC
+                </MenuLink>
+                <MenuLink href="/admin/artisans" onSelect={() => setOpen(false)}>
+                  Artisans
                 </MenuLink>
               </>
             )}

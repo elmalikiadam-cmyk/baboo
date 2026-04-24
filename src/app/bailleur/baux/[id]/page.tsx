@@ -9,6 +9,7 @@ import { LeaseWorkflowActions } from "@/components/bailleur/lease-workflow-actio
 import { InventoryCta } from "@/components/inventory/inventory-cta";
 import { RentLedger } from "@/components/rent/rent-ledger";
 import { ensureRentPeriods } from "@/actions/rent";
+import { isYousignEnabled } from "@/lib/yousign";
 
 export const metadata: Metadata = {
   title: "Bail — Baboo",
@@ -225,6 +226,8 @@ export default async function LeaseDetailPage({
             signedUrl={signedUrl}
             generatedFilename={lease.generatedDoc?.filename ?? null}
             signedFilename={lease.signedDoc?.filename ?? null}
+            signatureStatus={lease.signatureStatus}
+            yousignEnabled={isYousignEnabled()}
           />
 
           <section className="space-y-2 rounded-2xl border border-midnight/10 bg-cream p-5">
