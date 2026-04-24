@@ -85,6 +85,16 @@ export default async function PartnersBillingPage() {
           </a>
           . Crédité sous 24 h ouvrées.
         </p>
+        {unlocks.length > 0 && (
+          <p className="mt-4">
+            <a
+              href="/api/partners/billing/export"
+              className="mono inline-flex items-center text-[10px] uppercase tracking-[0.12em] text-midnight hover:text-terracotta"
+            >
+              Exporter l'historique en CSV →
+            </a>
+          </p>
+        )}
       </div>
 
       <section className="mt-10">

@@ -42,6 +42,7 @@ factuel, concret, pas de claim, pas de ROI imaginé.
 - [ ] Token QStash + signing keys (current + next)
 - [ ] Schedule Upstash créé :
   - `/api/webhooks/qstash/promoter-weekly-reports` tous les lundis 08:00 UTC
+  - `/api/webhooks/qstash/expire-search-requests` quotidien 04:00 UTC
   - `/api/webhooks/qstash/saved-searches` tous les matins (si actif)
   - `/api/webhooks/qstash/rent-reminders` quotidien 06:00 UTC
 
