@@ -13,6 +13,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
+import { isFeatureEnabled } from "@/lib/features";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -97,6 +98,10 @@ export async function unlockSearchRequest(
   partnerId: string,
   searchRequestId: string,
 ): Promise<Result> {
+  if (!isFeatureEnabled("partnerRouting")) {
+    return { ok: false, error: "Lead routing désactivé." };
+  }
+
   // V1 : simple vérif email du user connecté = email partenaire.
   const session = await auth();
   if (!session?.user?.email) return { ok: false, error: "Connectez-vous." };

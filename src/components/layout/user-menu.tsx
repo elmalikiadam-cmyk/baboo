@@ -140,12 +140,17 @@ export function UserMenu({
               </>
             )}
 
-            {/* Section Bailleur particulier */}
+            {/* Section Bailleur particulier — V4 simplifiée :
+                  · Tableau de bord en entrée principale (regroupe annonces,
+                    packs visites, visites managées, rapports récents)
+                  · Candidatures + Visites en accès direct
+                  · Gestion locative groupée (utilisée seulement par les
+                    bailleurs qui ont déjà signé un bail) */}
             {isLandlord && !isAgency && (
               <>
                 <div className="border-t border-midnight/10" />
                 <p className="mono px-4 pt-3 text-[9px] uppercase tracking-[0.14em] text-terracotta">
-                  Bailleur — Mise en location
+                  Bailleur
                 </p>
                 <MenuLink href="/bailleur/dashboard" onSelect={() => setOpen(false)}>
                   Tableau de bord
@@ -159,21 +164,25 @@ export function UserMenu({
                 <MenuLink href="/bailleur/visites-managees" onSelect={() => setOpen(false)}>
                   Visites managées
                 </MenuLink>
-                <p className="mono px-4 pt-3 text-[9px] uppercase tracking-[0.14em] text-terracotta">
-                  Bailleur — Gestion locative
-                </p>
-                <MenuLink href="/bailleur/portefeuille" onSelect={() => setOpen(false)}>
-                  Mon portefeuille
-                </MenuLink>
-                <MenuLink href="/bailleur/baux" onSelect={() => setOpen(false)}>
-                  Mes baux
-                </MenuLink>
-                <MenuLink href="/bailleur/finances" onSelect={() => setOpen(false)}>
-                  Finances
-                </MenuLink>
-                <MenuLink href="/bailleur/interventions" onSelect={() => setOpen(false)}>
-                  Interventions
-                </MenuLink>
+                <details className="border-t border-midnight/5 group">
+                  <summary className="cursor-pointer px-4 py-3 text-muted-foreground transition hover:bg-cream-2 hover:text-midnight">
+                    Gestion locative
+                  </summary>
+                  <div className="bg-cream-2/40">
+                    <MenuLink href="/bailleur/baux" onSelect={() => setOpen(false)}>
+                      Mes baux
+                    </MenuLink>
+                    <MenuLink href="/bailleur/portefeuille" onSelect={() => setOpen(false)}>
+                      Portefeuille
+                    </MenuLink>
+                    <MenuLink href="/bailleur/finances" onSelect={() => setOpen(false)}>
+                      Finances
+                    </MenuLink>
+                    <MenuLink href="/bailleur/interventions" onSelect={() => setOpen(false)}>
+                      Interventions
+                    </MenuLink>
+                  </div>
+                </details>
               </>
             )}
 

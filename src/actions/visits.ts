@@ -21,6 +21,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 import { schedulePost, cancelScheduled, isQStashEnabled } from "@/lib/qstash";
 import { assignVisitToAgent } from "@/lib/visit-dispatcher";
+import { isFeatureEnabled } from "@/lib/features";
 
 type Result =
   | { ok: true; id?: string }
@@ -109,6 +110,12 @@ export async function createVisitSlot(form: FormData): Promise<Result> {
     d.listingId,
   );
   if (!can) return { ok: false, error: "Accès refusé." };
+
+  // Feature flag : si les visites managées sont désactivées en prod,
+  // on ignore silencieusement le toggle (le bailleur garde la main).
+  if (d.managedByBaboo && !isFeatureEnabled("managedVisits")) {
+    d.managedByBaboo = false;
+  }
 
   // Si le bailleur veut un créneau managé, vérifier qu'un pack actif
   // avec des crédits disponibles existe. Les visites managées sont
@@ -322,7 +329,7 @@ export async function bookVisit(
   // Si créneau managé : créer ManagedVisit + consommer un crédit pack +
   // dispatcher à un agent. On best-effort : si rien ne matche, le booking
   // reste valide mais le bailleur sera notifié.
-  if (slotManaged) {
+  if (slotManaged && isFeatureEnabled("managedVisits")) {
     const pack = await db.visitPack.findFirst({
       where: {
         listingId: slot.listing.id,

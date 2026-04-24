@@ -10,6 +10,7 @@ import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import { hasEmailProvider, notifyAgencyOfLead } from "@/lib/email";
+import { isFeatureEnabled } from "@/lib/features";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -33,6 +34,9 @@ const KIND_LABEL: Record<Kind, string> = {
 export async function requestOwnerService(
   form: FormData,
 ): Promise<Result> {
+  if (!isFeatureEnabled("ownerServices")) {
+    return { ok: false, error: "Service indisponible pour le moment." };
+  }
   if (!hasDb()) return { ok: false, error: "Base indisponible." };
 
   const email = String(form.get("email") ?? "");

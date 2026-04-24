@@ -34,9 +34,10 @@ export function ListingCard({ listing, variant = "default", priority }: Props) {
         ? "aspect-[5/4]"
         : "aspect-[4/3]";
 
-  const publisherLabel = listing.agency?.name
-    ? listing.agency.name.toUpperCase()
-    : "PARTICULIER";
+  // Phase 4.1 — on n'affiche plus le nom de l'agence côté public.
+  // L'utilisateur particulier ne fait pas la différence entre 50 marques
+  // d'agences ; le seul signal pertinent est « vérifié Baboo » ou non.
+  const verifiedBadge = listing.agency?.verified;
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-md border border-midnight/10 bg-cream transition-transform hover:-translate-y-0.5">
@@ -86,9 +87,10 @@ export function ListingCard({ listing, variant = "default", priority }: Props) {
         </h3>
 
         <p className="mono mt-1 text-[11px] text-muted-foreground">
-          {publisherLabel}
-          {listing.agency?.verified && (
-            <span className="ml-1 text-terracotta">· VÉRIFIÉ</span>
+          {verifiedBadge ? (
+            <span className="text-terracotta">VÉRIFIÉ BABOO</span>
+          ) : (
+            <span>{isRent ? "LOCATION" : "VENTE"} · BABOO</span>
           )}
         </p>
 

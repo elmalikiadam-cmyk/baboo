@@ -6,10 +6,16 @@
 // QStash : cette action n'est accessible qu'aux admins connectés.
 
 import { revalidatePath } from "next/cache";
+import { renderToBuffer } from "@react-pdf/renderer";
 import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
 import { sendPromoterWeeklyDigest } from "@/lib/email";
 import { absoluteUrl } from "@/lib/resend";
+import {
+  isPrivateStorageEnabled,
+  uploadToPrivateStorage,
+} from "@/lib/storage";
+import { PromoterReportPdf } from "@/lib/promoter-report-pdf";
 
 type Result =
   | { ok: true; generated: number; skipped: number }
@@ -88,6 +94,58 @@ export async function runPromoterWeeklyReports(): Promise<Result> {
         })
       : [];
 
+    let pdfDocId: string | null = null;
+    if (isPrivateStorageEnabled()) {
+      try {
+        const dev = await db.developer.findUnique({
+          where: { id: pack.developer.id },
+          select: { userId: true },
+        });
+        if (dev?.userId) {
+          const buf = await renderToBuffer(
+            PromoterReportPdf({
+              data: {
+                developerName: pack.developer.name,
+                weekStart,
+                weekEnd,
+                visits: 0,
+                leads,
+                messages: 0,
+                topLeads: topLeads as Array<{
+                  name: string;
+                  email: string;
+                  message: string;
+                }>,
+                generatedAt: new Date(),
+              },
+            }),
+          );
+          const isoWeek = weekStart.toISOString().slice(0, 10);
+          const objectPath = `promoter-reports/${pack.id}/${isoWeek}.pdf`;
+          await uploadToPrivateStorage({
+            objectPath,
+            body: buf,
+            contentType: "application/pdf",
+          });
+          const doc = await db.documentVault.create({
+            data: {
+              userId: dev.userId,
+              category: "PROMOTER_REPORT",
+              path: objectPath,
+              filename: `rapport-baboo-${isoWeek}.pdf`,
+              mimeType: "application/pdf",
+              size: buf.length,
+              relatedEntityId: `promoter-pack:${pack.id}`,
+            },
+            select: { id: true },
+          });
+          pdfDocId = doc.id;
+        }
+      } catch {
+        /* best-effort */
+      }
+    }
+
     await db.$transaction([
       db.promoterWeeklyReport.create({
         data: {
@@ -98,6 +156,7 @@ export async function runPromoterWeeklyReports(): Promise<Result> {
           leadsCount: leads,
           messagesCount: 0,
           topVisitorsSnapshot: topLeads as unknown as object,
+          pdfDocId,
           sentAt: new Date(),
         },
       }),
