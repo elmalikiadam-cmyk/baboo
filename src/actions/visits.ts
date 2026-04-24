@@ -14,12 +14,13 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { VisitBookingStatus } from "@prisma/client";
+import { VisitBookingStatus, ManagedVisitStatus } from "@prisma/client";
 import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 import { schedulePost, cancelScheduled, isQStashEnabled } from "@/lib/qstash";
+import { assignVisitToAgent } from "@/lib/visit-dispatcher";
 
 type Result =
   | { ok: true; id?: string }
@@ -65,6 +66,10 @@ const createSlotSchema = z
     endsAt: z.coerce.date(),
     maxBookings: z.coerce.number().int().min(1).max(20).default(1),
     internalNote: z.string().trim().max(1000).optional().or(z.literal("")),
+    managedByBaboo: z
+      .union([z.string(), z.boolean(), z.undefined()])
+      .transform((v) => v === "1" || v === "true" || v === true)
+      .default(false),
   })
   .refine((v) => v.endsAt > v.startsAt, {
     message: "Fin après début.",
@@ -93,6 +98,7 @@ export async function createVisitSlot(form: FormData): Promise<Result> {
     endsAt: form.get("endsAt") ?? "",
     maxBookings: form.get("maxBookings") ?? 1,
     internalNote: form.get("internalNote") ?? "",
+    managedByBaboo: form.get("managedByBaboo") ?? "",
   });
   if (!parsed.success) return { ok: false, ...flattenZod(parsed.error) };
   const d = parsed.data;
@@ -103,6 +109,35 @@ export async function createVisitSlot(form: FormData): Promise<Result> {
     d.listingId,
   );
   if (!can) return { ok: false, error: "Accès refusé." };
+
+  // Si le bailleur veut un créneau managé, vérifier qu'un pack actif
+  // avec des crédits disponibles existe. Les visites managées sont
+  // toujours 1 candidat / créneau (un agent = un candidat).
+  if (d.managedByBaboo) {
+    const pack = await db.visitPack.findFirst({
+      where: {
+        listingId: d.listingId,
+        status: "ACTIVE",
+        expiresAt: { gt: new Date() },
+      },
+      select: { id: true, creditsTotal: true, creditsUsed: true },
+      orderBy: { createdAt: "asc" },
+    });
+    if (!pack || pack.creditsUsed >= pack.creditsTotal) {
+      return {
+        ok: false,
+        error:
+          "Aucun pack visites actif sur cette annonce. Achetez un pack pour activer le mode managé.",
+      };
+    }
+    if (d.maxBookings > 1) {
+      return {
+        ok: false,
+        error: "Les créneaux managés sont limités à 1 candidat par visite.",
+        fieldErrors: { maxBookings: "Managé = 1 candidat." },
+      };
+    }
+  }
 
   // Pas de chevauchement de créneaux sur la même annonce (on empêche
   // de créer deux slots qui se chevauchent à l'identique, mais on
@@ -130,6 +165,7 @@ export async function createVisitSlot(form: FormData): Promise<Result> {
       endsAt: d.endsAt,
       maxBookings: d.maxBookings,
       internalNote: d.internalNote ? d.internalNote : null,
+      managedByBaboo: d.managedByBaboo,
       createdBy: session.user.id,
     },
     select: { id: true },
@@ -230,6 +266,7 @@ export async function bookVisit(
       },
     },
   });
+  const slotManaged = slot?.managedByBaboo ?? false;
   if (!slot) return { ok: false, error: "Créneau introuvable." };
   if (slot.startsAt < new Date()) {
     return { ok: false, error: "Créneau passé." };
@@ -280,6 +317,41 @@ export async function bookVisit(
       },
       select: { id: true },
     });
+  }
+
+  // Si créneau managé : créer ManagedVisit + consommer un crédit pack +
+  // dispatcher à un agent. On best-effort : si rien ne matche, le booking
+  // reste valide mais le bailleur sera notifié.
+  if (slotManaged) {
+    const pack = await db.visitPack.findFirst({
+      where: {
+        listingId: slot.listing.id,
+        status: "ACTIVE",
+        expiresAt: { gt: new Date() },
+      },
+      select: { id: true, creditsTotal: true, creditsUsed: true },
+      orderBy: { createdAt: "asc" },
+    });
+    if (pack && pack.creditsUsed < pack.creditsTotal) {
+      const [managedVisit] = await db.$transaction([
+        db.managedVisit.upsert({
+          where: { bookingId: booking.id },
+          create: {
+            packId: pack.id,
+            bookingId: booking.id,
+            status: ManagedVisitStatus.REQUESTED,
+          },
+          update: {},
+          select: { id: true },
+        }),
+        db.visitPack.update({
+          where: { id: pack.id },
+          data: { creditsUsed: { increment: 1 } },
+        }),
+      ]);
+      // Dispatcher async ; ne bloque pas la réponse si l'assignation échoue
+      await assignVisitToAgent(managedVisit.id).catch(() => null);
+    }
   }
 
   // Planifie un rappel 24 h avant le créneau (best-effort).

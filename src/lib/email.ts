@@ -116,6 +116,34 @@ export async function sendEmailVerificationEmail(input: {
   await sendMail({ to: input.to, subject: "Vérifiez votre adresse email · Baboo", text });
 }
 
+export async function sendPromoterWeeklyDigest(input: {
+  to: string;
+  developerName: string;
+  visits: number;
+  leads: number;
+  messages: number;
+  dashboardUrl: string;
+}): Promise<void> {
+  const text = [
+    `Bonjour,`,
+    ``,
+    `Voici le récap de la semaine écoulée pour ${input.developerName} :`,
+    ``,
+    `• ${input.visits} visite${input.visits > 1 ? "s" : ""} organisées`,
+    `• ${input.leads} lead${input.leads > 1 ? "s" : ""} qualifiés`,
+    `• ${input.messages} message${input.messages > 1 ? "s" : ""} échangés`,
+    ``,
+    `Détail complet : ${input.dashboardUrl}`,
+    ``,
+    `— L'équipe Baboo`,
+  ].join("\n");
+  await sendMail({
+    to: input.to,
+    subject: `Rapport hebdo Baboo — ${input.developerName}`,
+    text,
+  });
+}
+
 export async function sendSavedSearchDigest(input: {
   to: string;
   name: string | null;
