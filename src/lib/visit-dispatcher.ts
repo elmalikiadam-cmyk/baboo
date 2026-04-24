@@ -21,6 +21,26 @@ type AssignResult =
   | { ok: true; agentUserId: string; agentName: string }
   | { ok: false; reason: "no-agent" | "not-found" | "db-error" };
 
+/**
+ * Tri pur des candidats agents : charge asc puis rating desc.
+ * Extrait pour pouvoir être testé sans Prisma.
+ */
+export function rankAgentCandidates<T>(
+  cands: ReadonlyArray<{
+    userId: string;
+    load: number;
+    avgRating: number | null;
+    raw: T;
+  }>,
+): ReadonlyArray<{ userId: string; raw: T }> {
+  return [...cands]
+    .sort((a, b) => {
+      if (a.load !== b.load) return a.load - b.load;
+      return (b.avgRating ?? 0) - (a.avgRating ?? 0);
+    })
+    .map((c) => ({ userId: c.userId, raw: c.raw }));
+}
+
 async function notifyOps(message: string): Promise<void> {
   const url = process.env.SLACK_OPS_WEBHOOK_URL;
   if (!url) return;
@@ -95,14 +115,15 @@ export async function assignVisitToAgent(
     return { ok: false, reason: "no-agent" };
   }
 
-  // Tri : charge asc, rating desc
-  const ranked = candidates.sort((a, b) => {
-    const aLoad = a.user.managedVisitsAsAgent.length;
-    const bLoad = b.user.managedVisitsAsAgent.length;
-    if (aLoad !== bLoad) return aLoad - bLoad;
-    return (b.avgRating ?? 0) - (a.avgRating ?? 0);
-  });
-  const best = ranked[0];
+  const ranked = rankAgentCandidates(
+    candidates.map((c) => ({
+      userId: c.user.id,
+      load: c.user.managedVisitsAsAgent.length,
+      avgRating: c.avgRating,
+      raw: c,
+    })),
+  );
+  const best = ranked[0]!.raw;
 
   // Assigner
   const now = new Date();

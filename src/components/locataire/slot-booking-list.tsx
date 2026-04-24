@@ -13,6 +13,7 @@ type Slot = {
   maxBookings: number;
   bookedCount: number;
   alreadyBooked: boolean;
+  managedByBaboo?: boolean;
 };
 
 export function SlotBookingList({ slots }: { slots: Slot[] }) {
@@ -75,6 +76,11 @@ function SlotButton({
             {slot.maxBookings > 1 &&
               ` · ${slot.maxBookings - slot.bookedCount}/${slot.maxBookings} places dispo`}
           </p>
+          {slot.managedByBaboo && (
+            <p className="mono mt-2 inline-block rounded-full bg-terracotta/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-terracotta">
+              Visite accompagnée par un agent Baboo
+            </p>
+          )}
         </div>
 
         {slot.alreadyBooked ? (
