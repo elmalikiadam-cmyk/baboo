@@ -12,7 +12,8 @@ type UserRole =
   | "DEVELOPER"
   | "ADMIN"
   | "BAILLEUR"
-  | "LOCATAIRE";
+  | "LOCATAIRE"
+  | "VISIT_AGENT";
 
 // Lecture des rôles cumulables actifs depuis UserRoleGrant.
 // Inline ici pour éviter une dépendance circulaire `src/lib/roles.ts` →

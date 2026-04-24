@@ -118,7 +118,11 @@ export default async function ListingPage({ params }: Props) {
   );
   const jsonLd = listingJsonLd(listing, siteUrl);
 
-  const publisherName = listing.agency?.name ?? "Annonceur particulier";
+  // L'identité de l'annonceur est masquée pour les agences en V1 —
+  // Baboo se positionne directement vers particuliers et promoteurs.
+  // Si listing.agencyId est présent, on affiche "Particulier" par défaut
+  // (les agences restent en DB pour réouverture Q2/Q3).
+  const publisherName = "Annonceur particulier";
   const pricePerSqm =
     listing.surface > 0 && listing.propertyType !== "LAND"
       ? formatPricePerSqm(listing.price, listing.surface).replace(" MAD/m²", "")
@@ -175,10 +179,7 @@ export default async function ListingPage({ params }: Props) {
         <section className="container mt-8 grid gap-10 lg:grid-cols-[1fr_380px]">
           <div>
             <p className="eyebrow">
-              {(listing.agency?.name ?? "Particulier").toUpperCase()}
-              {listing.agency?.verified && (
-                <span className="ml-2 text-terracotta">· VÉRIFIÉ</span>
-              )}
+              PARTICULIER
             </p>
             <h1 className="display-xl mt-2 text-4xl md:text-6xl text-midnight">
               {listing.title}
@@ -341,28 +342,13 @@ export default async function ListingPage({ params }: Props) {
                     .toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="display-lg flex items-center gap-2 text-lg">
+                  <p className="display-lg text-lg">
                     {publisherName}
-                    {listing.agency?.verified && (
-                      <ShieldCheckIcon className="h-4 w-4 text-forest" />
-                    )}
                   </p>
                   <p className="mono mt-1 text-[11px] text-muted">
-                    {listing.agency
-                      ? listing.agency.verified
-                        ? "AGENCE VÉRIFIÉE"
-                        : "PROFESSIONNEL"
-                      : "PARTICULIER"}
+                    PARTICULIER
                   </p>
                 </div>
-                {listing.agency?.slug && (
-                  <Link
-                    href={`/agence/${listing.agency.slug}`}
-                    className="inline-flex h-10 shrink-0 items-center rounded-full border-2 border-midnight px-5 text-xs font-semibold text-midnight hover:bg-midnight hover:text-cream"
-                  >
-                    Voir le profil →
-                  </Link>
-                )}
               </div>
             </div>
 
@@ -429,16 +415,7 @@ export default async function ListingPage({ params }: Props) {
               <ContactCard
                 listingId={listing.id}
                 listingTitle={listing.title}
-                agency={
-                  listing.agency
-                    ? {
-                        name: listing.agency.name,
-                        slug: listing.agency.slug,
-                        verified: listing.agency.verified,
-                        logo: listing.agency.logo,
-                      }
-                    : null
-                }
+                agency={null}
                 phone={listing.agency?.phone}
               />
             </div>

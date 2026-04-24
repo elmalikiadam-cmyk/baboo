@@ -6,7 +6,8 @@ type UserRole =
   | "DEVELOPER"
   | "ADMIN"
   | "BAILLEUR"
-  | "LOCATAIRE";
+  | "LOCATAIRE"
+  | "VISIT_AGENT";
 
 // Augmentation de la Session pour typer les champs custom accessibles
 // depuis les Server Components via `await auth()`.

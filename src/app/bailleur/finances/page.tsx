@@ -54,6 +54,18 @@ export default async function FinancesPage() {
         </p>
       </header>
 
+      {/* Bandeau Phase 4.1 — gestion locative = outil de rétention gratuit */}
+      <div className="mt-6 rounded-2xl border border-forest/30 bg-forest/5 p-5">
+        <p className="mono text-[10px] uppercase tracking-[0.14em] text-forest">
+          ✓ Inclus
+        </p>
+        <p className="mt-2 text-sm text-midnight">
+          Vos outils de suivi locatif (registre des loyers, quittances,
+          relances, EDL) sont offerts avec Baboo. Aucun abonnement, pas
+          de frais cachés.
+        </p>
+      </div>
+
       {/* 4 KPI */}
       <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard

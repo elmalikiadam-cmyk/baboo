@@ -15,6 +15,7 @@ const ROLE_PRIORITY: Readonly<Record<UserRole, number>> = {
   ADMIN: 100,
   AGENCY: 80,
   DEVELOPER: 70,
+  VISIT_AGENT: 60,
   BAILLEUR: 50,
   LOCATAIRE: 30,
   USER: 10,

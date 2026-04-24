@@ -20,6 +20,7 @@ enum UserRole {
   ADMIN
   BAILLEUR
   LOCATAIRE
+  VISIT_AGENT // Agent Baboo qui réalise les visites managées (Phase 2)
 }
 
 model User {
@@ -90,6 +91,11 @@ model User {
   leaseTerminationResponses       LeaseTerminationRequest[] @relation("TerminationResponder")
   securityDepositReturnsProcessed SecurityDepositReturn[]   @relation("DepositProcessor")
   incidentsReported               Incident[]                @relation("IncidentReporter")
+
+  // Packs visites + agents (Phase 2 commerciale)
+  visitPacks           VisitPack[]        @relation("VisitPackOwner")
+  managedVisitsAsAgent ManagedVisit[]     @relation("ManagedVisitAgent")
+  visitAgentProfile    VisitAgentProfile? @relation("VisitAgentProfileUser")
 }
 
 // Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
@@ -343,6 +349,7 @@ model Listing {
   visitSlots    VisitSlot[]         @relation("ListingVisitSlots")
   visitBookings VisitBooking[]      @relation("ListingVisitBookings")
   leases        Lease[]             @relation("ListingLeases")
+  visitPacks    VisitPack[]         @relation("VisitPackListing")
 
   @@index([citySlug, transaction, propertyType])
   @@index([status, publishedAt])
@@ -841,6 +848,11 @@ model VisitSlot {
   // de tampon », « code porte 4567 », etc.).
   internalNote String? @db.Text
 
+  // Phase 2 — si true, les réservations sur ce créneau seront
+  // converties en ManagedVisit (agent Baboo se déplace, rapport
+  // fourni). Exige un VisitPack ACTIVE sur le listing.
+  managedByBaboo Boolean @default(false)
+
   createdAt DateTime @default(now())
   createdBy String
   creator   User     @relation("VisitSlotCreator", fields: [createdBy], references: [id], onDelete: Cascade)
@@ -882,6 +894,11 @@ model VisitBooking {
   // envoi.
   reminderScheduledId String?
   reminderSentAt      DateTime?
+
+  // Lien vers une visite managée par un agent Baboo (Phase 2). Si
+  // défini, la visite est consommée par un pack et réalisée par un
+  // agent — le bailleur n'a pas à se déplacer.
+  managedVisit ManagedVisit? @relation("BookingManagedVisit")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1540,4 +1557,139 @@ model Incident {
 
   @@index([leaseId, status])
   @@index([status, severity])
+}
+
+// ========== PHASE 2 — Packs visites (service managé Baboo) ==========
+
+enum VisitPackType {
+  LOCATION_10 // 10 visites location à 1200 MAD
+  LOCATION_25 // 25 visites location à 2500 MAD
+  VENTE_5 // 5 visites vente à 2500 MAD
+  VENTE_10 // 10 visites vente à 4500 MAD
+  DECOUVERTE_3 // 3 visites location à 400 MAD (découverte)
+}
+
+enum VisitPackStatus {
+  PENDING_PAYMENT // Checkout créé, paiement pas encore confirmé
+  ACTIVE // Acheté, crédits disponibles
+  EXHAUSTED // Tous les crédits consommés
+  EXPIRED // Date d'expiration dépassée
+  REFUNDED // Remboursé admin
+}
+
+// Pack de visites vendu au bailleur. Chaque pack finance N visites
+// managées par nos agents Baboo. Scope : rattaché à UNE annonce (strict),
+// expiration 12 mois après l'achat.
+model VisitPack {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation("VisitPackOwner", fields: [userId], references: [id], onDelete: Cascade)
+
+  type   VisitPackType
+  status VisitPackStatus @default(PENDING_PAYMENT)
+
+  // Crédits
+  creditsTotal Int // nb visites incluses
+  creditsUsed  Int @default(0)
+
+  // Financier (MAD, snapshot au moment de l'achat)
+  amountPaid Int
+
+  // Paiement
+  paymentProvider  String // "cmi" | "stripe" | "manual"
+  paymentReference String // transaction id / payment_intent id
+  paidAt           DateTime?
+
+  // Expiration
+  expiresAt DateTime
+
+  // Restriction : le pack s'applique à une annonce spécifique (scope).
+  // Nullable si user achète avant de publier, à lier ensuite.
+  listingId String?
+  listing   Listing? @relation("VisitPackListing", fields: [listingId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  managedVisits ManagedVisit[]
+
+  @@index([userId, status])
+  @@index([listingId])
+}
+
+enum ManagedVisitStatus {
+  REQUESTED // Bailleur a demandé une visite managée
+  ASSIGNED // Assignée à un agent
+  CONFIRMED // Agent a confirmé la mission
+  COMPLETED // Visite réalisée, rapport soumis
+  NO_SHOW // Candidat absent
+  CANCELLED // Annulée (bailleur, candidat, ou agent)
+}
+
+// Visite managée par un agent Baboo — financée par un VisitPack.
+// 1 ManagedVisit = 1 créneau + 1 rapport post-visite.
+model ManagedVisit {
+  id String @id @default(cuid())
+
+  packId String
+  pack   VisitPack @relation(fields: [packId], references: [id], onDelete: Restrict)
+
+  // Lien au VisitBooking existant (créneau + candidat)
+  bookingId String       @unique
+  booking   VisitBooking @relation("BookingManagedVisit", fields: [bookingId], references: [id], onDelete: Cascade)
+
+  // Agent Baboo assigné (rôle VISIT_AGENT)
+  agentUserId String?
+  agent       User?   @relation("ManagedVisitAgent", fields: [agentUserId], references: [id], onDelete: SetNull)
+
+  status ManagedVisitStatus @default(REQUESTED)
+
+  // Rapport post-visite (rempli par l'agent)
+  reportSubmittedAt           DateTime?
+  candidateScore              Int? // 1-5 stars
+  candidateNotes              String?   @db.Text
+  candidatePhoneVerified      Boolean   @default(false)
+  candidateEmploymentVerified Boolean   @default(false)
+  candidatePresented          Boolean   @default(false) // candidat s'est présenté
+  propertyConditionNotes      String?   @db.Text
+  internalNotes               String?   @db.Text // notes internes agent, pas visibles bailleur
+  recommendForLandlord        Boolean? // "je recommande ce candidat"
+
+  // Photos prises pendant la visite (paths bucket privé)
+  photoPaths String[]
+
+  assignedAt         DateTime?
+  confirmedAt        DateTime?
+  completedAt        DateTime?
+  cancelledAt        DateTime?
+  cancellationReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([agentUserId, status])
+  @@index([packId])
+  @@index([status])
+}
+
+// Profil agent Baboo (VISIT_AGENT). Stocke les zones couvertes, la
+// spécialité, le statut actif et les stats de performance.
+model VisitAgentProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation("VisitAgentProfileUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  speciality   String // "LOCATION" | "VENTE" | "BOTH"
+  cityCoverage String[] // array de slugs de villes
+  status       String   @default("ACTIVE") // "ACTIVE" | "INACTIVE" | "SUSPENDED"
+
+  avgRating       Float?
+  totalVisits     Int    @default(0)
+  completedVisits Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, speciality])
 }
