@@ -15,6 +15,7 @@ interface Props {
   isAdmin: boolean;
   isLandlord?: boolean;
   isTenant?: boolean;
+  isVisitAgent?: boolean;
   unreadMessages?: number;
 }
 
@@ -27,6 +28,7 @@ export function UserMenu({
   isAdmin,
   isLandlord = false,
   isTenant = false,
+  isVisitAgent = false,
   unreadMessages = 0,
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -154,6 +156,9 @@ export function UserMenu({
                 <MenuLink href="/bailleur/visites" onSelect={() => setOpen(false)}>
                   Visites
                 </MenuLink>
+                <MenuLink href="/bailleur/visites-managees" onSelect={() => setOpen(false)}>
+                  Visites managées
+                </MenuLink>
                 <p className="mono px-4 pt-3 text-[9px] uppercase tracking-[0.14em] text-terracotta">
                   Bailleur — Gestion locative
                 </p>
@@ -207,11 +212,28 @@ export function UserMenu({
             {isDeveloper && (
               <>
                 <div className="border-t border-midnight/10" />
+                <p className="mono px-4 pt-3 text-[9px] uppercase tracking-[0.14em] text-terracotta">
+                  Promoteur
+                </p>
                 <MenuLink href="/developer/dashboard" onSelect={() => setOpen(false)}>
                   Tableau promoteur
                 </MenuLink>
                 <MenuLink href="/developer/projets" onSelect={() => setOpen(false)}>
                   Mes projets
+                </MenuLink>
+                <MenuLink href="/promoteur/rapports" onSelect={() => setOpen(false)}>
+                  Rapports hebdo
+                </MenuLink>
+              </>
+            )}
+            {isVisitAgent && (
+              <>
+                <div className="border-t border-midnight/10" />
+                <p className="mono px-4 pt-3 text-[9px] uppercase tracking-[0.14em] text-terracotta">
+                  Agent Baboo
+                </p>
+                <MenuLink href="/agent" onSelect={() => setOpen(false)}>
+                  Mes missions
                 </MenuLink>
               </>
             )}
@@ -223,6 +245,18 @@ export function UserMenu({
                 </p>
                 <MenuLink href="/admin" onSelect={() => setOpen(false)}>
                   Modération
+                </MenuLink>
+                <MenuLink href="/admin/metriques" onSelect={() => setOpen(false)}>
+                  Métriques
+                </MenuLink>
+                <MenuLink href="/admin/agents" onSelect={() => setOpen(false)}>
+                  Agents visites
+                </MenuLink>
+                <MenuLink href="/admin/visit-packs" onSelect={() => setOpen(false)}>
+                  Packs visites
+                </MenuLink>
+                <MenuLink href="/admin/partners" onSelect={() => setOpen(false)}>
+                  Partenaires
                 </MenuLink>
                 <MenuLink href="/admin/business" onSelect={() => setOpen(false)}>
                   Business

@@ -8,8 +8,8 @@ import { countUnreadConversations } from "@/lib/messaging";
 const NAV_ITEMS = [
   { label: "Acheter", href: "/recherche?t=sale" },
   { label: "Louer", href: "/recherche?t=rent" },
+  { label: "Je cherche", href: "/je-cherche" },
   { label: "Projets neufs", href: "/projets" },
-  { label: "Artisans", href: "/artisans" },
   { label: "Conseils", href: "/conseils" },
 ];
 
@@ -73,6 +73,7 @@ export async function SiteHeader() {
                 isAdmin={(user.roles ?? []).includes("ADMIN") || user.role === "ADMIN"}
                 isLandlord={(user.roles ?? []).includes("BAILLEUR")}
                 isTenant={(user.roles ?? []).includes("LOCATAIRE")}
+                isVisitAgent={(user.roles ?? []).includes("VISIT_AGENT") || user.role === "VISIT_AGENT"}
                 unreadMessages={unread}
               />
             </>
