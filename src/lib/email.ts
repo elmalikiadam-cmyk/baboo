@@ -116,6 +116,46 @@ export async function sendEmailVerificationEmail(input: {
   await sendMail({ to: input.to, subject: "Vérifiez votre adresse email · Baboo", text });
 }
 
+export async function sendVisitBookingConfirmation(input: {
+  to: string;
+  visitorName: string | null;
+  listingTitle: string;
+  city: string;
+  startsAt: Date;
+  managedByBaboo: boolean;
+  manageUrl: string;
+}): Promise<void> {
+  const dateStr = input.startsAt.toLocaleString("fr-FR", {
+    dateStyle: "full",
+    timeStyle: "short",
+    timeZone: "Africa/Casablanca",
+  });
+  const greeting = input.visitorName
+    ? `Bonjour ${input.visitorName},`
+    : `Bonjour,`;
+  const lines = [
+    greeting,
+    ``,
+    `Votre visite est réservée :`,
+    `· ${input.listingTitle}`,
+    `· ${input.city}`,
+    `· ${dateStr}`,
+    ``,
+    input.managedByBaboo
+      ? `Un agent Baboo vous accueillera sur place. Il vérifiera votre dossier et présentera le bien — préparez vos justificatifs (pièce d'identité, contrat de travail, derniers bulletins de salaire).`
+      : `Le bailleur vous accueillera sur place. Soyez ponctuel ; en cas d'empêchement, prévenez via votre espace : ${input.manageUrl}`,
+    ``,
+    `Voir / annuler : ${input.manageUrl}`,
+    ``,
+    `— L'équipe Baboo`,
+  ];
+  await sendMail({
+    to: input.to,
+    subject: `Visite confirmée — ${input.listingTitle}`,
+    text: lines.join("\n"),
+  });
+}
+
 export async function sendSearchRequestConfirmation(input: {
   to: string;
   contactName: string;

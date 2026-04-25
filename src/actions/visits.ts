@@ -19,6 +19,8 @@ import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { sendVisitBookingConfirmation } from "@/lib/email";
+import { absoluteUrl } from "@/lib/resend";
 import { schedulePost, cancelScheduled, isQStashEnabled } from "@/lib/qstash";
 import { assignVisitToAgent } from "@/lib/visit-dispatcher";
 import { isFeatureEnabled } from "@/lib/features";
@@ -380,10 +382,13 @@ export async function bookVisit(
     }
   }
 
-  // Confirmation WhatsApp au visiteur si provisionné + téléphone connu.
+  // Confirmation WhatsApp + email au visiteur. WhatsApp ne part que si
+  // provisionné et numéro connu ; l'email part toujours (no-op si Resend
+  // n'est pas configuré). Best-effort : on ne bloque pas la résa si l'un
+  // ou l'autre échoue.
   const visitor = await db.user.findUnique({
     where: { id: userId },
-    select: { phone: true },
+    select: { name: true, email: true, phone: true },
   });
   if (visitor?.phone) {
     const when = slot.startsAt.toLocaleString("fr-FR", {
@@ -397,6 +402,17 @@ export async function bookVisit(
       locale: "fr",
       variables: [slot.listing.title, when],
     });
+  }
+  if (visitor?.email) {
+    await sendVisitBookingConfirmation({
+      to: visitor.email,
+      visitorName: visitor.name,
+      listingTitle: slot.listing.title,
+      city: slot.listing.city.name,
+      startsAt: slot.startsAt,
+      managedByBaboo: slotManaged,
+      manageUrl: absoluteUrl("/locataire/visites"),
+    }).catch(() => null);
   }
 
   revalidatePath(`/annonce/${slot.listing.slug}/visiter`);

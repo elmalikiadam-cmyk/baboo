@@ -34,15 +34,11 @@ export default async function ProAgencyPage() {
           <p className="eyebrow">Baboo Pro · {agency.name}</p>
           <h1 className="display-xl mt-2 text-4xl md:text-5xl">Profil agence.</h1>
           <p className="mt-3 max-w-xl text-muted">
-            Ces informations s'affichent sur votre page publique <span className="mono">/agence/{agency.slug}</span>.
+            Ces informations sont visibles en interne par votre équipe.
+            La vitrine agence publique n'est pas exposée — Baboo
+            s'adresse directement aux particuliers (Phase 4).
           </p>
         </div>
-        <Link
-          href={`/agence/${agency.slug}`}
-          className="mono rounded-full border border-border px-4 py-2 text-[10px] uppercase tracking-[0.12em] hover:border-midnight"
-        >
-          Voir la page publique →
-        </Link>
       </div>
 
       <div className="mt-10 max-w-3xl">

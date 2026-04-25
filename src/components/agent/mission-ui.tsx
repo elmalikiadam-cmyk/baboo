@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label, Textarea } from "@/components/ui/input";
 import {
+  cancelMission,
   confirmMission,
   submitVisitReport,
 } from "@/actions/managed-visits";
@@ -35,9 +36,65 @@ export function ConfirmMissionButton({ missionId }: { missionId: string }) {
           {error}
         </p>
       )}
-      <Button className="mt-4" onClick={onClick} disabled={isPending}>
-        {isPending ? "…" : "Je confirme la mission"}
-      </Button>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button onClick={onClick} disabled={isPending}>
+          {isPending ? "…" : "Je confirme la mission"}
+        </Button>
+        <CancelMissionButton missionId={missionId} variant="outline" />
+      </div>
+    </div>
+  );
+}
+
+export function CancelMissionButton({
+  missionId,
+  variant = "outline",
+}: {
+  missionId: string;
+  variant?: "outline" | "danger";
+}) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  function onClick() {
+    const reason = window.prompt(
+      "Pourquoi annulez-vous cette mission ? (visible par l'équipe ops)",
+    );
+    if (!reason || reason.trim().length < 3) return;
+    if (
+      !window.confirm(
+        "Confirmer l'annulation ? Le crédit sera remboursé au bailleur, vous resterez disponible pour d'autres missions.",
+      )
+    )
+      return;
+    setError(null);
+    startTransition(async () => {
+      const res = await cancelMission(missionId, reason.trim());
+      if (res.ok) router.refresh();
+      else setError(res.error);
+    });
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={isPending}
+        className={`inline-flex h-10 items-center rounded-full px-4 text-xs font-semibold transition-colors disabled:opacity-50 ${
+          variant === "danger"
+            ? "bg-danger text-cream hover:bg-danger/90"
+            : "border border-midnight/20 text-midnight hover:border-midnight"
+        }`}
+      >
+        {isPending ? "…" : "Décliner / annuler"}
+      </button>
+      {error && (
+        <p className="mt-2 text-xs text-danger" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

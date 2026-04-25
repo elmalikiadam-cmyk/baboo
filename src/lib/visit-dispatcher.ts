@@ -16,6 +16,7 @@ import { db, hasDb } from "@/lib/db";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
 import { createNotification } from "@/lib/notifications";
 import { absoluteUrl } from "@/lib/resend";
+import { captureMessage } from "@/lib/observability";
 
 type AssignResult =
   | { ok: true; agentUserId: string; agentName: string }
@@ -112,6 +113,11 @@ export async function assignVisitToAgent(
     await notifyOps(
       `[baboo] ⚠ Visite managée ${managedVisitId} sans agent disponible à ${citySlug}. ${mv.booking.visitorUser.name ?? mv.booking.visitorUser.email} attend confirmation.`,
     );
+    captureMessage("dispatcher: no-agent", "warning", {
+      managedVisitId,
+      citySlug,
+      transaction,
+    });
     return { ok: false, reason: "no-agent" };
   }
 

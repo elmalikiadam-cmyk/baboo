@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { BabooLogo } from "@/components/layout/baboo-logo";
 import { UserMenu } from "@/components/layout/user-menu";
+import { NotificationBell } from "@/components/layout/notification-bell";
 import { MessageCircleIcon } from "@/components/ui/icons";
 import { auth } from "@/auth";
+import { db, hasDb } from "@/lib/db";
 import { countUnreadConversations } from "@/lib/messaging";
+import { countUnreadNotifications } from "@/lib/notifications";
 
 const NAV_ITEMS = [
   { label: "Acheter", href: "/recherche?t=sale" },
@@ -22,6 +25,39 @@ export async function SiteHeader() {
   const session = await auth();
   const user = session?.user;
   const unread = user?.id ? await countUnreadConversations(user.id) : 0;
+  const unreadNotifications = user?.id
+    ? await countUnreadNotifications(user.id)
+    : 0;
+  const recentNotifications =
+    user?.id && hasDb()
+      ? await db.notification
+          .findMany({
+            where: { userId: user.id },
+            orderBy: { createdAt: "desc" },
+            take: 8,
+            select: {
+              id: true,
+              type: true,
+              title: true,
+              body: true,
+              linkUrl: true,
+              readAt: true,
+              createdAt: true,
+            },
+          })
+          .then((rows) =>
+            rows.map((r) => ({
+              id: r.id,
+              type: r.type,
+              title: r.title,
+              body: r.body,
+              linkUrl: r.linkUrl,
+              readAt: r.readAt ? r.readAt.toISOString() : null,
+              createdAt: r.createdAt.toISOString(),
+            })),
+          )
+          .catch(() => [])
+      : [];
 
   return (
     <header className="sticky top-0 z-40 border-b border-midnight/10 bg-cream/95 backdrop-blur-md">
@@ -45,9 +81,13 @@ export async function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-4 md:flex">
+        <div className="hidden items-center gap-3 md:flex">
           {user ? (
             <>
+              <NotificationBell
+                unread={unreadNotifications}
+                recent={recentNotifications}
+              />
               <Link
                 href="/messages"
                 aria-label="Messagerie"
@@ -95,19 +135,29 @@ export async function SiteHeader() {
           )}
         </div>
 
-        {/* Mobile : avatar utilisateur ou bouton connexion */}
+        {/* Mobile : notif bell + avatar (cliquable vers /compte) ou bouton connexion */}
         <div className="flex items-center gap-2 md:hidden">
           {user ? (
-            <div className="grid h-10 w-10 place-items-center rounded-full bg-midnight text-cream">
-              <span className="mono text-[11px] font-semibold">
-                {(user.name ?? user.email ?? "?")
-                  .split(" ")
-                  .slice(0, 2)
-                  .map((w) => w[0] ?? "")
-                  .join("")
-                  .toUpperCase()}
-              </span>
-            </div>
+            <>
+              <NotificationBell
+                unread={unreadNotifications}
+                recent={recentNotifications}
+              />
+              <Link
+                href="/compte"
+                aria-label="Mon compte"
+                className="grid h-10 w-10 place-items-center rounded-full bg-midnight text-cream transition-colors hover:bg-midnight/90"
+              >
+                <span className="mono text-[11px] font-semibold">
+                  {(user.name ?? user.email ?? "?")
+                    .split(" ")
+                    .slice(0, 2)
+                    .map((w) => w[0] ?? "")
+                    .join("")
+                    .toUpperCase()}
+                </span>
+              </Link>
+            </>
           ) : (
             <Link
               href="/connexion"

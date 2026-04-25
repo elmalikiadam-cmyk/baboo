@@ -3,7 +3,11 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
-import { ConfirmMissionButton, ReportForm } from "@/components/agent/mission-ui";
+import {
+  CancelMissionButton,
+  ConfirmMissionButton,
+  ReportForm,
+} from "@/components/agent/mission-ui";
 
 export const metadata: Metadata = {
   title: "Mission — Agent Baboo",
@@ -152,7 +156,24 @@ export default async function AgentMissionPage({
               )}
             </div>
           ) : isReportable ? (
-            <ReportForm missionId={mv.id} />
+            <>
+              <ReportForm missionId={mv.id} />
+              {mv.status === "CONFIRMED" && (
+                <div className="mt-4 rounded-2xl border border-midnight/10 bg-cream p-4">
+                  <p className="mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                    Empêchement de dernière minute ?
+                  </p>
+                  <p className="mt-2 text-xs text-midnight">
+                    Vous pouvez encore vous désengager. L'équipe ops
+                    réassignera la mission. Le crédit sera remboursé au
+                    bailleur.
+                  </p>
+                  <div className="mt-3">
+                    <CancelMissionButton missionId={mv.id} />
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <p className="rounded-2xl border border-midnight/10 bg-cream p-5 text-sm text-muted-foreground">
               Cette mission est au statut {mv.status}. Aucune action requise.
