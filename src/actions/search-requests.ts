@@ -20,7 +20,10 @@ import { db, hasDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import { sendEmail, absoluteUrl } from "@/lib/resend";
 import { renderEmailLayout } from "@/lib/resend";
+import { sendSearchRequestConfirmation } from "@/lib/email";
 import { createNotification } from "@/lib/notifications";
+import { buildSearchMatchWhere } from "@/lib/search-match";
+import { CITIES } from "@/data/cities";
 
 type Result =
   | { ok: true; id: string; matchCount: number }
@@ -84,23 +87,9 @@ export async function createSearchRequest(
   const session = await auth();
   const userId = session?.user?.id ?? null;
 
-  // Chercher des matches immédiats
-  const matchWhere: Record<string, unknown> = {
-    status: "PUBLISHED",
-    transaction: parsed.data.transaction,
-    propertyType: parsed.data.propertyType,
-    citySlug: parsed.data.citySlug,
-    price: { lte: parsed.data.budgetMax },
-  };
-  if (parsed.data.minBedrooms != null) {
-    matchWhere.bedrooms = { gte: parsed.data.minBedrooms };
-  }
-  if (parsed.data.minSurface != null) {
-    matchWhere.surface = { gte: parsed.data.minSurface };
-  }
-  if (parsed.data.furnished) {
-    matchWhere.furnished = true;
-  }
+  // Chercher des matches immédiats — on résout d'abord les quartiers
+  // (slug → id) puis on délègue à la fonction pure buildSearchMatchWhere.
+  let neighborhoodIds: string[] = [];
   if (parsed.data.neighborhoodSlugs.length > 0) {
     const ns = await db.neighborhood.findMany({
       where: {
@@ -109,13 +98,24 @@ export async function createSearchRequest(
       },
       select: { id: true },
     });
-    if (ns.length > 0) {
-      matchWhere.neighborhoodId = { in: ns.map((n) => n.id) };
-    }
+    neighborhoodIds = ns.map((n) => n.id);
   }
 
+  const matchWhere = buildSearchMatchWhere({
+    transaction: parsed.data.transaction,
+    propertyType: parsed.data.propertyType,
+    citySlug: parsed.data.citySlug,
+    budgetMax: parsed.data.budgetMax,
+    minBedrooms: parsed.data.minBedrooms,
+    minSurface: parsed.data.minSurface,
+    furnished: parsed.data.furnished,
+    neighborhoodIds,
+  });
+
   const matches = await db.listing.findMany({
-    where: matchWhere,
+    // SearchMatchWhere typing matches at runtime ; cast pour aider Prisma
+    // qui veut ses enums fortement typés.
+    where: matchWhere as never,
     orderBy: { publishedAt: "desc" },
     take: 20,
     select: {
@@ -151,7 +151,22 @@ export async function createSearchRequest(
     select: { id: true },
   });
 
-  // Email au visiteur avec les matches (si ≥ 1)
+  // Confirmation visiteur — toujours envoyée, qu'il y ait des matches
+  // ou pas. Donne au candidat la confirmation que sa demande a bien
+  // été enregistrée et un lien pour la gérer.
+  const cityName =
+    CITIES.find((c) => c.slug === parsed.data.citySlug)?.name ??
+    parsed.data.citySlug;
+  await sendSearchRequestConfirmation({
+    to: parsed.data.contactEmail,
+    contactName: parsed.data.contactName,
+    matchCount: matches.length,
+    city: cityName,
+    transaction: parsed.data.transaction,
+    manageUrl: absoluteUrl("/compte/recherches"),
+  }).catch(() => null);
+
+  // Email au visiteur avec les matches HTML détaillé (si ≥ 1)
   if (matches.length > 0) {
     const listRows = matches
       .slice(0, 5)

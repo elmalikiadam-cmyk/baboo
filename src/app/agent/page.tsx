@@ -3,6 +3,11 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
+import { CITIES } from "@/data/cities";
+import {
+  AvailabilityToggle,
+  CoverageEditor,
+} from "@/components/agent/availability-controls";
 
 export const metadata: Metadata = {
   title: "Tableau de bord agent — Baboo",
@@ -85,6 +90,16 @@ export default async function AgentDashboardPage() {
           }
         />
       </dl>
+
+      <section className="mt-8 grid gap-4 md:grid-cols-2">
+        <AvailabilityToggle status={profile.status} />
+        <CoverageEditor
+          initialCities={profile.cityCoverage}
+          initialSpeciality={profile.speciality}
+          status={profile.status}
+          cities={CITIES.map((c) => ({ slug: c.slug, name: c.name }))}
+        />
+      </section>
 
       <section className="mt-10">
         <h2 className="display-md text-xl">Missions à venir</h2>
