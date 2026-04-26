@@ -267,6 +267,9 @@ export function UserMenu({
                 <MenuLink href="/admin/partners" onSelect={() => setOpen(false)}>
                   Partenaires
                 </MenuLink>
+                <MenuLink href="/admin/search-requests" onSelect={() => setOpen(false)}>
+                  Recherches /je-cherche
+                </MenuLink>
                 <MenuLink href="/admin/business" onSelect={() => setOpen(false)}>
                   Business
                 </MenuLink>

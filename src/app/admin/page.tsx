@@ -107,12 +107,13 @@ export default async function AdminDashboard() {
 
       <nav
         aria-label="Raccourcis admin"
-        className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6"
+        className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-7"
       >
         <AdminShortcut href="/admin/metriques" label="Métriques" />
         <AdminShortcut href="/admin/agents" label="Agents visites" />
         <AdminShortcut href="/admin/visit-packs" label="Packs visites" />
         <AdminShortcut href="/admin/partners" label="Partenaires" />
+        <AdminShortcut href="/admin/search-requests" label="Recherches" />
         <AdminShortcut href="/admin/kyc" label="KYC" />
         <AdminShortcut href="/admin/business" label="Business" />
       </nav>
