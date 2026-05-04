@@ -61,8 +61,21 @@ export function ListingForm({ initial = {}, editId }: Props) {
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
+    // Les photos sont gérées en state React (ListingPhotosManager) ;
+    // on les réinjecte ici pour qu'elles arrivent au schéma Zod côté
+    // serveur. Sans cette étape, coverImage est vide et la validation
+    // échoue silencieusement avec « URL de photo invalide. »
+    form.set("coverImage", coverImage);
+    form.set("additionalImages", extraImages.join("\n"));
     setError(null);
     setFieldErrors({});
+    if (!coverImage) {
+      setError(
+        "Ajoutez au moins une photo du bien — la première sert de photo de couverture.",
+      );
+      setFieldErrors({ coverImage: "Photo de couverture requise." });
+      return;
+    }
     startTransition(async () => {
       let res: CrudResult;
       if (editId) {

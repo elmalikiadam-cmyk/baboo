@@ -14,12 +14,16 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { VisitBookingStatus } from "@prisma/client";
+import { VisitBookingStatus, ManagedVisitStatus } from "@prisma/client";
 import { auth } from "@/auth";
 import { db, hasDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { sendVisitBookingConfirmation } from "@/lib/email";
+import { absoluteUrl } from "@/lib/resend";
 import { schedulePost, cancelScheduled, isQStashEnabled } from "@/lib/qstash";
+import { assignVisitToAgent } from "@/lib/visit-dispatcher";
+import { isFeatureEnabled } from "@/lib/features";
 
 type Result =
   | { ok: true; id?: string }
@@ -65,6 +69,10 @@ const createSlotSchema = z
     endsAt: z.coerce.date(),
     maxBookings: z.coerce.number().int().min(1).max(20).default(1),
     internalNote: z.string().trim().max(1000).optional().or(z.literal("")),
+    managedByBaboo: z
+      .union([z.string(), z.boolean(), z.undefined()])
+      .transform((v) => v === "1" || v === "true" || v === true)
+      .default(false),
   })
   .refine((v) => v.endsAt > v.startsAt, {
     message: "Fin après début.",
@@ -93,6 +101,7 @@ export async function createVisitSlot(form: FormData): Promise<Result> {
     endsAt: form.get("endsAt") ?? "",
     maxBookings: form.get("maxBookings") ?? 1,
     internalNote: form.get("internalNote") ?? "",
+    managedByBaboo: form.get("managedByBaboo") ?? "",
   });
   if (!parsed.success) return { ok: false, ...flattenZod(parsed.error) };
   const d = parsed.data;
@@ -103,6 +112,41 @@ export async function createVisitSlot(form: FormData): Promise<Result> {
     d.listingId,
   );
   if (!can) return { ok: false, error: "Accès refusé." };
+
+  // Feature flag : si les visites managées sont désactivées en prod,
+  // on ignore silencieusement le toggle (le bailleur garde la main).
+  if (d.managedByBaboo && !isFeatureEnabled("managedVisits")) {
+    d.managedByBaboo = false;
+  }
+
+  // Si le bailleur veut un créneau managé, vérifier qu'un pack actif
+  // avec des crédits disponibles existe. Les visites managées sont
+  // toujours 1 candidat / créneau (un agent = un candidat).
+  if (d.managedByBaboo) {
+    const pack = await db.visitPack.findFirst({
+      where: {
+        listingId: d.listingId,
+        status: "ACTIVE",
+        expiresAt: { gt: new Date() },
+      },
+      select: { id: true, creditsTotal: true, creditsUsed: true },
+      orderBy: { createdAt: "asc" },
+    });
+    if (!pack || pack.creditsUsed >= pack.creditsTotal) {
+      return {
+        ok: false,
+        error:
+          "Aucun pack visites actif sur cette annonce. Achetez un pack pour activer le mode managé.",
+      };
+    }
+    if (d.maxBookings > 1) {
+      return {
+        ok: false,
+        error: "Les créneaux managés sont limités à 1 candidat par visite.",
+        fieldErrors: { maxBookings: "Managé = 1 candidat." },
+      };
+    }
+  }
 
   // Pas de chevauchement de créneaux sur la même annonce (on empêche
   // de créer deux slots qui se chevauchent à l'identique, mais on
@@ -130,6 +174,7 @@ export async function createVisitSlot(form: FormData): Promise<Result> {
       endsAt: d.endsAt,
       maxBookings: d.maxBookings,
       internalNote: d.internalNote ? d.internalNote : null,
+      managedByBaboo: d.managedByBaboo,
       createdBy: session.user.id,
     },
     select: { id: true },
@@ -230,6 +275,7 @@ export async function bookVisit(
       },
     },
   });
+  const slotManaged = slot?.managedByBaboo ?? false;
   if (!slot) return { ok: false, error: "Créneau introuvable." };
   if (slot.startsAt < new Date()) {
     return { ok: false, error: "Créneau passé." };
@@ -282,6 +328,41 @@ export async function bookVisit(
     });
   }
 
+  // Si créneau managé : créer ManagedVisit + consommer un crédit pack +
+  // dispatcher à un agent. On best-effort : si rien ne matche, le booking
+  // reste valide mais le bailleur sera notifié.
+  if (slotManaged && isFeatureEnabled("managedVisits")) {
+    const pack = await db.visitPack.findFirst({
+      where: {
+        listingId: slot.listing.id,
+        status: "ACTIVE",
+        expiresAt: { gt: new Date() },
+      },
+      select: { id: true, creditsTotal: true, creditsUsed: true },
+      orderBy: { createdAt: "asc" },
+    });
+    if (pack && pack.creditsUsed < pack.creditsTotal) {
+      const [managedVisit] = await db.$transaction([
+        db.managedVisit.upsert({
+          where: { bookingId: booking.id },
+          create: {
+            packId: pack.id,
+            bookingId: booking.id,
+            status: ManagedVisitStatus.REQUESTED,
+          },
+          update: {},
+          select: { id: true },
+        }),
+        db.visitPack.update({
+          where: { id: pack.id },
+          data: { creditsUsed: { increment: 1 } },
+        }),
+      ]);
+      // Dispatcher async ; ne bloque pas la réponse si l'assignation échoue
+      await assignVisitToAgent(managedVisit.id).catch(() => null);
+    }
+  }
+
   // Planifie un rappel 24 h avant le créneau (best-effort).
   const remindAt = new Date(slot.startsAt.getTime() - 24 * 3600 * 1000);
   const delaySec = Math.max(60, Math.floor((remindAt.getTime() - Date.now()) / 1000));
@@ -301,10 +382,13 @@ export async function bookVisit(
     }
   }
 
-  // Confirmation WhatsApp au visiteur si provisionné + téléphone connu.
+  // Confirmation WhatsApp + email au visiteur. WhatsApp ne part que si
+  // provisionné et numéro connu ; l'email part toujours (no-op si Resend
+  // n'est pas configuré). Best-effort : on ne bloque pas la résa si l'un
+  // ou l'autre échoue.
   const visitor = await db.user.findUnique({
     where: { id: userId },
-    select: { phone: true },
+    select: { name: true, email: true, phone: true },
   });
   if (visitor?.phone) {
     const when = slot.startsAt.toLocaleString("fr-FR", {
@@ -318,6 +402,17 @@ export async function bookVisit(
       locale: "fr",
       variables: [slot.listing.title, when],
     });
+  }
+  if (visitor?.email) {
+    await sendVisitBookingConfirmation({
+      to: visitor.email,
+      visitorName: visitor.name,
+      listingTitle: slot.listing.title,
+      city: slot.listing.city.name,
+      startsAt: slot.startsAt,
+      managedByBaboo: slotManaged,
+      manageUrl: absoluteUrl("/locataire/visites"),
+    }).catch(() => null);
   }
 
   revalidatePath(`/annonce/${slot.listing.slug}/visiter`);

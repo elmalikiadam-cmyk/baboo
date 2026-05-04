@@ -13,6 +13,7 @@ type Slot = {
   maxBookings: number;
   bookedCount: number;
   alreadyBooked: boolean;
+  managedByBaboo?: boolean;
 };
 
 export function SlotBookingList({ slots }: { slots: Slot[] }) {
@@ -75,6 +76,11 @@ function SlotButton({
             {slot.maxBookings > 1 &&
               ` · ${slot.maxBookings - slot.bookedCount}/${slot.maxBookings} places dispo`}
           </p>
+          {slot.managedByBaboo && (
+            <p className="mono mt-2 inline-block rounded-full bg-terracotta/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-terracotta">
+              Visite accompagnée par un agent Baboo
+            </p>
+          )}
         </div>
 
         {slot.alreadyBooked ? (
@@ -97,13 +103,22 @@ function SlotButton({
       </div>
 
       {selected && !slot.alreadyBooked && !full && (
-        <BookingForm slotId={slot.id} />
+        <BookingForm
+          slotId={slot.id}
+          managed={slot.managedByBaboo ?? false}
+        />
       )}
     </li>
   );
 }
 
-function BookingForm({ slotId }: { slotId: string }) {
+function BookingForm({
+  slotId,
+  managed,
+}: {
+  slotId: string;
+  managed: boolean;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
@@ -123,20 +138,42 @@ function BookingForm({ slotId }: { slotId: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-4 space-y-3 border-t border-midnight/10 pt-4">
+    <form
+      onSubmit={onSubmit}
+      className="mt-4 space-y-3 border-t border-midnight/10 pt-4"
+    >
+      {managed && (
+        <div className="rounded-xl bg-terracotta/5 p-3 text-xs text-midnight">
+          <strong>Visite accompagnée Baboo.</strong> Un agent vous
+          accueille sur place, vérifie votre dossier et présente le
+          bien. Un rapport est envoyé au bailleur ; vous restez libre
+          d'accepter ou non.
+        </div>
+      )}
       <div className="space-y-1.5">
-        <Label htmlFor={`msg-${slotId}`}>Message au bailleur (optionnel)</Label>
+        <Label htmlFor={`msg-${slotId}`}>
+          {managed
+            ? "Présentez-vous brièvement (visible par l'agent)"
+            : "Message au bailleur (optionnel)"}
+        </Label>
         <Textarea
           id={`msg-${slotId}`}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={3}
           maxLength={1000}
-          placeholder="Infos utiles, contexte familial, références…"
+          placeholder={
+            managed
+              ? "Profil, contexte du projet, questions à préparer…"
+              : "Infos utiles, contexte familial, références…"
+          }
         />
       </div>
       {error && (
-        <p className="rounded-full bg-danger/10 px-3 py-2 text-xs text-danger" role="alert">
+        <p
+          className="rounded-full bg-danger/10 px-3 py-2 text-xs text-danger"
+          role="alert"
+        >
           {error}
         </p>
       )}

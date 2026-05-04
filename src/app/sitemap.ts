@@ -12,7 +12,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/`, lastModified: now, changeFrequency: "daily", priority: 1 },
     { url: `${BASE}/recherche?t=sale`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE}/recherche?t=rent`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${BASE}/pro`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${BASE}/je-cherche`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+    { url: `${BASE}/publier`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+    { url: `${BASE}/projets`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE}/promoteurs`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/agents`, lastModified: now, changeFrequency: "weekly", priority: 0.55 },
+    { url: `${BASE}/agent/rejoindre`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${BASE}/partners`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${BASE}/conseils`, lastModified: now, changeFrequency: "weekly", priority: 0.5 },
+    { url: `${BASE}/pro`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
   ];
 
   for (const city of CITIES) {

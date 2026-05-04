@@ -36,9 +36,21 @@ export default async function TenantVisitsPage() {
           where: { visitorUserId: session.user.id },
           orderBy: { slot: { startsAt: "asc" } },
           include: {
-            slot: { select: { startsAt: true, endsAt: true } },
+            slot: {
+              select: {
+                startsAt: true,
+                endsAt: true,
+                managedByBaboo: true,
+              },
+            },
             listing: {
               select: { slug: true, title: true, city: { select: { name: true } } },
+            },
+            managedVisit: {
+              select: {
+                status: true,
+                agent: { select: { name: true } },
+              },
             },
           },
         })
@@ -91,6 +103,13 @@ export default async function TenantVisitsPage() {
                         timeStyle: "short",
                       })}
                     </p>
+                    {b.slot.managedByBaboo && (
+                      <p className="mono mt-2 inline-block rounded-full bg-terracotta/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-terracotta">
+                        Visite accompagnée Baboo
+                        {b.managedVisit?.agent?.name &&
+                          ` · ${b.managedVisit.agent.name}`}
+                      </p>
+                    )}
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     <span

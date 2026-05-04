@@ -96,6 +96,9 @@ model User {
   visitPacks           VisitPack[]        @relation("VisitPackOwner")
   managedVisitsAsAgent ManagedVisit[]     @relation("ManagedVisitAgent")
   visitAgentProfile    VisitAgentProfile? @relation("VisitAgentProfileUser")
+
+  // Phase 3 — Lead routing
+  searchRequests SearchRequest[] @relation("SearchRequestUser")
 }
 
 // Grants de rôles cumulables, avec audit (qui a accordé, quand, jusqu'à quand).
@@ -156,7 +159,8 @@ model Developer {
   verified    Boolean  @default(false)
   createdAt   DateTime @default(now())
 
-  projects Project[]
+  projects       Project[]
+  promoterPacks  PromoterPack[] @relation("PromoterPackDeveloper")
 }
 
 // ---------- Geo ----------
@@ -458,10 +462,16 @@ model Project {
   status       ProjectStatus @default(SELLING)
   createdAt    DateTime      @default(now())
 
+  // Phase 3 — Promoteur B2B : un projet peut être rattaché à un pack
+  // promoteur pour mesurer ROI, publier highlights, générer reporting.
+  promoterPackId String?
+  promoterPack   PromoterPack? @relation("PromoterPackProjects", fields: [promoterPackId], references: [id], onDelete: SetNull)
+
   units ProjectUnit[]
   leads Lead[]
 
   @@index([citySlug])
+  @@index([promoterPackId])
 }
 
 model ProjectUnit {
@@ -627,6 +637,7 @@ enum DocumentCategory {
   INCIDENT // photos / pièces d'un sinistre
   PROPERTY_DEED // titre foncier, acte notarié
   TAX_DECLARATION // déclaration IR foncier
+  PROMOTER_REPORT // Phase 3 — rapport hebdo promoteur
   OTHER
 }
 
@@ -662,6 +673,9 @@ model DocumentVault {
 
   // Phase 2 — attestation restitution dépôt de garantie
   depositAttestations SecurityDepositReturn[] @relation("DepositAttestation")
+
+  // Phase 3 — PDF weekly reports for promoter packs
+  promoterReports PromoterWeeklyReport[] @relation("PromoterReportDoc")
 
   @@index([userId, category])
   @@index([relatedEntityId])
@@ -1354,6 +1368,8 @@ enum NotificationType {
   VISIT_BOOKED // bailleur reçoit réservation visite
   VISIT_CONFIRMED // locataire confirmation bailleur
   VISIT_REMINDER // T-24h (déjà via WhatsApp, doublé in-app)
+  VISIT_REPORT_READY // bailleur : rapport post-visite managée dispo
+  VISIT_CANCELLED // bailleur : mission managée annulée
   LEASE_GENERATED // locataire : bail dispo
   LEASE_SIGNED // bailleur : les 2 ont signé
   LEASE_ACTIVATED // locataire : bail actif
@@ -1692,4 +1708,177 @@ model VisitAgentProfile {
   updatedAt DateTime @updatedAt
 
   @@index([status, speciality])
+}
+
+// ========== PHASE 3 — Promoteurs B2B + Lead routing ==========
+
+enum PromoterPackTier {
+  DECOUVERTE   // essai : 1 projet, 5 visites, 25k MAD/mois
+  CROISSANCE   // 3 projets, 20 visites, 60k MAD/mois
+  SUR_MESURE   // dossier négocié, amount manuel
+}
+
+enum PromoterPackStatus {
+  PENDING_SIGNATURE
+  ACTIVE
+  PAUSED
+  ENDED
+}
+
+// Pack commercial vendu à un promoteur — inclut publication de projets,
+// visites managées, reporting hebdo, éventuellement co-marketing.
+model PromoterPack {
+  id String @id @default(cuid())
+
+  developerId String
+  developer   Developer @relation("PromoterPackDeveloper", fields: [developerId], references: [id], onDelete: Cascade)
+
+  tier   PromoterPackTier
+  status PromoterPackStatus @default(PENDING_SIGNATURE)
+
+  // Économie (MAD ; 0 si tier SUR_MESURE pas encore chiffré)
+  amountMonthly Int @default(0)
+  amountOneShot Int @default(0)
+
+  // Scope inclus
+  projectsIncluded       Int @default(1)
+  managedVisitsIncluded  Int @default(0)
+  featuredOnHomepage     Boolean @default(false)
+  coMarketingBudget      Int @default(0) // budget campagnes co-financées
+
+  // Reporting cumulé (dénormalisé pour dashboards rapides)
+  totalVisitsDelivered Int @default(0)
+  totalLeadsDelivered  Int @default(0)
+  lastReportAt         DateTime?
+
+  // Contrat
+  contractStart DateTime
+  contractEnd   DateTime?
+  notes         String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects Project[] @relation("PromoterPackProjects")
+  reports  PromoterWeeklyReport[]
+
+  @@index([developerId, status])
+  @@index([status, contractEnd])
+}
+
+// Rapport hebdomadaire généré tous les lundis par QStash cron.
+model PromoterWeeklyReport {
+  id     String       @id @default(cuid())
+  packId String
+  pack   PromoterPack @relation(fields: [packId], references: [id], onDelete: Cascade)
+
+  weekStart DateTime
+  weekEnd   DateTime
+
+  visitsCount    Int @default(0)
+  leadsCount     Int @default(0)
+  messagesCount  Int @default(0)
+  topVisitorsSnapshot Json? // [{ name, score, city }]
+
+  pdfDocId String?
+  pdfDoc   DocumentVault? @relation("PromoterReportDoc", fields: [pdfDocId], references: [id], onDelete: SetNull)
+
+  sentAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@unique([packId, weekStart])
+  @@index([packId, weekStart])
+}
+
+enum SearchRequestStatus {
+  ACTIVE    // aucun match à ce jour, on notifie si nouveau listing publié
+  MATCHED   // au moins un match immédiat envoyé par email
+  ROUTED    // lead routé à au moins un PartnerAgency
+  CONVERTED // a débouché sur un lead entrant qualifié
+  EXPIRED
+}
+
+// Demande /je-cherche — un particulier décrit son besoin.
+// Baboo matche des annonces existantes OU route vers agences partenaires.
+model SearchRequest {
+  id String @id @default(cuid())
+
+  // Nullable : permet le dépôt sans compte (formulaire public), lié ensuite si login
+  userId String?
+  user   User?   @relation("SearchRequestUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  contactName  String
+  contactEmail String
+  contactPhone String
+
+  transaction       String   // "RENT" | "SALE"
+  propertyType      String   // "APARTMENT" | "HOUSE" | "VILLA" | ...
+  citySlug          String
+  neighborhoodSlugs String[]
+  budgetMax         Int
+  minBedrooms       Int?
+  minSurface        Int?
+  furnished         Boolean?
+  timeline          String?  // "month" | "quarter" | "flexible"
+  freeText          String?  @db.Text
+
+  status            SearchRequestStatus @default(ACTIVE)
+  matchedListingIds String[]
+  routingRevenue    Int @default(0) // MAD encaissés via PartnerLeadUnlock
+
+  consentGiven Boolean @default(false)
+  expiresAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  partnerUnlocks PartnerLeadUnlock[]
+
+  @@index([citySlug, transaction, status])
+  @@index([status, createdAt])
+  @@index([contactEmail])
+}
+
+// Agence partenaire externe (hors plateforme Baboo) qui peut acheter
+// l'accès à un SearchRequest pour travailler le lead directement.
+model PartnerAgency {
+  id String @id @default(cuid())
+
+  name         String
+  contactName  String
+  contactEmail String @unique
+  contactPhone String?
+
+  citySlugs String[]
+
+  creditBalance Int @default(0) // MAD disponibles en pré-paiement
+  totalSpent    Int @default(0)
+
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leadUnlocks PartnerLeadUnlock[]
+
+  @@index([active])
+}
+
+// Déblocage d'un SearchRequest par une agence partenaire (unique).
+model PartnerLeadUnlock {
+  id String @id @default(cuid())
+
+  partnerId String
+  partner   PartnerAgency @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  searchRequestId String
+  searchRequest   SearchRequest @relation(fields: [searchRequestId], references: [id], onDelete: Cascade)
+
+  pricePaid Int
+  unlockedAt DateTime @default(now())
+
+  @@unique([partnerId, searchRequestId])
+  @@index([partnerId])
+  @@index([searchRequestId])
 }

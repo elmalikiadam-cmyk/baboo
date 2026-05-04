@@ -56,6 +56,20 @@ export default async function VisitSlotsPage({
     },
   });
 
+  const activePack = await db.visitPack.findFirst({
+    where: {
+      listingId: listing.id,
+      status: "ACTIVE",
+      expiresAt: { gt: new Date() },
+    },
+    select: { creditsTotal: true, creditsUsed: true },
+    orderBy: { createdAt: "asc" },
+  });
+  const hasActivePack = !!activePack;
+  const remainingCredits = activePack
+    ? activePack.creditsTotal - activePack.creditsUsed
+    : 0;
+
   const upcoming = slots.filter((s) => s.startsAt > new Date());
   const past = slots.filter((s) => s.startsAt <= new Date());
 
@@ -87,7 +101,11 @@ export default async function VisitSlotsPage({
         <section>
           <h2 className="display-md text-xl">Nouveau créneau</h2>
           <div className="mt-5">
-            <SlotCreateForm listingId={listing.id} />
+            <SlotCreateForm
+              listingId={listing.id}
+              hasActivePack={hasActivePack}
+              remainingCredits={remainingCredits}
+            />
           </div>
         </section>
 

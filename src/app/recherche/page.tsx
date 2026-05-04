@@ -134,12 +134,17 @@ function EmptyState({ transaction }: { transaction: "SALE" | "RENT" }) {
       <h2 className="display-md">Aucune annonce ne correspond.</h2>
       <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
         Essayez d'élargir votre budget ou de retirer quelques filtres.
+        Ou laissez-nous votre recherche : on vous prévient dès qu'un
+        bien correspondant est publié.
       </p>
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap justify-center gap-3">
         <Link href={buildSearchHref({ transaction })}>
           <Button variant="outline" size="md">
             Réinitialiser les filtres
           </Button>
+        </Link>
+        <Link href="/je-cherche">
+          <Button size="md">Créer une alerte personnalisée →</Button>
         </Link>
       </div>
     </div>

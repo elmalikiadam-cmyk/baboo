@@ -5,7 +5,8 @@ import { useState, useMemo } from "react";
 type Mode = "rent" | "sale";
 
 // Packs visites Baboo (Strate 2 — communication produit, factuel)
-const RENT_PACK_PRICE = 1200; // MAD pour 10 visites location
+// Exemple de référence mis en avant sur la home : 1 000 MAD / 5 visites.
+const RENT_PACK_PRICE = 1000; // MAD pour 5 visites location
 const SALE_PACK_PRICE = 2500; // MAD pour 5 visites vente
 
 // Approche traditionnelle marché marocain
@@ -36,7 +37,7 @@ export function CostCalculator() {
         traditional: trad,
         baboo: RENT_PACK_PRICE,
         saving: Math.max(0, trad - RENT_PACK_PRICE),
-        bacboSubline: "Pack 10 visites location — forfait fixe",
+        bacboSubline: "5 visites location — forfait fixe",
       };
     }
     const trad = salePrice * TRADITIONAL_SALE_COMMISSION_PCT;
@@ -44,7 +45,7 @@ export function CostCalculator() {
       traditional: trad,
       baboo: SALE_PACK_PRICE,
       saving: Math.max(0, trad - SALE_PACK_PRICE),
-      bacboSubline: "Pack 5 visites vente — forfait fixe",
+      bacboSubline: "5 visites vente — forfait fixe",
     };
   }, [mode, rent, salePrice]);
 
@@ -121,8 +122,11 @@ export function CostCalculator() {
         </div>
 
         <div className="rounded-xl border border-terracotta/30 bg-terracotta/5 p-5">
-          <p className="mono text-[10px] uppercase tracking-[0.14em] text-terracotta">
-            Avec Baboo
+          <p className="mono flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em] text-terracotta">
+            <span>Avec</span>
+            <span className="display-xl text-[14px] tracking-tight text-terracotta">
+              Baboo
+            </span>
           </p>
           <p className="display-xl mt-3 text-3xl text-terracotta">
             {formatMAD(baboo)}{" "}

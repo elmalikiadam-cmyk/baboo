@@ -37,7 +37,7 @@ export default async function DeveloperDashboard() {
   const developerId = session.user.developerId;
   if (!hasDb()) return null;
 
-  const [developer, projects, stats] = await Promise.all([
+  const [developer, projects, stats, pack] = await Promise.all([
     db.developer.findUnique({ where: { id: developerId } }),
     db.project.findMany({
       where: { developerId },
@@ -55,6 +55,10 @@ export default async function DeveloperDashboard() {
         },
       }),
     ]),
+    db.promoterPack.findFirst({
+      where: { developerId, status: "ACTIVE" },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
   if (!developer) redirect("/");
   const [totalProjects, totalLeads, leads30d] = stats;
@@ -90,6 +94,35 @@ export default async function DeveloperDashboard() {
         <Stat label="Leads (30j)" value={String(leads30d)} tone="dark" />
         <Stat label="Leads total" value={String(totalLeads)} />
       </dl>
+
+      {pack && (
+        <div className="mt-8 rounded-2xl border border-terracotta/30 bg-terracotta/5 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <div>
+              <p className="eyebrow text-terracotta">Pack promoteur actif</p>
+              <p className="display-md mt-2 text-lg">
+                {pack.tier} · Jusqu'au{" "}
+                {pack.contractEnd
+                  ? pack.contractEnd.toLocaleDateString("fr-FR")
+                  : "renouvellement mensuel"}
+              </p>
+              <p className="mono mt-1 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                {pack.projectsIncluded} projet
+                {pack.projectsIncluded > 1 ? "s" : ""} ·{" "}
+                {pack.managedVisitsIncluded} visites managées ·{" "}
+                {pack.totalVisitsDelivered} délivrées ·{" "}
+                {pack.totalLeadsDelivered} leads
+              </p>
+            </div>
+            <Link
+              href="/promoteur/rapports"
+              className="inline-flex h-10 items-center rounded-full border border-terracotta px-4 text-xs font-semibold text-terracotta hover:bg-terracotta hover:text-cream"
+            >
+              Rapports hebdo →
+            </Link>
+          </div>
+        </div>
+      )}
 
       <section className="mt-14">
         <div className="mb-6 flex items-end justify-between border-b border-border pb-4">

@@ -210,10 +210,10 @@ export default async function ProDashboard() {
               <h2 className="display-xl mt-2 text-2xl md:text-3xl">Mes annonces.</h2>
             </div>
             <Link
-              href={`/agence/${agency.slug}`}
+              href="/pro/listings"
               className="mono text-[11px] uppercase tracking-[0.14em] text-muted hover:text-midnight"
             >
-              Page publique →
+              Tout voir →
             </Link>
           </div>
 

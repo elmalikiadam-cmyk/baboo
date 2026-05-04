@@ -92,25 +92,25 @@ export default function PromotersLandingPage() {
         <div className="grid gap-6 md:grid-cols-3">
           <Formula
             name="Découverte"
-            price="15 000 MAD"
-            suffix="one-shot"
+            price="25 000 MAD"
+            suffix="par mois"
             highlights={[
-              "1 projet inclus",
-              "20 visites managées",
-              "Reporting mensuel",
-              "Accompagnement 90 j",
+              "1 projet mis en ligne",
+              "5 visites managées / mois",
+              "Reporting hebdomadaire",
+              "Interlocuteur dédié",
             ]}
           />
           <Formula
             name="Croissance"
-            price="35 000 MAD"
+            price="60 000 MAD"
             suffix="par mois"
             highlights={[
-              "Jusqu'à 3 projets",
-              "Visites illimitées",
-              "Reporting hebdomadaire",
-              "Interlocuteur dédié",
+              "Jusqu'à 3 projets actifs",
+              "20 visites managées / mois",
+              "Reporting hebdomadaire + PDF",
               "Mise en avant homepage",
+              "Budget co-marketing inclus",
             ]}
             featured
           />
@@ -120,7 +120,7 @@ export default function PromotersLandingPage() {
             suffix=""
             highlights={[
               "Multi-projets (4+)",
-              "Budget co-marketing",
+              "Budget co-marketing étendu",
               "SLA garantis",
               "Reporting custom",
             ]}

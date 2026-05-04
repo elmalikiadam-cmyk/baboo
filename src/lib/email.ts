@@ -116,6 +116,113 @@ export async function sendEmailVerificationEmail(input: {
   await sendMail({ to: input.to, subject: "Vérifiez votre adresse email · Baboo", text });
 }
 
+export async function sendVisitBookingConfirmation(input: {
+  to: string;
+  visitorName: string | null;
+  listingTitle: string;
+  city: string;
+  startsAt: Date;
+  managedByBaboo: boolean;
+  manageUrl: string;
+}): Promise<void> {
+  const dateStr = input.startsAt.toLocaleString("fr-FR", {
+    dateStyle: "full",
+    timeStyle: "short",
+    timeZone: "Africa/Casablanca",
+  });
+  const greeting = input.visitorName
+    ? `Bonjour ${input.visitorName},`
+    : `Bonjour,`;
+  const lines = [
+    greeting,
+    ``,
+    `Votre visite est réservée :`,
+    `· ${input.listingTitle}`,
+    `· ${input.city}`,
+    `· ${dateStr}`,
+    ``,
+    input.managedByBaboo
+      ? `Un agent Baboo vous accueillera sur place. Il vérifiera votre dossier et présentera le bien — préparez vos justificatifs (pièce d'identité, contrat de travail, derniers bulletins de salaire).`
+      : `Le bailleur vous accueillera sur place. Soyez ponctuel ; en cas d'empêchement, prévenez via votre espace : ${input.manageUrl}`,
+    ``,
+    `Voir / annuler : ${input.manageUrl}`,
+    ``,
+    `— L'équipe Baboo`,
+  ];
+  await sendMail({
+    to: input.to,
+    subject: `Visite confirmée — ${input.listingTitle}`,
+    text: lines.join("\n"),
+  });
+}
+
+export async function sendSearchRequestConfirmation(input: {
+  to: string;
+  contactName: string;
+  matchCount: number;
+  city: string;
+  transaction: "RENT" | "SALE";
+  manageUrl: string;
+}): Promise<void> {
+  const txnLabel = input.transaction === "RENT" ? "louer" : "acheter";
+  const lines =
+    input.matchCount > 0
+      ? [
+          `Bonjour ${input.contactName},`,
+          ``,
+          `Bonne nouvelle : ${input.matchCount} annonce${input.matchCount > 1 ? "s" : ""} correspond${input.matchCount > 1 ? "ent" : ""} à votre recherche pour ${txnLabel} à ${input.city}.`,
+          ``,
+          `Détails par mail séparé. Vous pouvez aussi gérer vos recherches ici : ${input.manageUrl}`,
+          ``,
+          `— L'équipe Baboo`,
+        ]
+      : [
+          `Bonjour ${input.contactName},`,
+          ``,
+          `Votre recherche pour ${txnLabel} à ${input.city} est bien enregistrée. Nous n'avons pas encore d'annonce qui colle parfaitement, mais on vous écrit dès qu'un nouveau bien correspondant est publié.`,
+          ``,
+          `Vous pouvez modifier ou annuler votre recherche à tout moment : ${input.manageUrl}`,
+          ``,
+          `— L'équipe Baboo`,
+        ];
+  await sendMail({
+    to: input.to,
+    subject:
+      input.matchCount > 0
+        ? `${input.matchCount} annonce${input.matchCount > 1 ? "s" : ""} pour vous · Baboo`
+        : `Recherche enregistrée · Baboo`,
+    text: lines.join("\n"),
+  });
+}
+
+export async function sendPromoterWeeklyDigest(input: {
+  to: string;
+  developerName: string;
+  visits: number;
+  leads: number;
+  messages: number;
+  dashboardUrl: string;
+}): Promise<void> {
+  const text = [
+    `Bonjour,`,
+    ``,
+    `Voici le récap de la semaine écoulée pour ${input.developerName} :`,
+    ``,
+    `• ${input.visits} visite${input.visits > 1 ? "s" : ""} organisées`,
+    `• ${input.leads} lead${input.leads > 1 ? "s" : ""} qualifiés`,
+    `• ${input.messages} message${input.messages > 1 ? "s" : ""} échangés`,
+    ``,
+    `Détail complet : ${input.dashboardUrl}`,
+    ``,
+    `— L'équipe Baboo`,
+  ].join("\n");
+  await sendMail({
+    to: input.to,
+    subject: `Rapport hebdo Baboo — ${input.developerName}`,
+    text,
+  });
+}
+
 export async function sendSavedSearchDigest(input: {
   to: string;
   name: string | null;

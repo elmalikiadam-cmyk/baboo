@@ -85,7 +85,6 @@ export default async function VisitBookingPage({
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
           {listing.title} · {listing.city.name}
-          {listing.agency?.name && ` · ${listing.agency.name}`}
         </p>
       </header>
 
@@ -116,6 +115,7 @@ export default async function VisitBookingPage({
               maxBookings: s.maxBookings,
               bookedCount: s._count.bookings,
               alreadyBooked: myBookedSlotIds.has(s.id),
+              managedByBaboo: s.managedByBaboo,
             }))}
           />
           <aside className="rounded-2xl border border-midnight/10 bg-cream p-6">
